@@ -2,10 +2,10 @@
 title: 'Angular 向け Storybook のチュートリアル'
 tocTitle: 'はじめに'
 description: '開発環境に Storybook を導入しましょう'
-commit: '69a7f00'
+commit: 'bc34d9c'
 ---
 
-Storybook は開発時にアプリケーションと並行して動きます。Storybook を使用することで、UI コンポーネントをビジネスロジックやコンテキストから切り離して開発できるようになります。 この Storybook チュートリアルのバージョンは Angular 向けです。他にも [React](/intro-to-storybook/react/en/get-started)、 [React Native](/intro-to-storybook/react-native/en/get-started)、 [Vue](/intro-to-storybook/vue/en/get-started)、 [Svelte](/intro-to-storybook/svelte/en/get-started) and [Ember](/intro-to-storybook/ember/en/get-started) 向けのバージョンがあります。
+Storybook は開発時にアプリケーションと並行して動きます。Storybook を使用することで、UI コンポーネントをビジネスロジックやコンテキストから切り離して開発できるようになります。 この Storybook チュートリアルのバージョンは Angular 向けです。他にも [React](/intro-to-storybook/react/en/get-started/)、 [React Native](/intro-to-storybook/react-native/en/get-started/)、 [Vue](/intro-to-storybook/vue/en/get-started/)、 [Svelte](/intro-to-storybook/svelte/en/get-started/)。
 
 ![Storybook と開発中のアプリの関係](/intro-to-storybook/storybook-relationship.jpg)
 
@@ -15,7 +15,7 @@ Storybook を開発プロセスに組み込むにあたり、いくつかの手�
 
 次のコマンドを実行してください。
 
-```bash
+```shell:clipboard=false
 # Clone the template
 npx degit chromaui/intro-storybook-angular-template taskbox
 
@@ -31,7 +31,7 @@ npm install
 
 ここでアプリケーションのいくつかの環境が正常に動作しているかクイックに確認できます。
 
-```bash
+```shell:clipboard=false
 # Run the test runner (Jest) in a terminal:
 npm run test
 

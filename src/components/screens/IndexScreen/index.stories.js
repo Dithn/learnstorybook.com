@@ -1,12 +1,17 @@
 import React from 'react';
-import IndexScreen from './index';
+import { PureIndexScreen } from './index';
 
 export default {
-  component: IndexScreen,
+  component: PureIndexScreen,
   title: 'Screens/IndexScreen/index',
+  parameters: {
+    layout: 'fullscreen',
+  },
 };
 
-const Story = args => <IndexScreen {...args} />;
+function Story(args) {
+  return <PureIndexScreen {...args} />;
+}
 export const Default = Story.bind({});
 Default.args = {
   data: {
@@ -37,20 +42,6 @@ Default.args = {
               title: 'Intro to Storybook',
               themeColor: '#6F2CAC',
               thumbImagePath: '/guide-thumb/intro.svg',
-            },
-            fields: {
-              guide: 'guide',
-              slug: '/guide',
-            },
-          },
-        },
-        {
-          node: {
-            frontmatter: {
-              description: 'Discover how to build and maintain design systems using Storybook.',
-              title: 'Design Systems for Developers',
-              themeColor: '#0079FF',
-              thumbImagePath: '/guide-thumb/design-system.svg',
             },
             fields: {
               guide: 'guide',

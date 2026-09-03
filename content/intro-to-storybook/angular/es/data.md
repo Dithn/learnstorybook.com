@@ -2,7 +2,7 @@
 title: 'Introducir datos'
 tocTitle: 'Datos'
 description: 'Aprende como introducir datos a tus componentes interfaz gráfica'
-commit: 'd4b9c54'
+commit: 'f75d1f4'
 ---
 
 Hasta ahora hemos creado componentes aislados que no contienen estado propio, sino que reciben entradas por medio de
@@ -22,7 +22,7 @@ igualmente a otras bibliotecas de gestión de estado como [ngrx/store](https://g
 
 Primero instala ngxs con:
 
-```bash
+```shell
 npm install @ngxs/store @ngxs/logger-plugin @ngxs/devtools-plugin
 ```
 

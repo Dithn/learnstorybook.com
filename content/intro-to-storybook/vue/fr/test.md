@@ -2,7 +2,6 @@
 title: 'Tester les composants UI'
 tocTitle: 'Les tests'
 description: 'Apprenez à tester les composants UI'
-commit: 8bf107e
 ---
 
 Aucun tutoriel de Storybook ne serait complet sans test. Les tests sont essentiels pour créer des interfaces utilisateur de haute qualité. Dans les systèmes modulaires, de minuscules ajustements peuvent entraîner des régressions majeures. Jusqu'à présent, nous avons rencontré trois types de tests:
@@ -28,7 +27,7 @@ Les tests de régression visuelle sont conçus pour détecter les changements d'
 
 Storybook est un outil fantastique pour les tests de régression visuelle, car chaque histoire est essentiellement une spécification de test. Chaque fois que nous écrivons ou mettons à jour une histoire, nous obtenons une spécification gratuitement!
 
-Il existe de nombreux outils pour les tests de régression visuelle. Pour les équipes professionnelles, nous recommandons [**Chromatic**](https://www.chromatic.com/), un addon créé par les mainteneurs de Storybook qui exécute des tests dans le cloud.
+Il existe de nombreux outils pour les tests de régression visuelle. Pour les équipes professionnelles, nous recommandons [**Chromatic**](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook), un addon créé par les mainteneurs de Storybook qui exécute des tests dans le cloud.
 
 ## Configurer les tests de régression visuelle
 
@@ -38,21 +37,21 @@ Chromatic est un module complémentaire de Storybook sans tracas pour les tests 
 
 Vue CLI a déjà créé un répertoire pour votre projet; vérifions les modifications que nous avons apportées:
 
-```bash
-$ git add .
+```shell
+git add .
 ```
 
 Maintenant soumettez les fichiers.
 
-```bash
-$ git commit -m "taskbox UI"
+```shell
+git commit -m "taskbox UI"
 ```
 
 ### Obtenir Chromatic
 
 Ajoutez le paquetage comme une dépendance.
 
-```bash
+```shell
 yarn add -D chromatic
 ```
 
@@ -69,12 +68,14 @@ Ensuite [connectez-vous Chromatic](https://bit.ly/2Is93Ez) avec votre compte Git
 
 Exécutez la commande de test dans la ligne de commande pour configurer des tests de régression visuelle pour Storybook. N'oubliez pas d'ajouter votre code d'application unique à la place de `<project-token>`.
 
-```bash
+```shell
 npx chromatic --project-token=<project-token>
 ```
 
 <div class="aside">
-Si votre Storybook a un script de construction personnalisé, vous devrez peut-être [ajouter des options](https://www.chromatic.com/docs/setup#command-options) à cette commande.
+
+Si votre Storybook a un script de construction personnalisé, vous devrez peut-être [ajouter des options](https://www.chromatic.com/docs/setup?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook#command-options) à cette commande.
+
 </div>
 
 Une fois le premier test terminé, nous avons des références de test pour chaque histoire. En d'autres termes, des captures d'écran de chaque histoire connue pour être «bonne». Les futurs changements apportés à ces histoires seront comparés aux références.
@@ -93,7 +94,7 @@ Cela donne une nouvelle couleur d'arrière-plan pour l'élément.
 
 Utilisez la commande de test précédente pour exécuter un autre test chromatique.
 
-```bash
+```shell
 npx chromatic --project-token=<project-token>
 ```
 

@@ -2,7 +2,7 @@
 title: 'データを繋ぐ'
 tocTitle: 'データ'
 description: 'UI コンポーネントとデータを繋ぐ方法を学びましょう'
-commit: 'd4b9c54'
+commit: 'f75d1f4'
 ---
 
 これまでに、Storybook の切り離された環境で、状態を持たないコンポーネントを作成してきました。しかし、究極的には、アプリケーションからコンポーネントにデータを渡さなければ役には立ちません。
@@ -17,7 +17,7 @@ commit: 'd4b9c54'
 
 まず、ngxs をインストールします:
 
-```bash
+```shell
 npm install @ngxs/store @ngxs/logger-plugin @ngxs/devtools-plugin
 ```
 

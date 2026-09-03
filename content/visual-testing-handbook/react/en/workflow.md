@@ -34,7 +34,7 @@ The tricky part of UI testing is that it’s not possible to verify the relevant
 
 In practice, visual testing uses Storybook to “visually” test a component across a set of defined test states. Visual tests share the same setup, execute, and teardown steps as any other type of testing, but the verification step falls to the user.
 
-```
+```shell:clipboard=false
 test do
   setup
   execute 👈 Storybook renders stories
@@ -45,7 +45,7 @@ end
 
 And subsequently, any regressions are caught by automatically capturing and comparing image snapshots.
 
-```
+```shell:clipboard=false
 test do
   setup
   execute 👈 Storybook renders stories
@@ -60,44 +60,48 @@ The same test case is used in both scenarios, only the method of verification ch
 
 Let's focus on that first scenario for now. In Storybook, a test is as simple as rendering a React element. To write a visual test case, a "story" in Storybook parlance, we outline the states of the component we're interested in. The code sample below shows how you'd write visual tests for `InboxTask`, `SnoozedTask`, and `PinnedTask`.
 
-```js:title=src/components/Task.stories.js
-import React from 'react';
+```ts:title=src/components/Task.stories.ts
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import Task from './Task';
 
-export default {
+const meta = {
   component: Task,
   title: 'Task',
-};
+} satisfies Meta<typeof Task>;
 
-const Template = args => <Task {...args} />;
+export default meta;
+type Story = StoryObj<typeof meta>;
 
-export const InboxTask = Template.bind({});
-InboxTask.args = {
-  task: {
-    id: '1',
-    title: 'Test Task',
-    state: 'TASK_INBOX',
-    updatedAt: new Date(2021, 0, 1, 9, 0),
-    boardName: 'on Test Board',
+export const InboxTask: Story = {
+  args: {
+    task: {
+      id: '1',
+      title: 'Test Task',
+      state: 'TASK_INBOX',
+      updatedAt: new Date(2023, 0, 1, 9, 0),
+      boardName: 'On Test Board',
+    },
   },
 };
 
-export const SnoozedTask = Template.bind({});
-SnoozedTask.args = {
-  task: {
-    // Shaping the stories through args composition.
-    ...InboxTask.args.task,
-    state: 'TASK_SNOOZED',
+export const SnoozedTask: Story = {
+  args: {
+    task: {
+      // Shaping the stories through args composition.
+      ...InboxTask.args?.task,
+      state: 'TASK_SNOOZED',
+    },
   },
 };
 
-export const PinnedTask = Template.bind({});
-PinnedTask.args = {
-  task: {
-    // Shaping the stories through args composition.
-    ...InboxTask.args.task,
-    state: 'TASK_PINNED',
+export const PinnedTask: Story = {
+  args: {
+    task: {
+      // Shaping the stories through args composition.
+      ...InboxTask.args?.task,
+      state: 'TASK_PINNED',
+    },
   },
 };
 ```

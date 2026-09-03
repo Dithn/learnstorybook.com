@@ -2,7 +2,7 @@
 title: 'Desplegar Storybook'
 tocTitle: 'Desplegar'
 description: 'Aprenda a desplegar Storybook en línea'
-commit: '4b82e4c'
+commit: 'd32196c'
 ---
 
 A lo largo de este tutorial, creamos componentes en nuestra máquina de desarrollo. En algún momento, tendremos que compartir nuestro trabajo para recibir comentarios del equipo. Despleguemos Storybook en línea para ayudar a los compañeros de equipo a revisar la implementación de la interfaz de usuario.
@@ -15,11 +15,11 @@ Ahora, cuando ejecutes Storybook a través de `yarn build-storybook`, obtendrás
 
 ## Publicar Storybook
 
-Este tutorial utiliza <a href="https://www.chromatic.com/">Chromatic</a>, un servicio de publicación gratuito creado por los mantenedores de Storybook. Nos permite implementar y alojar nuestro Storybook de forma segura en la nube..
+Este tutorial utiliza <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a>, un servicio de publicación gratuito creado por los mantenedores de Storybook. Nos permite implementar y alojar nuestro Storybook de forma segura en la nube..
 
 ### Configurar un repositorio en GitHub
 
-Antes de comenzar, nuestro código local debe sincronizarse con un servicio de control de versiones remoto. Cuando nuestro proyecto se inicializó en el [Empezando](/intro-to-storybook/vue/es/get-started), ya inicializamos un repositorio local. En esta etapa, ya tenemos un conjunto de commits que podemos enviar remotamente.
+Antes de comenzar, nuestro código local debe sincronizarse con un servicio de control de versiones remoto. Cuando nuestro proyecto se inicializó en el [Empezando](/intro-to-storybook/vue/es/get-started/), ya inicializamos un repositorio local. En esta etapa, ya tenemos un conjunto de commits que podemos enviar remotamente.
 
 Ve a Github y configura un repositorio [aquí](https://github.com/new). Nombra tu repo “taskbox”, igual que nuestro proyecto local.
 
@@ -27,25 +27,25 @@ Ve a Github y configura un repositorio [aquí](https://github.com/new). Nombra t
 
 En la nueva configuración del repositorio copia la URL de origen del repositorio y añádelo a tu proyecto git con este comando:
 
-```bash
-$ git remote add origin https://github.com/<your username>/taskbox.git
+```shell
+git remote add origin https://github.com/<your username>/taskbox.git
 ```
 
 Finalmente haz push al repo en GitHub.
 
-```bash
-$ git push -u origin main
+```shell
+git push -u origin main
 ```
 
 ### Agrega Chromatic
 
 Agregue el paquete como una dependencia de desarrollo.
 
-```bash
+```shell
 yarn add -D chromatic
 ```
 
-Una vez que el paquete esté instalado, [inicie sesión en Chromatic](https://www.chromatic.com/start) con su cuenta de GitHub (Chromatic solo pedirá permisos simples). Luego crearemos un nuevo proyecto llamado "taskbox" y lo sincronizaremos con el repositorio de GithHub que hemos configurado.
+Una vez que el paquete esté instalado, [inicie sesión en Chromatic](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) con su cuenta de GitHub (Chromatic solo pedirá permisos simples). Luego crearemos un nuevo proyecto llamado "taskbox" y lo sincronizaremos con el repositorio de GithHub que hemos configurado.
 
 Haga clic en `Elegir repositorio de GitHub` debajo de colaboradores y seleccione su repositorio.
 
@@ -58,7 +58,7 @@ Haga clic en `Elegir repositorio de GitHub` debajo de colaboradores y seleccione
 
 Copie el "project-token" único que se generó para su proyecto. Luego ejecútelo, emitiendo lo siguiente en la línea de comando, para construir e implementar nuestro Storybook. Asegúrate de reemplazar `project-token` con el token de tu proyecto.
 
-```bash
+```shell
 yarn chromatic --project-token=<project-token>
 ```
 
@@ -109,19 +109,19 @@ jobs:
 
 En la línea de comando, emita el siguiente comando para agregar los cambios que se realizaron:
 
-```bash
+```shell
 git add .
 ```
 
 Luego, confírmelos emitiendo:
 
-```bash
+```shell
 git commit -m "GitHub action setup"
 ```
 
 Finalmente, envíelos al repositorio remoto con:
 
-```bash
+```shell
 git push origin main
 ```
 

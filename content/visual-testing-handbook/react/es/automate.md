@@ -2,7 +2,7 @@
 title: 'Automatizar las pruebas visuales'
 tocTitle: 'Automatizar'
 description: 'Automatice las pruebas visuales para detectar regresiones'
-commit: 'd7daf97'
+commit: '7c2066e'
 ---
 
 En el curso natural del desarrollo, los errores son inevitables. La automatización de pruebas visuales utiliza máquinas para detectar cambios en la apariencia de la interfaz de usuario para que los revise un humano.
@@ -26,7 +26,7 @@ Vaya a GitHub y cree un nuevo repositorio para el proyecto [aquí](https://githu
 
 Luego, siga las instrucciones para configurar el repositorio. Reemplace `your-username` con el nombre de tu cuenta de GitHub.
 
-```
+```shell:clipboard=false
 git init
 git add .
 git commit -m "first commit"
@@ -37,7 +37,7 @@ git push -u origin main
 
 ## Configure Chromatic
 
-Usaremos los mantenedores de Chromatic by Storybook para demostrar el proceso de captura de imágenes. Vaya a [chromatic.com](https://www.chromatic.com/) y regístrese con su cuenta de GitHub.
+Usaremos los mantenedores de Chromatic by Storybook para demostrar el proceso de captura de imágenes. Vaya a [chromatic.com](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) y regístrese con su cuenta de GitHub.
 
 ![Inicio de sesión de Chromatic](/visual-testing-handbook/chromatic-sign-in-optimized.png)
 
@@ -55,12 +55,12 @@ Las pruebas de interfaz de usuario capturan una instantánea de cada historia en
 Agregue Chromatic como paquete de desarrollo a su proyecto:
 
 ```shell
-yarn add -D chromatic
+yarn add --dev chromatic
 ```
 
 Una vez que termine de instalarse, tendremos todo lo que necesitamos. Ahora es un excelente momento para confirmar y enviar los cambios al repositorio remoto.
 
-```shell
+```shell:clipboard=false
 git add .
 git commit -m "Added Chromatic"
 git push
@@ -92,13 +92,37 @@ git checkout -b change-commentlist-outline
 
 Ajuste el componente `CommentList`
 
-```diff:title=src/components/CommentList.js
-import React from 'react';
-
-import PropTypes from 'prop-types';
+```diff:title=src/components/CommentList.tsx
 import styled, { createGlobalStyle } from 'styled-components';
 
-const CommentListDiv = styled.div`
+interface Author {
+  name: string;
+  avatar: string;
+}
+
+interface Comment {
+  text: string;
+  author: Author;
+}
+
+export interface CommentListProps {
+  /**
+   * Is the component in the loading state
+   */
+  loading?: boolean;
+
+  /**
+   * Total number of comments
+   */
+  totalCount?: number;
+
+  /**
+   * List of comments
+   */
+  comments?: Comment[];
+}
+
+const CommentListWrapper = styled.div`
   font-family: "Nunito Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #333;
   display: inline-block;
@@ -106,7 +130,7 @@ const CommentListDiv = styled.div`
   width: 265px;
 `;
 
-const CommentItemDiv = styled.div`
+const CommentItem = styled.div`
   font-size: 12px;
   line-height: 14px;
   clear: both;
@@ -123,7 +147,7 @@ const CommentItemDiv = styled.div`
 + font-weight: bold;
 `;
 
-const AvatarDiv = styled.div`
+const Avatar = styled.div`
   float: left;
   position: relative;
   overflow: hidden;
@@ -144,22 +168,30 @@ const AvatarImg = styled.img`
   background: #999;
 `;
 
-const MessageDiv = styled.div`
+const Message = styled.div`
   overflow: hidden;
   padding-top: 10px;
   padding-right: 20px;
 `;
 
-const AuthorSpan = styled.span`
+const Author = styled.span`
   font-weight: bold;
 `;
-const TextSpan = styled.span``;
+
+const CommentText = styled.span``;
 
 const GlobalStyle = createGlobalStyle`
-@import url('https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,800');
-`;
+   @import url('https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,800');
+ `;
 
-export default function CommentList({ loading, comments, totalCount }) {
+/**
+* The Commentlist component should display the comments from the user.
+*/
+export default function CommentList({
+  loading = false,
+  comments = [],
+  totalCount = 10,
+}: CommentListProps) {
   if (loading) {
     return <div>loading</div>;
   }
@@ -168,58 +200,27 @@ export default function CommentList({ loading, comments, totalCount }) {
   }
   return (
     <>
-    <GlobalStyle/>
-    <CommentListDiv>
-      {comments.map(({ text, author: { name, avatar } }) => (
-        <CommentItemDiv key={`comment_${name}`}>
-          <AvatarDiv>
-            <AvatarImg src={avatar} />
-          </AvatarDiv>
-          <MessageDiv>
-            <AuthorSpan>{name}</AuthorSpan> <TextSpan>{text}</TextSpan>
-          </MessageDiv>
-        </CommentItemDiv>
-      ))}
-    </CommentListDiv>
+      <GlobalStyle />
+      <CommentListWrapper>
+        {comments.map(({ text, author: { name, avatar } }) => (
+          <CommentItem key={`comment_${name}`}>
+            <Avatar>
+              <AvatarImg src={avatar} />
+            </Avatar>
+            <Message>
+              <Author>{name}</Author> <CommentText>{text}</CommentText>
+            </Message>
+          </CommentItem>
+        ))}
+      </CommentListWrapper>
     </>
   );
 }
-
-CommentList.propTypes = {
-  /**
-   * Is the component in the loading state
-   */
-  loading: PropTypes.bool,
-
-  /**
-   * Total number of comments
-   */
-  totalCount: PropTypes.number,
-  /**
-   * List of comments
-   */
-  comments: PropTypes.arrayOf(
-    PropTypes.shape({
-      text: PropTypes.string,
-      author: PropTypes.shape({
-        name: PropTypes.string,
-        avatar: PropTypes.string,
-      }),
-    })
-  ),
-};
-
-CommentList.defaultProps = {
-  loading: false,
-  totalCount: 10,
-  comments: [],
-};
-
 ```
 
 Confirme el cambio, envíelo al repositorio y ejecute Chromatic:
 
-```shell
+```shell:clipboard=false
 git commit -am "make CommentList sparkle"
 git push -u origin change-commentlist-outline
 yarn chromatic --project-token=<project-token>
@@ -251,7 +252,7 @@ Una vez que los errores se corrijan y las líneas base estén actualizadas, est�
 
 ### Integración continua
 
-Ejecutar este comando localmente cada vez que hacemos un cambio es tedioso. Los equipos de producción activan ejecuciones de pruebas visuales cuando se inserta el código en su CI/CD pipeline. Si bien no lo configuraremos en este tutorial, puede obtener más información en [Chromatic's CI docs](https://www.chromatic.com/docs/ci).
+Ejecutar este comando localmente cada vez que hacemos un cambio es tedioso. Los equipos de producción activan ejecuciones de pruebas visuales cuando se inserta el código en su CI/CD pipeline. Si bien no lo configuraremos en este tutorial, puede obtener más información en [Chromatic's CI docs](https://www.chromatic.com/docs/ci?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook).
 
 ## Su viaje comienza
 

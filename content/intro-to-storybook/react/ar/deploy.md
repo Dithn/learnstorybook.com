@@ -2,7 +2,7 @@
 title: 'أطلق ستوريبوك'
 tocTitle: 'أطلق'
 description: 'تعلم كيفية إطلاق ستوريبوك أونلاين'
-commit: '27da5f3'
+commit: 'ca9b814'
 ---
 
 <div style="direction: rtl">
@@ -17,7 +17,7 @@ commit: '27da5f3'
 
 ## نشر ستوريبوك
 
-هذا الدرس يستخدم <a href="https://www.chromatic.com/">كروماتك</a>, خدمة نشر مجانية صنعت من مراقبي ستوريبوك. تسمح لنا بإطلاق واستضافة ستوريبوك خاصتنا بشكل أمن في السحابة.
+هذا الدرس يستخدم <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">كروماتك</a>, خدمة نشر مجانية صنعت من مراقبي ستوريبوك. تسمح لنا بإطلاق واستضافة ستوريبوك خاصتنا بشكل أمن في السحابة.
 
 ### قم بإعداد مستودع في Github
 
@@ -31,7 +31,7 @@ commit: '27da5f3'
 
 <div style="direction: ltr">
 
-```bash
+```shell
 git remote add origin https://github.com/<your username>/taskbox.git
 ```
 
@@ -41,7 +41,7 @@ git remote add origin https://github.com/<your username>/taskbox.git
 
 <div style="direction: ltr">
 
-```bash
+```shell
 git push -u origin main
 ```
 
@@ -53,13 +53,13 @@ git push -u origin main
 
 <div style="direction: ltr">
 
-```bash
+```shell
 yarn add -D chromatic
 ```
 
 </div>
 
-عندما يتم تثبيت الحزمة, [سجل دخولك إلى Chromatic](https://www.chromatic.com/start) باستخدام حسابك في Github (Chromatic سيطلب أذونات خفيفة) ثم سننشئ مشروع جديد اسمه "taskbox" ونزامنه مع مستودع Github الذي أعددناه.
+عندما يتم تثبيت الحزمة, [سجل دخولك إلى Chromatic](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) باستخدام حسابك في Github (Chromatic سيطلب أذونات خفيفة) ثم سننشئ مشروع جديد اسمه "taskbox" ونزامنه مع مستودع Github الذي أعددناه.
 
 إضغط على `Choose GitHub repo` تحت خانة المتعاونون واختر مستودعك.
 
@@ -74,7 +74,7 @@ yarn add -D chromatic
 
 <div style="direction: ltr">
 
-```bash
+```shell
 yarn chromatic --project-token=<project-token>
 ```
 
@@ -120,7 +120,7 @@ jobs:
       - uses: chromaui/action@v1
         # Options required for Chromatic's GitHub Action
         with:
-          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/en/deploy/ to obtain it
+          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/ar/deploy/ to obtain it
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -135,7 +135,7 @@ jobs:
 
 <div style="direction: ltr">
 
-```bash
+```shell
 git add .
 ```
 
@@ -145,7 +145,7 @@ git add .
 
 <div style="direction: ltr">
 
-```bash
+```shell
 git commit -m "GitHub action setup"
 ```
 
@@ -155,7 +155,7 @@ git commit -m "GitHub action setup"
 
 <div style="direction: ltr">
 
-```bash
+```shell
 git push origin main
 ```
 

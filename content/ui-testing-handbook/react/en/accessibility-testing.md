@@ -2,7 +2,7 @@
 title: 'Accessibility testing with Storybook'
 tocTitle: 'Accessibility'
 description: 'Fast feedback with integrated tooling'
-commit: '1681de1'
+commit: 'd16be74'
 ---
 
 [26% of adults](https://www.cdc.gov/ncbddd/disabilityandhealth/infographic-disability-impacts-all.html) in the US have at least one disability. When you improve accessibility, it has an outsized impact on your current and future customers. It’s also a legal requirement.
@@ -53,27 +53,33 @@ Storybook’s Accessibility runs Axe on the active story. It visualizes the test
 
 ![](/ui-testing-handbook/a11y-testing.gif)
 
-To install the addon, run: `yarn add -D @storybook/addon-a11y`. Then, add `'@storybook/addon-a11y'` to the addons array in your `.storybook/main.js`:
+To install the addon, run: `yarn add --dev @storybook/addon-a11y`. Then, add `'@storybook/addon-a11y'` to the addons array in your `.storybook/main.js`:
 
 ```diff:title=.storybook/main.js
-module.exports = {
- stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
- addons: [
-   '@storybook/addon-links',
-   '@storybook/addon-essentials',
-   '@storybook/preset-create-react-app',
-+  '@storybook/addon-a11y',
- ],
+/** @type { import('@storybook/react-vite').StorybookConfig } */
+const config = {
+  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  staticDirs: ['../public'],
+  addons: [
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    '@storybook/addon-interactions',
++   '@storybook/addon-a11y',
+  ],
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
 };
+export default config;
 ```
 
 ### Testing accessibility as you code
 
-We've already [isolated](../visual-testing/) the Task component and captured all its use cases as stories. During the development phase, you can cycle through these stories to spot accessibility issues.
+We've already [isolated](/ui-testing-handbook/react/en/visual-testing/) the Task component and captured all its use cases as stories. During the development phase, you can cycle through these stories to spot accessibility issues.
 
-```javascript:title=src/components/Task.stories.js
-import React from 'react';
-import { Task } from './Task';
+```javascript:title=src/components/Task.stories.jsx
+import Task from './Task';
 
 export default {
   component: Task,
@@ -85,110 +91,65 @@ export default {
   },
 };
 
-const Template = (args) => <Task {...args} />;
-
-export const Default = Template.bind({});
-Default.args = {
-  task: {
-    id: '1',
-    title: 'Buy milk',
-    state: 'TASK_INBOX',
+export const Default = {
+  args: {
+    task: {
+      id: '1',
+      title: 'Buy milk',
+      state: 'TASK_INBOX',
+    },
   },
 };
 
-export const Pinned = Template.bind({});
-Pinned.args = {
-  task: {
-    id: '2',
-    title: 'QA dropdown',
-    state: 'TASK_PINNED',
+export const Pinned = {
+  args: {
+    task: {
+      id: '2',
+      title: 'QA dropdown',
+      state: 'TASK_PINNED',
+    },
   },
 };
 
-export const Archived = Template.bind({});
-Archived.args = {
-  task: {
-    id: '3',
-    title: 'Write schema for account menu',
-    state: 'TASK_ARCHIVED',
+export const Archived = {
+  args: {
+    task: {
+      id: '3',
+      title: 'Write schema for account menu',
+      state: 'TASK_ARCHIVED',
+    },
   },
 };
 
 const longTitleString = `This task's name is absurdly large. In fact, I think if I keep going I might end up with content overflow. What will happen? The star that represents a pinned task could have text overlapping. The text could cut-off abruptly when it reaches the star. I hope not!`;
 
-export const LongTitle = Template.bind({});
-LongTitle.args = {
-  task: {
-    id: '4',
-    title: longTitleString,
-    state: 'TASK_INBOX',
+export const LongTitle = {
+  args: {
+    task: {
+      id: '4',
+      title: longTitleString,
+      state: 'TASK_INBOX',
+    },
   },
 };
 ```
 
-![](/ui-testing-handbook/a11y-addon.png)
+![](/ui-testing-handbook/task-story-a11y-issue.png)
 
-Notice how the addon found two violations. The first, **“Ensures the contrast between foreground and background colors meets WCAG 2 AA contrast ratio thresholds,”** is specific to the `archived` state. Essentially what it means is that there isn’t enough contrast between the text and the background. We can fix that by changing the text color to a slightly darker gray—from `gray.400` to `gray.600`.
+Notice how the addon found two violations. The first, **“Elements must meet minimum color contrast ratio thresholds,”** is specific to the `archived` state. Essentially what it means there isn't enough contrast between the task title and the background. We can quickly fix it by changing the text color to a darker gray in our application's CSS (located in `src/index.css`).
 
-```diff:title=src/components/Task.js
-import React from 'react';
-import PropTypes from 'prop-types';
-import {
- Checkbox,
- Flex,
- IconButton,
- Input,
- Box,
- VisuallyHidden,
-} from '@chakra-ui/react';
-import { StarIcon } from '@chakra-ui/icons';
-
-export const Task = ({
- task: { id, title, state },
- onArchiveTask,
- onTogglePinTask,
- onEditTitle,
- ...props
-}) => (
-
- // code omitted for brevity
-
-   <Box width="full" as="label">
-     <VisuallyHidden>Edit</VisuallyHidden>
-     <Input
-       variant="unstyled"
-       flex="1 1 auto"
--      color={state === 'TASK_ARCHIVED' ? 'gray.400' : 'gray.700'}
-+      color={state === 'TASK_ARCHIVED' ? 'gray.600' : 'gray.700'}
-       textDecoration={state === 'TASK_ARCHIVED' ? 'line-through' : 'none'}
-       fontSize="sm"
-       isTruncated
-       value={title}
-       onChange={(e) => onEditTitle(e.target.value, id)}
-     />
-   </Box>
-
-   // code omitted for brevity
- </Flex>
-);
-
-Task.propTypes = {
- task: PropTypes.shape({
-   id: PropTypes.string.isRequired,
-   title: PropTypes.string.isRequired,
-   state: PropTypes.string.isRequired,
- }),
- onArchiveTask: PropTypes.func.isRequired,
- onTogglePinTask: PropTypes.func.isRequired,
- onEditTitle: PropTypes.func.isRequired,
-};
+```diff:title=src/index.css
+.list-item.TASK_ARCHIVED input[type="text"] {
+- color: #a0aec0;
++ color: #4a5568;
+  text-decoration: line-through;
+}
 ```
 
-The second violation, **“Ensures `<li>` elements are used semantically,”** indicates that the DOM structure is incorrect. The Task component renders an `<li>` element. However, it's not wrapped with a `<ul>` in its stories. Which makes sense. These stories are for the Task component. The `<ul>` is actually provided by the TaskList. So the DOM structure gets validated in the TaskList stories. Therefore, it's safe to ignore this error. In fact, we can go ahead and disable this rule for all the Task stories.
+The second violation, **“Certain ARIA roles must be contained by particular parents”** indicates incorrect DOM structure. The Task component renders just a `<li>` element. So we need to update our stories to wrap the component in an `<ul>` element.
 
-```diff:title=src/components/Task.stories.js
-import React from 'react';
-import { Task } from './Task';
+```js:title=src/components/Task.stories.jsx
+import Task from './Task';
 
 export default {
   component: Task,
@@ -198,87 +159,119 @@ export default {
     onTogglePinTask: { action: 'onTogglePinTask' },
     onEditTitle: { action: 'onEditTitle' },
   },
-+  parameters: {
-+    a11y: {
-+      config: {
-+        rules: [{ id: 'listitem', enabled: false }],
-+      },
-+    },
-+  },
 };
 
-// remaining code omitted for brevity
+/*
+*👇 Wraps the component with a custom render function.
+* See https://storybook.js.org/docs/api/csf
+* to learn how to use render functions.
+*/
+export const Default = {
+  render: (args) => (
+    <ul>
+      <Task {...args} />
+    </ul>
+  ),
+  args: {
+    task: {
+      id: '1',
+      title: 'Buy milk',
+      state: 'TASK_INBOX',
+    },
+  },
+};
+
+export const Pinned = {
+  render: (args) => (
+    <ul>
+      <Task {...args} />
+    </ul>
+  ),
+  args: {
+    task: {
+      id: '2',
+      title: 'QA dropdown',
+      state: 'TASK_PINNED',
+    },
+  },
+};
+
+export const Archived = {
+  render: (args) => (
+    <ul>
+      <Task {...args} />
+    </ul>
+  ),
+  args: {
+    task: {
+      id: '3',
+      title: 'Write schema for account menu',
+      state: 'TASK_ARCHIVED',
+    },
+  },
+};
+
+const longTitleString = `This task's name is absurdly large. In fact, I think if I keep going I might end up with content overflow. What will happen? The star that represents a pinned task could have text overlapping. The text could cut-off abruptly when it reaches the star. I hope not!`;
+
+export const LongTitle = {
+  render: (args) => (
+    <ul>
+      <Task {...args} />
+    </ul>
+  ),
+  args: {
+    task: {
+      id: '4',
+      title: longTitleString,
+      state: 'TASK_INBOX',
+    },
+  },
+};
 ```
 
 You can now repeat this process for all other components.
 
 Integrating accessibility testing into Storybook streamlines your development workflow. You don’t have to jump between different tools while working on a component. Everything you need is right there in the browser. You can even simulate visual impairments such as deuteranomaly, protanomaly or tritanopia.
 
-![](/ui-testing-handbook/vision-simulator.png)
+![](/ui-testing-handbook/inbox-screen-gray-scale.png)
 
-### Preventing regressions
+### Catch regressions automatically with the test runner
 
-Components are interdependent – changes in one component could break others by accident. To ensure that accessibility violations aren’t introduced, we need to run Axe on all our components before merging changes.
+Often, changes to a component can unintentionally introduce new accessibility issues. To catch such regressions, you'll want to test all your stories before opening a pull request. However, the Accessibility addon only runs checks when you’re viewing a story. To test all stories at once we can use the Storybook test runner. It’s a standalone utility (powered by [Jest](https://jestjs.io/) and [Playwright](https://playwright.dev/)) that checks for rendering errors in stories.
 
-Stories are written in a format based on ES6 modules, allowing you to reuse them with other testing frameworks. In the last chapter, we looked at importing [stories into Jest](../interaction-testing/) and verifying interactions with Testing Library. Similarly, we can use the [Jest Axe integration](https://github.com/nickcolley/jest-axe) to run accessibility tests on the component.
+Let’s go ahead and configure the test runner to run Axe. We’ll start by installing [axe-playwright](https://github.com/abhinaba-ghosh/axe-playwright).
 
-Let’s start by installing it:
-
-```sh
-yarn add -D jest-axe
+```shell
+yarn add --dev axe-playwright
 ```
 
-Next, add in an `it` block that runs Axe and checks for violations. Jest-axe also gives you a handy assertion, `toHaveNoViolations`, to verify this with one function call.
+Add a new configuration file inside your Storybook directory with the following inside:
 
-```diff:title=src/InboxScreen.test.js
-import React from 'react';
-import '@testing-library/jest-dom/extend-expect';
-import {
-  render,
-  waitFor,
-  cleanup,
-  within,
-  fireEvent,
-} from '@testing-library/react';
-+ import { axe, toHaveNoViolations } from 'jest-axe';
-import { composeStories } from '@storybook/testing-react';
-import { getWorker } from 'msw-storybook-addon';
-import * as stories from './InboxScreen.stories';
+```javascript:title=.storybook/test-runner.js
+const { injectAxe, checkA11y } = require('axe-playwright');
 
-+ expect.extend(toHaveNoViolations);
-
-describe('InboxScreen', () => {
-  afterEach(() => {
-    cleanup();
-  });
-
-  // Clean up after all tests are done, preventing this
-  // interception layer from affecting irrelevant tests
-  afterAll(() => getWorker().close());
-
-  const { Default } = composeStories(stories);
-
-  // Run axe
-+  it('Should have no accessibility violations', async () => {
-+    const { container, queryByText } = render(<Default />);
-+
-+    await waitFor(() => {
-+      expect(queryByText('You have no tasks')).not.toBeInTheDocument();
-+    });
-+
-+    const results = await axe(container);
-+    expect(results).toHaveNoViolations();
-+  });
-
-  it('should pin a task', async () => { ... });
-  it('should archive a task', async () => { ... });
-  it('should edit a task', async () => { ... });
-});
+module.exports = {
+  async preVisit(page) {
+    await injectAxe(page);
+  },
+  async postVisit(page) {
+    await checkA11y(page, "#storybook-root", {
+      detailedReport: true,
+      detailedReportOptions: {
+        html: true,
+      },
+    });
+  },
+};
 ```
 
-Run `yarn test` to start up Jest. It'll execute all the interaction tests and run the accessibility audit too. You can now run this entire test suite any time you modify the code. Allowing you to catch regressions.
+`preVisit` and `postVisit` are convenient hooks that allow you to configure the test runner to perform additional tasks. We're using those hooks to inject Axe into a story, and then once it renders, run the accessibility test.
 
-![](/ui-testing-handbook/jest-axe.png)
+You’ll notice a few options passed into the `checkA11y` function. We’ve set up Axe to start at the story's root element and then traverse down the DOM tree to check for issues. It will also generate a detailed report based on the issues it encountered and output a list of HTML elements that violated accessibility rules.
+
+To run the tests, start your Storybook in one terminal window with `yarn storybook` and the test runner in another with `yarn test-storybook`.
+
+![](/ui-testing-handbook/test-runner-ally.png)
 
 ## Catching integration issues
 

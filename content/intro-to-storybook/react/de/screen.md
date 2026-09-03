@@ -2,7 +2,7 @@
 title: 'Einen Screen erstellen'
 tocTitle: 'Screens'
 description: 'Stelle einen Screen aus Komponenten zusammen'
-commit: '79829b2'
+commit: '12a7932'
 ---
 
 Bisher haben wir uns darauf konzentriert, UIs bottom-up zu bauen; klein starten und Komplexität hinzufügen. Das erlaubte uns, jede Komponente in Isolation zu entwickeln, ihre Anforderungen an Daten zu ermitteln und damit in Storybook herumzuspielen. All das, ohne einen Server aufzusetzen oder Screens zu erstellen.
@@ -13,9 +13,7 @@ In diesem Kapitel werden wir den Schwierigkeitsgrad weiter erhöhen, indem wir K
 
 Da unsere App sehr einfach ist, wird auch unser Screen ziemlich trivial sein. Wir fügen die `TaskList`-Komponente (die ihre Daten via Redux zur Verfügung stellt) in ein Layout ein und holen uns ein top-level `error`-Feld aus Redux (lass uns annehmen, wir setzten dieses Feld, wenn wir Probleme mit der Verbindung zu unserem Server haben). Lege `InboxScreen.js` in deinem `components`-Verzeichnis an:
 
-```javascript
-// src/components/InboxScreen.js
-
+```js:title=src/components/InboxScreen.js
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -60,9 +58,7 @@ export default connect(({ error }) => ({ error }))(PureInboxScreen);
 
 Außerdem ändern wir die `App`-Komponente so, dass sie den `InboxScreen` rendert (vermutlich würden wir einen Router nutzen, um den richtigen Screen zu wählen, aber das soll jetzt nicht unsere Sorge sein):
 
-```javascript
-// src/App.js
-
+```js:title=src/App.js
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import store from './lib/redux';
@@ -90,9 +86,7 @@ Als wir die `TaskList` in Storybook eingefügt haben, konnten wir dieses Problem
 
 Trotzdem haben wir dabei ein Problem, denn auch wenn der `PureInboxScreen` rein darstellend ist, ist es sein Kind, die `TaskList`, nicht. In gewisser Weise wurde der `PureInboxScreen` also mit "Container-haftigkeit" verschmutzt. Wenn wir also unsere Stories in `InboxScreen.stories.js` aufsetzen, ...
 
-```javascript
-// src/components/InboxScreen.stories.js
-
+```js:title=src/components/InboxScreen.stories.js
 import React from 'react';
 
 import { PureInboxScreen } from './InboxScreen';
@@ -116,16 +110,14 @@ Ein Weg, dieses Problem zu umgehen, ist niemals eine Container-Komponente irgend
 Entwickler **müssen** Container aber auch zwangsläufig weiter unten in der Komponenten-Hierarchie rendern. Wenn wir also den Großteil oder alles von unserer App in Storybook rendern wollen (und das wollen wir!), brauchen wir hierfür eine Lösung.
 
 <div class="aside">
-Im Übrigen ist es durchaus ein legitimer Ansatz, Daten die Hierarchie hinunter zu reichen, insbesondere beim Einsatz von <a href="http://graphql.org/">GraphQL</a>. So haben wir auch <a href="https://www.chromatic.com">Chromatic</a> entwickelt, neben 800+ weiteren Stories.
+Im Übrigen ist es durchaus ein legitimer Ansatz, Daten die Hierarchie hinunter zu reichen, insbesondere beim Einsatz von <a href="http://graphql.org/">GraphQL</a>. So haben wir auch <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a> entwickelt, neben 800+ weiteren Stories.
 </div>
 
 ## Kontext über Decorators zur Verfügung stellen
 
 Die gute Nachricht ist, dass es einfach ist, dem `InboxScreen` einen Redux Store in einer Story zur Verfügung zu stellen. Wir können einfach eine gemockte Version des Redux Stores nutzen, die über einen Decorator zur Verfügung gestellt wird:
 
-```javascript
-// src/components/InboxScreen.stories.js
-
+```js:title=src/components/InboxScreen.stories.js
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Provider } from 'react-redux';

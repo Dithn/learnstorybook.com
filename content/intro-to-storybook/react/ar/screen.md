@@ -2,7 +2,7 @@
 title: 'أنشئ واجهة'
 tocTitle: 'واجهات'
 description: 'أنشئ واجهة من المكونات'
-commit: '79829b2'
+commit: '12a7932'
 ---
 
 <div style="direction: rtl">
@@ -128,7 +128,7 @@ Error.args = {
 و لكن المطورين **سوف** يحتاجون إلى إظهار مكونات خلال هيكل المكون. لو أردنا إظهار معظم أو كل التطبيق في ستوريبوك (نحن بالفعل نريد ذلك!) فإننا سنحتاج لحل لهذه المشكلة.
 
 <div class="aside">
-💡 كملاحظة جانبية, تمرير البيانات لأسفل التسلسل الهرمي هو الطريقة الصحيحة, خاصة عند استخدام <a href="http://graphql.org/">GraphQL</a>. فهي الطريقة التي بنينا بها <a href="https://www.chromatic.com">Chromatic</a> مع +800 ستوري.
+💡 كملاحظة جانبية, تمرير البيانات لأسفل التسلسل الهرمي هو الطريقة الصحيحة, خاصة عند استخدام <a href="http://graphql.org/">GraphQL</a>. فهي الطريقة التي بنينا بها <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a> مع +800 ستوري.
 </div>
 
 ## تزويد السياق والمزينات

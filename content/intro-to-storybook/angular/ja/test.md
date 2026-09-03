@@ -2,7 +2,6 @@
 title: 'UI コンポーネントをテストする'
 tocTitle: 'テスト'
 description: 'UI コンポーネントのテスト手法について学びましょう'
-commit: 8fdc779
 ---
 
 Storybook のチュートリアルをテスト抜きには終われません。テストは高品質な UI を作成するのに必要なことです。疎結合なシステムにおいては、些細な変更で大きなリグレッション (手戻り) をもたらすことがあるのです。既に 3 種類のテストについて学びました:
@@ -28,7 +27,7 @@ Storybook のチュートリアルをテスト抜きには終われません。�
 
 Storybook は視覚的なリグレッションテスト用の素晴らしいツールです。Storybook において、すべてのストーリーはテスト仕様となるからです。ストーリーを書くたび、仕様が無料でついてきます！
 
-視覚的なリグレッションテスト向けのツールは多々あります。Storybook のメンテナーが作成した無料のホスティングサービスである [**Chromatic**](https://www.chromatic.com/) がおすすめです。Chromatic はクラウド上でビジュアルテストを並列実行します。[前の章](/intro-to-storybook/angular/ja/deploy/)で見たように Storybook をインターネット上に発行出来ます。
+視覚的なリグレッションテスト向けのツールは多々あります。Storybook のメンテナーが作成した無料のホスティングサービスである [**Chromatic**](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) がおすすめです。Chromatic はクラウド上でビジュアルテストを並列実行します。[前の章](/intro-to-storybook/angular/ja/deploy/)で見たように Storybook をインターネット上に発行出来ます。
 
 ## UI の変更を検知する
 
@@ -38,7 +37,7 @@ Storybook は視覚的なリグレッションテスト用の素晴らしいツ�
 
 変更する前に新しいブランチを作成します:
 
-```bash
+```shell
 git checkout -b change-task-background
 ```
 
@@ -50,7 +49,7 @@ git checkout -b change-task-background
   [value]="task?.title"
   readonly="true"
   placeholder="Input title"
-+ style="background: red;"
++ style="background-color: red;"
 />
 ```
 
@@ -60,19 +59,19 @@ git checkout -b change-task-background
 
 この変更をステージングします:
 
-```bash
+```shell
 git add .
 ```
 
 コミットします:
 
-```bash
+```shell
 git commit -m “change task background to red”
 ```
 
 そして変更をリモートリポジトリーにプッシュします:
 
-```bash
+```shell
 git push -u origin change-task-background
 ```
 

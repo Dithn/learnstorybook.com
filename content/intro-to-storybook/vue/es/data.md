@@ -2,7 +2,7 @@
 title: 'Introducir datos'
 tocTitle: 'Datos'
 description: 'Aprende como introducir datos a tus componentes UI'
-commit: 'c881ddc'
+commit: 'fafbc81'
 ---
 
 Hasta ahora hemos creado componentes aislados sin estado, muy útiles para Storybook, pero finalmente no son útiles hasta que les proporcionemos algunos datos en nuestra aplicación.
@@ -17,7 +17,7 @@ Este ejemplo utiliza [Vuex](https://vuex.vuejs.org), la librería mas popular de
 
 Primero, instala vuex con:
 
-```bash
+```shell
 yarn add vuex
 ```
 

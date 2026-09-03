@@ -1,7 +1,7 @@
 ---
 title: 'Visual TDD'
 description: 'Write your first visual tests'
-commit: '109652d'
+commit: 'd97b412'
 ---
 
 Now that the basics are covered let’s jump into the details. This example demonstrates building out a state of a `CommentList` component using **Visual TDD** with Storybook.
@@ -24,7 +24,7 @@ Start visual TDD by building test cases. We’ll create three cases that match t
 
 Let's set up the example project using [degit](https://github.com/Rich-Harris/degit) to download the necessary boilerplate templates (partially built applications with some default configuration). Run the following commands:
 
-```shell
+```shell:clipboard=false
 # Clone the template for this tutorial
 npx degit chromaui/visual-testing-handbook-react-template commentlist
 
@@ -36,14 +36,44 @@ yarn
 
 Next, we’ll build the simplest-possible `CommentList` implementation so that we can ensure our tests are set up correctly.
 
-Inside your `src` directory, create a new folder called `components`, then by a new file called `CommentList.js` with the following content:
+Inside your `src` directory, create a new folder called `components`, then create a new file called `CommentList.tsx` with the following content:
 
-```js:title=src/components/CommentList.js
-import React from 'react';
+```tsx:title=src/components/CommentList.tsx
+interface Author {
+  name: string;
+  avatar: string;
+}
 
-import PropTypes from 'prop-types';
+interface Comment {
+  text: string;
+  author: Author;
+}
 
-export default function CommentList({ loading, comments, totalCount }) {
+export interface CommentListProps {
+  /**
+   * Is the component in the loading state
+   */
+  loading?: boolean;
+
+  /**
+   * Total number of comments
+   */
+  totalCount?: number;
+
+  /**
+   * List of comments
+   */
+  comments?: Comment[];
+}
+
+/**
+* The Commentlist component should display the comments from the users.
+*/
+export default function CommentList({
+  loading = false,
+  comments = [],
+  totalCount = 10,
+}: CommentListProps) {
   if (loading) {
     return <div>loading</div>;
   }
@@ -56,111 +86,87 @@ export default function CommentList({ loading, comments, totalCount }) {
     </div>
   );
 }
-
-CommentList.propTypes = {
-  /**
-   * Is the component in the loading state
-   */
-  loading: PropTypes.bool,
-
-  /**
-   * Total number of comments
-   */
-  totalCount: PropTypes.number,
-  /**
-   * List of comments
-   */
-  comments: PropTypes.arrayOf(
-    PropTypes.shape({
-      text: PropTypes.string,
-      author: PropTypes.shape({
-        name: PropTypes.string,
-        avatar: PropTypes.string,
-      }),
-    })
-  ),
-};
-
-CommentList.defaultProps = {
-  loading: false,
-  totalCount: 10,
-  comments: [],
-};
 ```
 
 Now that we have a basic implementation, we can build our test states. Storybook makes this quick and easy.
 
-Create a new file called `CommentList.stories.js` in `src/components` and add the following:
+Create a new file called `CommentList.stories.ts` in `src/components` and add the following:
 
-```js:title=src/components/CommentList.stories.js
-import React from 'react';
+```ts:title=src/components/CommentList.stories.ts
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import CommentList from './CommentList';
 
-export default {
+const meta = {
   component: CommentList,
   title: 'CommentList',
+} satisfies Meta<typeof CommentList>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Paginated: Story = {
+  args: {
+    comments: [
+      {
+        text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+        author: {
+          name: 'Luke',
+          avatar: 'luke.jpeg',
+        },
+      },
+      {
+        text: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
+        author: {
+          name: 'Leah',
+          avatar: 'leah.jpeg',
+        },
+      },
+      {
+        text: 'Duis aute irure dolor in reprehenderit in voluptate.',
+        author: {
+          name: 'Han',
+          avatar: 'han.jpeg',
+        },
+      },
+      {
+        text: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
+        author: {
+          name: 'Poe',
+          avatar: 'poe.jpeg',
+        },
+      },
+      {
+        text: 'Duis aute irure dolor in reprehenderit in voluptate.',
+        author: {
+          name: 'Finn',
+          avatar: 'finn.jpeg',
+        },
+      },
+    ],
+    totalCount: 10,
+  },
 };
 
-const Template = args => <CommentList {...args} />;
-
-export const Paginated = Template.bind({});
-Paginated.args = {
-  comments: [
-    {
-      text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      author: {
-        name: 'Luke',
-        avatar: 'luke.jpeg',
-      },
-    },
-    {
-      text: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
-      author: {
-        name: 'Leah',
-        avatar: 'leah.jpeg',
-      },
-    },
-    {
-      text: 'Duis aute irure dolor in reprehenderit in voluptate.',
-      author: {
-        name: 'Han',
-        avatar: 'han.jpeg',
-      },
-    },
-    {
-      text: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
-      author: {
-        name: 'Poe',
-        avatar: 'poe.jpeg',
-      },
-    },
-    {
-      text: 'Duis aute irure dolor in reprehenderit in voluptate.',
-      author: {
-        name: 'Finn',
-        avatar: 'finn.jpeg',
-      },
-    },
-  ],
-  totalCount: 10,
+export const HasData: Story = {
+  args: {
+    comments: [...(Paginated?.args?.comments?.slice(0, 3) || [])],
+    totalCount: 3,
+  },
 };
 
-export const HasData = Template.bind({});
-HasData.args = {
-  comments: [...Paginated.args.comments.slice(0, 3)],
-  totalCount: 3,
-};
-export const Loading = Template.bind({});
-Loading.args = {
-  comments: [],
-  loading: true,
+export const Loading: Story = {
+  args: {
+    comments: [],
+    loading: true,
+  },
 };
 
-export const Empty = Template.bind({});
-Empty.args = {
-  ...Loading.args,
-  loading: false,
+export const Empty: Story = {
+  args: {
+    ...Loading.args,
+    loading: false,
+  },
 };
 ```
 
@@ -169,7 +175,6 @@ Empty.args = {
 Start Storybook to see the test cases. Our component implementation is bare bones, but it allows us to confirm our test cases render as intended.
 
 ```shell
-# Start Storybook in development mode
 yarn storybook
 ```
 
@@ -189,16 +194,39 @@ We use [`styled-components`](https://styled-components.com/) – a library that 
 yarn add styled-components
 ```
 
-Update your `CommentList.js` file to the following:
+Update your `CommentList.tsx` file to the following:
 
-```diff:title=src/components/CommentList.js
-import React from 'react';
-
-import PropTypes from 'prop-types';
-
+```diff:title=src/components/CommentList.tsx
 + import styled, { createGlobalStyle } from 'styled-components';
 
-+ const CommentListDiv = styled.div`
+interface Author {
+  name: string;
+  avatar: string;
+}
+
+interface Comment {
+  text: string;
+  author: Author;
+}
+
+export interface CommentListProps {
+  /**
+   * Is the component in the loading state
+   */
+  loading?: boolean;
+
+  /**
+   * Total number of comments
+   */
+  totalCount?: number;
+
+  /**
+   * List of comments
+   */
+  comments?: Comment[];
+}
+
++ const CommentListWrapper = styled.div`
 +   font-family: "Nunito Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 +   color: #333;
 +   display: inline-block;
@@ -206,7 +234,7 @@ import PropTypes from 'prop-types';
 +   width: 265px;
 + `;
 
-+ const CommentItemDiv = styled.div`
++ const CommentItem = styled.div`
 +   font-size: 12px;
 +   line-height: 14px;
 +   clear: both;
@@ -221,7 +249,7 @@ import PropTypes from 'prop-types';
 +   border-radius: 48px;
 + `;
 
-+ const AvatarDiv = styled.div`
++ const Avatar = styled.div`
 +   float: left;
 +   position: relative;
 +   overflow: hidden;
@@ -242,23 +270,30 @@ import PropTypes from 'prop-types';
 +   background: #999;
 + `;
 
-+ const MessageDiv = styled.div`
++ const Message = styled.div`
 +   overflow: hidden;
 +   padding-top: 10px;
 +   padding-right: 20px;
 + `;
 
-+ const AuthorSpan = styled.span`
++ const Author = styled.span`
 +   font-weight: bold;
 + `;
 
-+ const TextSpan = styled.span``;
++ const CommentText = styled.span``;
 
 + const GlobalStyle = createGlobalStyle`
 +   @import url('https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,800');
 + `;
 
-export default function CommentList({ loading, comments, totalCount }) {
+/**
+ * The Commentlist component should display the comments from the user.
+*/
+export default function CommentList({
+  loading = false,
+  comments = [],
+  totalCount = 10,
+}: CommentListProps) {
   if (loading) {
     return <div>loading</div>;
   }
@@ -267,52 +302,22 @@ export default function CommentList({ loading, comments, totalCount }) {
   }
   return (
 +   <>
-+   <GlobalStyle/>
-+   <CommentListDiv>
-+     {comments.map(({ text, author: { name, avatar } }) => (
-+       <CommentItemDiv key={`comment_${name}`}>
-+         <AvatarDiv>
-+           <AvatarImg src={avatar} />
-+         </AvatarDiv>
-+         <MessageDiv>
-+           <AuthorSpan>{name}</AuthorSpan> <TextSpan>{text}</TextSpan>
-+         </MessageDiv>
-+       </CommentItemDiv>
-+     ))}
-+   </CommentListDiv>
++     <GlobalStyle />
++     <CommentListWrapper>
++       {comments.map(({ text, author: { name, avatar } }) => (
++         <CommentItem key={`comment_${name}`}>
++           <Avatar>
++             <AvatarImg src={avatar} />
++           </Avatar>
++           <Message>
++             <Author>{name}</Author> <CommentText>{text}</CommentText>
++           </Message>
++         </CommentItem>
++       ))}
++     </CommentListWrapper>
 +   </>
   );
 }
-
-CommentList.propTypes = {
-  /**
-   * Is the component in the loading state
-   */
-  loading: PropTypes.bool,
-
-  /**
-   * Total number of comments
-   */
-  totalCount: PropTypes.number,
-  /**
-   * List of comments
-   */
-  comments: PropTypes.arrayOf(
-    PropTypes.shape({
-      text: PropTypes.string,
-      author: PropTypes.shape({
-        name: PropTypes.string,
-        avatar: PropTypes.string,
-      }),
-    })
-  ),
-};
-
-CommentList.defaultProps = {
-  loading: false,
-  totalCount: 10,
-  comments: [],
-};
 ```
 
 ### 4. Check the implementation against the design
@@ -333,4 +338,4 @@ As we iterate through this workflow, regularly check each story to ensure that t
 
 ## Learn how to automate visual testing
 
-In the next chapter, we’ll see how we can automate the VTDD process with [Chromatic](https://chromatic.com/), a free visual testing service made by the Storybook maintainers.
+In the next chapter, we’ll see how we can automate the VTDD process with [Chromatic](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook), a free visual testing service made by the Storybook maintainers.

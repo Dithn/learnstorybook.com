@@ -27,7 +27,7 @@ Las pruebas de regresión visual tambien llamadas pruebas visuales, están dise�
 
 Storybook es una herramienta fantástica para las pruebas de regresión visual porque cada historia es esencialmente una especificación del test. Cada vez que escribimos o actualizamos una historia recibimos una especificación gratis!
 
-Existen varias herramientas para la prueba de regresión visual. Para equipos profesionales recomendamos [**Chromatic**](https://www.chromatic.com/), un complemento hecho por las personas de Storybook que ejecuta pruebas en la nube. También nos permite publicar Storybook en línea como vimos en el [capítulo anterior](/intro-to-storybook/vue/es/deploy/).
+Existen varias herramientas para la prueba de regresión visual. Para equipos profesionales recomendamos [**Chromatic**](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook), un complemento hecho por las personas de Storybook que ejecuta pruebas en la nube. También nos permite publicar Storybook en línea como vimos en el [capítulo anterior](/intro-to-storybook/vue/es/deploy/).
 
 ## Detecta cambios en la interfaz de usuario
 
@@ -37,7 +37,7 @@ Veamos cómo funciona modificando el fondo del componente `Task`.
 
 Comience creando una nueva rama para este cambio:
 
-```bash
+```shell
 git checkout -b change-task-background
 ```
 
@@ -49,7 +49,7 @@ Cambie "Task" a lo siguiente:
   :value="task.title"
   readonly
   placeholder="Input title"
-+ style="background: red;"
++ style="background-color: red"
 />
 ```
 
@@ -59,19 +59,19 @@ Esto produce un nuevo color de fondo para el elemento.
 
 Agrega el archivo:
 
-```bash
+```shell
 git add .
 ```
 
 Comitea:
 
-```bash
+```shell
 git commit -m "change task background to red"
 ```
 
 Y envia los cambios al repositorio remoto:
 
-```bash
+```shell
 git push -u origin change-task-background
 ```
 

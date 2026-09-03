@@ -2,7 +2,7 @@
 title: 'Storybook をデプロイする'
 tocTitle: 'デプロイ'
 description: 'Storybook をインターネット上にデプロイする方法を学びましょう'
-commit: '27da5f3'
+commit: 'ca9b814'
 ---
 
 ここまで、ローカルの開発マシンでコンポーネントを作成してきました。しかし、ある時点で、フィードバックを得るためにチームに作業を共有しなければならないこともあるでしょう。チームメートに UI の実装をレビューしてもらうため、Storybook をインターネット上にデプロイしてみましょう。
@@ -11,43 +11,43 @@ commit: '27da5f3'
 
 Storybook をデプロイするには、まず静的サイトとしてエクスポートします。この機能はすでに組み込まれて、使える状態となっているので、設定について気にする必要はありません。
 
-`yarn build-storybook` を実行すると、`storybook-static` ディレクトリーに Storybook が静的サイトとして出力されますので、静的サイトのホスティングサービスのデプロイ出来ます。
+`yarn build-storybook` を実行すると、`storybook-static` ディレクトリに Storybook が静的サイトとして出力されますので、静的サイトのホスティングサービスにデプロイできます。
 
-## Storybook を発行する
+## Storybook を公開する
 
-このチュートリアルでは、Storybook のメンテナーが作成した、無料のホスティングサービスである <a href="https://www.chromatic.com/">Chromatic</a> を使用します。Chromatic を使えば、クラウド上に Storybook を安全に、デプロイしホストすることができます。
+このチュートリアルでは、Storybook のメンテナーが作成した、無料のホスティングサービスである <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a> を使用します。Chromatic を使えば、クラウド上に Storybook を安全にデプロイし、またホストできます。
 
-### GitHub にリポジトリーを作成する
+### GitHub にリポジトリを作成する
 
-デプロイの前に、リモートのバージョン管理サービスへローカルのコードを同期しなければなりません。[はじめにの章](/intro-to-storybook/react/ja/get-started/)で Create React App (CRA) でプロジェクトを初期化した際に、ローカルのリポジトリーはすでに作成されています。また、この段階でリモートリポジトリーにプッシュできるコミットがあるはずです。
+デプロイの前に、リモートのバージョン管理サービスへローカルのコードを同期しなければなりません。[はじめの章](/intro-to-storybook/react/ja/get-started/)でプロジェクトを初期化した際に、ローカルのリポジトリはすでに作成されています。この段階に来れば、リモートリポジトリにプッシュできるコミットがあるはずです。
 
-[ここから](https://github.com/new) GitHub にアクセスし、リポジトリーを作りましょう。リポジトリーの名前はローカルと同じく「taskbox」とします。
+[ここから](https://github.com/new) GitHub にアクセスし、リポジトリを作りましょう。リポジトリの名前はローカルと同じく「taskbox」とします。
 
 ![GitHub のセットアップ](/intro-to-storybook/github-create-taskbox.png)
 
-新しいリポジトリーを作ったら origin の URL をコピーして、次のコマンドを実行し、ローカルの Git プロジェクトにリモートを追加します:
+新しいリポジトリを作ったら origin の URL をコピーして、次のコマンドを実行し、ローカルの Git リポジトリを GitHub のリモートリポジトリに追加します。
 
-```bash
-$ git remote add origin https://github.com/<your username>/taskbox.git
+```shell
+git remote add origin https://github.com/<GitHubのユーザ名>/taskbox.git
 ```
 
-最後にローカルリポジトリーを GitHub のリモートリポジトリーにプッシュします:
+最後にローカルリポジトリを GitHub のリモートリポジトリにプッシュします。
 
-```bash
-$ git push -u origin main
+```shell
+git push -u origin main
 ```
 
 ### Chromatic を使う
 
 パッケージを開発時の依存関係に追加します。
 
-```bash
+```shell
 yarn add -D chromatic
 ```
 
-パッケージをインストールしたら、GitHub のアカウントを使用して [Chromatic にログイン](https://www.chromatic.com/start)します。(Chromatic は一部のアクセス許可を要求します。) 「taskbox」という名前でプロジェクトを作成し、GitHub のリポジトリーと同期させます。
+パッケージをインストールしたら、GitHub のアカウントを使用して [Chromatic にログイン](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook)します。(Chromatic は一部のアクセス許可を要求します。)「taskbox」という名前でプロジェクトを作成し、GitHub のリポジトリと同期させます。
 
-ログインしたら `Choose from GitHub` をクリックし、リポジトリーを選択します。
+ログインしたら `Choose GitHub repo` をクリックし、リポジトリを選択します。
 
 <video autoPlay muted playsInline loop style="width:520px; margin: 0 auto;">
   <source
@@ -58,7 +58,7 @@ yarn add -D chromatic
 
 作成したプロジェクト用に生成された一意の `project-token` をコピーします。次に、Storybook をビルドし、デプロイするため、以下のコマンドを実行します。その際、コマンドの `<project-token>` の場所にコピーしたトークンを貼り付けてください。
 
-```bash
+```shell
 yarn chromatic --project-token=<project-token>
 ```
 
@@ -66,23 +66,21 @@ yarn chromatic --project-token=<project-token>
 
 実行が完了すると、Storybook が発行されて、`https://random-uuid.chromatic.com` のようなリンクができます。このリンクをチームに共有すれば、フィードバックが得られるでしょう。
 
-![Chromatic パッケージを使用してデプロイされた Storybook](/intro-to-storybook/chromatic-manual-storybook-deploy-6-0.png)
+![Chromatic パッケージを使用してデプロイされた Storybook](/intro-to-storybook/chromatic-manual-storybook-deploy.png)
 
-やりました！Storybook が一つのコマンドだけで発行できました。ですが、UI を実装し、フィードバックを得たいと思ったときに、毎回コマンドを手動実行するのは非効率です。理想的なのは、コードをプッシュすると自動的に最新のコンポーネントが発行されることです。それには、Storybook を継続的にデプロイしていく必要があります。
+素晴らしい！Storybook をひとつのコマンドだけで公開できました。しかしながら、UI を実装し、フィードバックを得たいと思ったときに、毎回コマンドを手動で実行するのは非効率です。理想的なのは、コードをプッシュすると自動的に最新のコンポーネントが同期されることです。そのためには、Storybook を継続的にデプロイしていく必要があります。
 
 ## Chromatic を使用した継続的デプロイメント
 
-もうプロジェクトは GitHub にホストされているので、Storybook を自動的にデプロイする継続的インテグレーション (CI) が使用できます。[GitHub アクション](https://github.com/features/actions)は GitHub に組み込まれている CI サービスで、自動発行が簡単にできます。
+もうプロジェクトは GitHub にホストされているので、Storybook を自動的にデプロイする継続的インテグレーション (CI) が使用できます。[GitHub アクション](https://github.com/features/actions)は GitHub に組み込まれている CI サービスで、自動公開が簡単にできます。
 
 ### Storybook をデプロイするために GitHub アクションを追加する
 
-プロジェクトのルートフォルダーに `.github` というフォルダーを作成し、さらにその中に `workflows` というフォルダーを作成します。
+プロジェクトのルートに `.github` というディレクトリを作成し、さらにその中に `workflows` というフォルダーを作成します。
 
-`chromatic.yml` を以下の内容で新規に作成します。`project-token` を先ほどのトークンで置き換えてください。
+`chromatic.yml` を以下の内容で新規に作成します。
 
-```yaml
-# .github/workflows/chromatic.yml
-
+```yaml:title=.github/workflows/chromatic.yml
 # Workflow name
 name: 'Chromatic Deployment'
 
@@ -96,10 +94,12 @@ jobs:
     runs-on: ubuntu-latest
     # Job steps
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - run: yarn
         #👇 Adds Chromatic as a step in the workflow
-      - uses: chromaui/action@v1
+      - uses: chromaui/action@latest
         # Options required for Chromatic's GitHub Action
         with:
           #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/en/deploy/ to obtain it
@@ -107,31 +107,29 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-<div class="aside">
-<p>簡潔にするため <a href="https://help.github.com/ja/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets">GitHub secrets</a> には言及していません。GitHub secrets は GitHub によって提供されるセキュアな環境変数なので、<code>project-token</code> をハードコードする必要はありません。</p>
-</div>
+<div class="aside"><p>💡 簡潔にするため <a href="https://help.github.com/ja/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets">GitHub secrets</a> には言及していません。GitHub secrets は GitHub によって提供されるセキュアな環境変数なので、<code>project-token</code> をハードコードする必要はありません。</p></div>
 
 ### アクションをコミットする
 
-コマンドラインで以下のコマンドを実行し、今までの内容をステージングします:
+コマンドラインで以下のコマンドを実行し、今までの内容をステージングします。
 
-```bash
+```shell
 git add .
 ```
 
-さらに以下のコマンドでコミットします:
+さらに以下のコマンドでコミットします。
 
-```bash
+```shell
 git commit -m "GitHub action setup"
 ```
 
-最後にリモートリポジトリーにプッシュします:
+最後にリモートリポジトリにプッシュします。
 
-```bash
+```shell
 git push origin main
 ```
 
-一度 GitHub アクションをセットアップすれば、コードをプッシュする度に Chromatic にデプロイされます。Chromatic のプロジェクトのビルド画面で発行されたすべての Storybook を確認できます。
+一度 GitHub アクションをセットアップすれば、コードをプッシュする度に Chromatic にデプロイされます。Chromatic のプロジェクトのビルド画面で公開されたすべての版の Storybook を確認できます。
 
 ![Chromatic のユーザーダッシュボード](/intro-to-storybook/chromatic-user-dashboard.png)
 
@@ -139,6 +137,6 @@ git push origin main
 
 次に `View Storybook` ボタンをクリックすれば、最新の Storybook を見ることができます。
 
-![Chromatic の Storybook のリンク](/intro-to-storybook/chromatic-build-storybook-link.png)
+![Chromatic の Storybook リンク](/intro-to-storybook/chromatic-build-storybook-link.png)
 
 このリンクをチームメンバーに共有しましょう。これは標準的な開発プロセスや、単に作業を公開するのに便利です 💅

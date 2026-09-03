@@ -2,7 +2,7 @@
 title: '部署 Storybook'
 tocTitle: '部署'
 description: '學習把 Storybook 部署到線上的方法'
-commit: '27da5f3'
+commit: 'ca9b814'
 ---
 
 在這套教學的過程中，我們已經在本地端機器打造元件。有一些進展後，要把成果分享出去，藉以獲得回饋。接下來，要把 Storybook 部署到線上，協助隊友檢查 UI 的實作方法。
@@ -15,7 +15,7 @@ commit: '27da5f3'
 
 ## 發布 Storybook
 
-這一份教學使用 Storybook 維護團隊製作的免費發布服務：<a href="https://www.chromatic.com/">Chromatic</a>，可以在雲端安全地部署與放置 Storybook。
+這一份教學使用 Storybook 維護團隊製作的免費發布服務：<a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a>，可以在雲端安全地部署與放置 Storybook。
 
 ### 在 Github 設定 Repository
 
@@ -27,25 +27,25 @@ commit: '27da5f3'
 
 在新的 Repo 裡，用以下指令加上 repo 的 git 專案 origin 網址：
 
-```bash
-$ git remote add origin https://github.com/<your username>/taskbox.git
+```shell
+git remote add origin https://github.com/<your username>/taskbox.git
 ```
 
 最後，把本地端 repo 推到在 GitHub 的遠端 repo。
 
-```bash
-$ git push -u origin main
+```shell
+git push -u origin main
 ```
 
 ### 安裝 Chromatic
 
 新增開發模式的 dependency。
 
-```bash
+```shell
 yarn add -D chromatic
 ```
 
-安裝好套件後即可使用 Github 帳號[登入 Chromatic](https://www.chromatic.com/start)（Chromatic 只會要求一點權限）。接著，新增名為 "taskbox" 的專案，與剛剛設定好的 Github Repository 同步。
+安裝好套件後即可使用 Github 帳號[登入 Chromatic](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook)（Chromatic 只會要求一點權限）。接著，新增名為 "taskbox" 的專案，與剛剛設定好的 Github Repository 同步。
 
 點擊在 collaborator 下方的 'Choose GitHub repo'，接著選擇 Repo。
 
@@ -58,7 +58,7 @@ yarn add -D chromatic
 
 複製專案裡產生，識別用的 'project-token'。在文字指令列執行下方那行，即可 build 和部署 Storybook。記得要把 'project-token' 換成專案的 token。
 
-```bash
+```shell
 yarn chromatic --project-token=<project-token>
 ```
 
@@ -100,7 +100,7 @@ jobs:
       - uses: chromaui/action@v1
         # Options required for Chromatic's GitHub Action
         with:
-          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/en/deploy/ to obtain it
+          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/zh-tw/deploy/ to obtain it
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -111,19 +111,19 @@ jobs:
 
 在文字指令列，用以下的指令來把做好的修改送出去：
 
-```bash
+```shell
 git add .
 ```
 
 接著，進行提交：
 
-```bash
+```shell
 git commit -m "GitHub action setup"
 ```
 
 最後，推上遠端 Repository：
 
-```bash
+```shell
 git push origin main
 ```
 

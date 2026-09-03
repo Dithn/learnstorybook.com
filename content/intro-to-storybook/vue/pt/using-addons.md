@@ -2,7 +2,6 @@
 title: 'Extras'
 tocTitle: 'Extras'
 description: 'Aprender a integrar e usar extras com recurso a um exemplo popular'
-commit: '1904307'
 ---
 
 Storybook possui um sistema robusto de [extras](https://storybook.js.org/docs/vue/configure/storybook-addons) com o qual se pode aumentar a experiência de desenvolvimento para qualquer elemento da sua equipa. Se estiver a seguir este tutorial, pode ter reparado que já foram mencionados múltiplos extras e já terá implementado um no [capitulo de testes](/intro-to-storybook/vue/pt/test/).
@@ -13,7 +12,7 @@ Storybook possui um sistema robusto de [extras](https://storybook.js.org/docs/vu
     😍 A lista de extras oficiais e da comunidade pode ser consultada <a href="https://storybook.js.org/addons">aqui</a>.
 </div>
 
-Poderíamos ficar aqui eternamente a discutir como configurar e usar os extras para todos os casos. Por enquanto, vamos focar-nos em integrar um dos extras mais populares no ecossistema Storybook: [knobs](https://github.com/storybooks/storybook/tree/master/addons/knobs).
+Poderíamos ficar aqui eternamente a discutir como configurar e usar os extras para todos os casos. Por enquanto, vamos focar-nos em integrar um dos extras mais populares no ecossistema Storybook: [knobs](https://github.com/storybookjs/addon-knobs#object).
 
 ## Configuração do extra Knobs
 
@@ -30,15 +29,13 @@ Knobs é um recurso fantástico quer para designers quer para programadores, par
 
 Primeiro irá ser necessário adicioná-lo como dependência de desenvolvimento.
 
-```bash
+```shell
 yarn add -D @storybook/addon-knobs
 ```
 
 Registe o Knobs no ficheiro `.storybook/main.js`.
 
-```javascript
-// .storybook/main.js
-
+```js:title=.storybook/main.js
 module.exports = {
   stories: ['../src/components/**/*.stories.js'],
   addons: ['@storybook/addon-actions', '@storybook/addon-knobs', '@storybook/addon-links'],
@@ -59,17 +56,14 @@ Vamos usar o objeto knob no componente `Task`.
 
 Primeiro, importamos o decorador `withKnobs` e o tipo `object` de knob para o ficheiro `Task.stories.js`:
 
-```javascript
-// src/components/Task.stories.js
+```js:title=src/components/Task.stories.js
 import { action } from '@storybook/addon-actions';
 import { withKnobs, object } from '@storybook/addon-knobs';
 ```
 
 Em seguida, dentro do `default` export do ficheiro `Task.stories`, vamos fornecer `withKnobs` como elemento do `decorators`:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 export default {
   title: 'Task',
   decorators: [withKnobs],
@@ -79,9 +73,7 @@ export default {
 
 Finalmente, integramos o tipo `object` do knob na estória "padrão":
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 // default task state
 export const Default = () => ({
   components: { Task },
@@ -99,7 +91,7 @@ export const Default = () => ({
 
 Agora um novo item denominado "Knobs" deverá surgir próximo do "Action Logger" no painel inferior da aplicação.
 
-Tal como documentado [aqui](https://github.com/storybooks/storybook/tree/master/addons/knobs#object), este tipo aceita uma "etiqueta" e um objeto padrão como parâmetros.
+Tal como documentado [aqui](https://github.com/storybookjs/addon-knobs#object), este tipo aceita uma "etiqueta" e um objeto padrão como parâmetros.
 A etiqueta é constante e irá aparecer no painel de extras á esquerda do campo de texto. O objeto fornecido será representado como um blob JSON que pode ser editado. Desde que seja submetido JSON válido, o componente irá ajustar-se com base na informação fornecida ao objeto!
 
 ## Os extras aumentam a esfera de ação do teu Storybook
@@ -114,11 +106,9 @@ Adicionalmente com a facilidade de edição de dados fornecidos ao componente, e
 
 Devido a facilidade com que é possível testar inputs diferentes podemos descobrir e resolver estes problemas com facilidade! Vamos então resolver o nosso problema, através da adição de um elemento de estilo ao `Task.vue`:
 
-```html
-<!--src/components/Task.vue>-->
-
-<!-- This is the input for our task title. 
-     In practice we would probably update the styles for this element but for this tutorial, 
+```html:title=src/components/Task.vue
+<!-- This is the input for our task title.
+     In practice we would probably update the styles for this element but for this tutorial,
      let's fix the problem with an inline style:-->
 <input
   type="text"
@@ -138,9 +128,7 @@ Isto irá expandir os testes de regressão e delinear com maior facilidade quais
 
 Vamos então adicionar uma estória para o caso da ocorrência de um texto grande no ficheiro `Task.stories.js`:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 const longTitle = `This task's name is absurdly large. In fact, I think if I keep going I might end up with content overflow. What will happen? The star that represents a pinned task could have text overlapping. The text could cut-off abruptly when it reaches the star. I hope not!`;
 
 // same as before

@@ -17,16 +17,16 @@ Esta guía te presentó los conceptos básicos de las pruebas visuales. Tom y yo
 Si lo ha estado siguiendo, su repositorio y Storybook implementado deberían verse así:
 
 - 📕 [**Repositorio de GitHub**](https://github.com/chromaui/learnstorybook-visual-testing-code)
-- 🌎 [**Storybook desplegado**](https://6070d9288779ab00214a9831-oymqxvbejc.chromatic.com/?path=/story/commentlist--paginated)
+- 🌎 [**Storybook desplegado**](https://6070d9288779ab00214a9831-pqbtsnhqei.chromatic.com/)
 
 ## Más recursos
 
 ¿Quieres sumergirte más profundo? A continuación, se incluyen algunos recursos útiles adicionales:
 
-- [**Documentación oficial de Storybook**](https://storybook.js.org/docs/react/get-started/introduction) tiene documentación de API, ejemplos y la galería de complementos.
+- [**Documentación oficial de Storybook**](https://storybook.js.org/docs/get-started/why-storybook) tiene documentación de API, ejemplos y la galería de complementos.
 
 - [**Cómo probar realmente las IU**](https://storybook.js.org/blog/how-to-actually-test-uis/) es un resumen de las estrategias prácticas de prueba de interfaz de usuario de Shopify, Adobe, Twilio y más.
 
 - [**Discord de Storybook**](https://discord.gg/UUt2PJb) te pone en contacto con la comunidad y los mantenedores de Storybook.
 
-- [**Blog de Storybook**](https://medium.com/storybookjs) muestra las últimas versiones y funciones para optimizar el flujo de trabajo de desarrollo de la interfaz de usuario.
+- [**Blog de Storybook**](https://storybook.js.org/blog) muestra las últimas versiones y funciones para optimizar el flujo de trabajo de desarrollo de la interfaz de usuario.

@@ -2,7 +2,7 @@
 title: 'Desplegar Storybook'
 tocTitle: 'Desplegar'
 description: 'Aprende a desplegar Storybook'
-commit: '4bed2f6'
+commit: '0107aa6'
 ---
 
 A lo largo de este tutorial, creamos componentes en nuestra máquina de desarrollo local. En algún momento, tendremos
@@ -19,13 +19,13 @@ luego se puede implementar en cualquier servicio de alojamiento de sitios estát
 
 ## Publicar Storybook
 
-Este tutorial utiliza <a href="https://www.chromatic.com/">Chromatic</a>, un servicio de publicación gratuito
+Este tutorial utiliza <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a>, un servicio de publicación gratuito
 realizado por los mantenedores de Storybook. Nos permite implementar y alojar nuestro Storybook de forma segura en la nube.
 
 ### Configurar un repositorio en GitHub
 
 Antes de comenzar, nuestro código local debe sincronizarse con un servicio de control de versiones remoto. Cuando
-nuestro proyecto se inicializó en el [capítulo "Empezando"](/intro-to-storybook/angular/es/get-started), ya
+nuestro proyecto se inicializó en el [capítulo "Empezando"](/intro-to-storybook/angular/es/get-started/), ya
 inicializamos un repositorio local. En esta etapa, ya tenemos un conjunto de confirmaciones que podemos enviar a una remota.
 
 Vaya a GitHub y cree un nuevo repositorio para nuestro proyecto [aquí](https://github.com/new). Nombra el
@@ -35,25 +35,25 @@ repositorio "tasks", igual que nuestro proyecto local.
 
 En el nuevo repositorio, tome la URL de origen del repositorio y agréguela a su proyecto git con este comando:
 
-```bash
-$ git remote add origin https://github.com/<su usuario>/taskbox.git
+```shell
+git remote add origin https://github.com/<su usuario>/taskbox.git
 ```
 
 Finalmente, hacer "push" de nuestro repositorio local al repositorio remoto en GitHub con:
 
-```bash
-$ git push -u origin main
+```shell
+git push -u origin main
 ```
 
 ### Obtener Chromatic
 
 Agregue el paquete como una dependencia de desarrollo.
 
-```bash
+```shell
 npm install -D chromatic
 ```
 
-Una vez que el paquete está instalado, [login en Chromatic](https://www.chromatic.com/start) con su cuenta de GitHub
+Una vez que el paquete está instalado, [login en Chromatic](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) con su cuenta de GitHub
 (Chromatic solo solicitará permisos ligeros). Luego crearemos un nuevo proyecto llamado "taskbox" y lo
 sincronizaremos con el repositorio de GithHub que hemos configurado.
 
@@ -69,7 +69,7 @@ Click `Choose GitHub repo` como colaboradores y seleccione su repositorio.
 Copie el "token de proyecto" único que se generó para su proyecto. Luego ejecútelo, emitiendo lo siguiente en la
 línea de comando, para construir e implementar nuestro Storybook. Asegúrate de reemplazar `project-token` con el token de tu proyecto.
 
-```bash
+```shell
 npx chromatic --project-token=<project-token>
 ```
 
@@ -115,7 +115,7 @@ jobs:
       - uses: chromaui/action@v1
         # Options required for Chromatic's GitHub Action
         with:
-          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/angular/en/deploy/ to obtain it
+          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/angular/es/deploy/ to obtain it
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -126,19 +126,19 @@ jobs:
 
 En la línea de comando, emita el siguiente comando para agregar los cambios que se realizaron:
 
-```bash
+```shell
 git add .
 ```
 
 Luego, confírmelo emitiendo:
 
-```bash
+```shell
 git commit -m "GitHub action setup"
 ```
 
 Finalmente, envíelos al repositorio remoto con:
 
-```bash
+```shell
 git push origin main
 ```
 

@@ -2,7 +2,6 @@
 title: '外掛'
 tocTitle: '外掛'
 description: '了解整合、使用熱門功能：Control 外掛的方法'
-commit: '3d53594'
 ---
 
 Storybook 有精美的[外掛](https://storybook.js.org/docs/react/configure/storybook-addons)生態系，可以用來加強團隊裡的開發者體驗。[在這裡](https://storybook.js.org/addons)可以翻閱。
@@ -83,7 +82,7 @@ LongTitle.args = {
 
 如果進行的是[視覺測試](/intro-to-storybook/react/zh-TW/test/)，只要省略的作法壞了，也會看得到。若沒有加上測試，少見的極端案例很容易忘記！
 
-<div class="aside"><p>💡 Controls 可以讓非開發者輕鬆把玩元件和 story。本文所提到的只是一小部分，建議在<a href="https://storybook.js.org/docs/react/essentials/controls">官方文件</a>深入閱讀。然而，外掛還有更多讓你自訂 Storybook，得以符合工作流程的方法。在打造外掛的指南，就會教你如何<a href="/create-an-addon/react/en/introduction/">自製外掛</a>，讓開發工作流程更有威力。</p></div>
+<div class="aside"><p>💡 Controls 可以讓非開發者輕鬆把玩元件和 story。本文所提到的只是一小部分，建議在<a href="https://storybook.js.org/docs/react/essentials/controls">官方文件</a>深入閱讀。然而，外掛還有更多讓你自訂 Storybook，得以符合工作流程的方法。在打造外掛的指南，就會教你如何<a href="https://storybook.js.org/docs/react/addons/writing-addons">自製外掛</a>，讓開發工作流程更有威力。</p></div>
 
 ### 合併
 

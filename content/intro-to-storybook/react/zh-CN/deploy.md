@@ -2,7 +2,7 @@
 title: '部署 Storybook'
 tocTitle: '部署'
 description: '学习如何在线部署 Storybook'
-commit: '27da5f3'
+commit: 'ca9b814'
 ---
 
 在本教程中,我们在开发机器上运行了 Storybook. 您可能还想与团队分享该 Storybook,尤其是非技术成员. 值得庆幸的是,在线部署 Storybook 很容易.
@@ -15,7 +15,7 @@ commit: '27da5f3'
 
 ## 发布 Storybook
 
-本教程使用 <a href="https://www.chromatic.com/">Chromatic</a>，这是一个有 Storybook 维护者提供的一个免费发布托管服务。它允许我们安全可靠的部署和托管我们的 Storybook。
+本教程使用 <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a>，这是一个有 Storybook 维护者提供的一个免费发布托管服务。它允许我们安全可靠的部署和托管我们的 Storybook。
 
 ### GitHub 仓库设置
 
@@ -23,14 +23,14 @@ commit: '27da5f3'
 
 发出以下命令以添加并提交目前为止我们的所有修改。
 
-```bash
-$ git add .
+```shell
+git add .
 ```
 
 其次是：
 
-```bash
-$ git commit -m "taskbox UI"
+```shell
+git commit -m "taskbox UI"
 ```
 
 转到 GitHub 并设置存储库[这里](https://github.com/new)。将您的仓库命名为"taskbox"，与我们的本地项目相同。
@@ -39,25 +39,25 @@ $ git commit -m "taskbox UI"
 
 在新的 repo 设置中，复制 repo 的原始 URL，并使用以下命令将其添加到 git 项目中：
 
-```bash
-$ git remote add origin https://github.com/<your username>/taskbox.git
+```shell
+git remote add origin https://github.com/<your username>/taskbox.git
 ```
 
 最后将本地仓库推送到 GitHub 远程仓库
 
-```bash
-$ git push -u origin main
+```shell
+git push -u origin main
 ```
 
 ### 开始 Chromatic
 
 添加包作为开发环境依赖。
 
-```bash
+```shell
 yarn add -D chromatic
 ```
 
-当依赖包安装完成时，[登录 Chromatic](https://www.chromatic.com/start) 以及 Github 账号（Chromatic 仅要求一些轻量的权限）。接下来我们将创建一个新仓库命名为“taskbox”并同步到我们设置好的 Github 仓库。
+当依赖包安装完成时，[登录 Chromatic](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) 以及 Github 账号（Chromatic 仅要求一些轻量的权限）。接下来我们将创建一个新仓库命名为“taskbox”并同步到我们设置好的 Github 仓库。
 
 点击协作者下的 `Choose GitHub repo` 并选择你的仓库。
 
@@ -70,7 +70,7 @@ yarn add -D chromatic
 
 复制为你的项目生成的唯一 `project-token`。执行下面的命令行，构建并部署我们的 Storybook。确保将 `project-token` 替换为你项目的 `project-token`。
 
-```bash
+```shell
 yarn chromatic --project-token=<project-token>
 ```
 
@@ -92,9 +92,7 @@ yarn chromatic --project-token=<project-token>
 
 像下面的一样，创建一个新文件命名为 `chromatic.yml`。将 `project-token` 替换为你项目的 project token。
 
-```yaml
-# .github/workflows/chromatic.yml
-
+```yaml:title=.github/workflows/chromatic.yml
 # Workflow name
 name: 'Chromatic Deployment'
 
@@ -114,7 +112,7 @@ jobs:
       - uses: chromaui/action@v1
         # Options required for Chromatic's GitHub Action
         with:
-          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/en/deploy/ to obtain it
+          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/zh-cn/deploy/ to obtain it
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -125,19 +123,19 @@ jobs:
 
 发出以下命令添加目前的修改：
 
-```bash
+```shell
 git add .
 ```
 
 接下来提交：
 
-```bash
+```shell
 git commit -m "GitHub action setup"
 ```
 
 最后推送到远程分支：
 
-```bash
+```shell
 git push origin main
 ```
 

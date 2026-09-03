@@ -2,7 +2,7 @@
 title: 'Automate visual testing'
 tocTitle: 'Automate'
 description: 'Automate visual testing to catch regressions'
-commit: 'd7daf97'
+commit: '7c2066e'
 ---
 
 Over the natural course of development, bugs are inevitable. Visual test automation uses machines to detect changes in UI appearance for a human to review.
@@ -26,7 +26,7 @@ Go to GitHub and create a new repository for the project [here](https://github.c
 
 Then follow the instructions to set up the repository. Replace `your-username` with your GitHub account name.
 
-```
+```shell:clipboard=false
 git init
 git add .
 git commit -m "first commit"
@@ -37,7 +37,7 @@ git push -u origin main
 
 ## Set up Chromatic
 
-We'll use Chromatic by Storybook maintainers to demonstrate the image snapshotting process. Go to [chromatic.com](https://www.chromatic.com/) and signup with your GitHub account.
+We'll use Chromatic by Storybook maintainers to demonstrate the image snapshotting process. Go to [chromatic.com](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) and signup with your GitHub account.
 
 ![Chromatic sign in](/visual-testing-handbook/chromatic-sign-in-optimized.png)
 
@@ -55,12 +55,12 @@ UI tests capture an image snapshot of every story in a cloud browser environment
 Add Chromatic as a development package to your project:
 
 ```shell
-yarn add -D chromatic
+yarn add --dev chromatic
 ```
 
 Once it’s finished installing, we have all that we need. Now is an excellent time to commit and push the changes to the remote repository.
 
-```shell
+```shell:clipboard=false
 git add .
 git commit -m "Added Chromatic"
 git push
@@ -69,7 +69,7 @@ git push
 Build and publish our Storybook with the `chromatic` command. Don't forget to replace the <code>project-token</code> with one Chromatic supplies on the website.
 
 ```shell
-yarn chromatic --project-token=<project-token>
+npx chromatic --project-token=<project-token>
 ```
 
 ![Chromatic running](/intro-to-storybook/chromatic-manual-storybook-console-log.png)
@@ -92,13 +92,37 @@ git checkout -b change-commentlist-outline
 
 Tweak the `CommentList` component
 
-```diff:title=src/components/CommentList.js
-import React from 'react';
-
-import PropTypes from 'prop-types';
+```diff:title=src/components/CommentList.tsx
 import styled, { createGlobalStyle } from 'styled-components';
 
-const CommentListDiv = styled.div`
+interface Author {
+  name: string;
+  avatar: string;
+}
+
+interface Comment {
+  text: string;
+  author: Author;
+}
+
+export interface CommentListProps {
+  /**
+   * Is the component in the loading state
+   */
+  loading?: boolean;
+
+  /**
+   * Total number of comments
+   */
+  totalCount?: number;
+
+  /**
+   * List of comments
+   */
+  comments?: Comment[];
+}
+
+const CommentListWrapper = styled.div`
   font-family: "Nunito Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #333;
   display: inline-block;
@@ -106,7 +130,7 @@ const CommentListDiv = styled.div`
   width: 265px;
 `;
 
-const CommentItemDiv = styled.div`
+const CommentItem = styled.div`
   font-size: 12px;
   line-height: 14px;
   clear: both;
@@ -123,7 +147,7 @@ const CommentItemDiv = styled.div`
 + font-weight: bold;
 `;
 
-const AvatarDiv = styled.div`
+const Avatar = styled.div`
   float: left;
   position: relative;
   overflow: hidden;
@@ -144,22 +168,30 @@ const AvatarImg = styled.img`
   background: #999;
 `;
 
-const MessageDiv = styled.div`
+const Message = styled.div`
   overflow: hidden;
   padding-top: 10px;
   padding-right: 20px;
 `;
 
-const AuthorSpan = styled.span`
+const Author = styled.span`
   font-weight: bold;
 `;
-const TextSpan = styled.span``;
+
+const CommentText = styled.span``;
 
 const GlobalStyle = createGlobalStyle`
-@import url('https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,800');
-`;
+   @import url('https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,800');
+ `;
 
-export default function CommentList({ loading, comments, totalCount }) {
+/**
+* The Commentlist component should display the comments from the user.
+*/
+export default function CommentList({
+  loading = false,
+  comments = [],
+  totalCount = 10,
+}: CommentListProps) {
   if (loading) {
     return <div>loading</div>;
   }
@@ -168,61 +200,30 @@ export default function CommentList({ loading, comments, totalCount }) {
   }
   return (
     <>
-    <GlobalStyle/>
-    <CommentListDiv>
-      {comments.map(({ text, author: { name, avatar } }) => (
-        <CommentItemDiv key={`comment_${name}`}>
-          <AvatarDiv>
-            <AvatarImg src={avatar} />
-          </AvatarDiv>
-          <MessageDiv>
-            <AuthorSpan>{name}</AuthorSpan> <TextSpan>{text}</TextSpan>
-          </MessageDiv>
-        </CommentItemDiv>
-      ))}
-    </CommentListDiv>
+      <GlobalStyle />
+      <CommentListWrapper>
+        {comments.map(({ text, author: { name, avatar } }) => (
+          <CommentItem key={`comment_${name}`}>
+            <Avatar>
+              <AvatarImg src={avatar} />
+            </Avatar>
+            <Message>
+              <Author>{name}</Author> <CommentText>{text}</CommentText>
+            </Message>
+          </CommentItem>
+        ))}
+      </CommentListWrapper>
     </>
   );
 }
-
-CommentList.propTypes = {
-  /**
-   * Is the component in the loading state
-   */
-  loading: PropTypes.bool,
-
-  /**
-   * Total number of comments
-   */
-  totalCount: PropTypes.number,
-  /**
-   * List of comments
-   */
-  comments: PropTypes.arrayOf(
-    PropTypes.shape({
-      text: PropTypes.string,
-      author: PropTypes.shape({
-        name: PropTypes.string,
-        avatar: PropTypes.string,
-      }),
-    })
-  ),
-};
-
-CommentList.defaultProps = {
-  loading: false,
-  totalCount: 10,
-  comments: [],
-};
-
 ```
 
 Commit the change, push it to the repo and run Chromatic:
 
-```shell
+```shell:clipboard=false
 git commit -am "make CommentList sparkle"
 git push -u origin change-commentlist-outline
-yarn chromatic --project-token=<project-token>
+npx chromatic --project-token=<project-token>
 ```
 
 Open a pull request for the new branch in your GitHub repository.
@@ -251,7 +252,7 @@ Once bugs are fixed and baselines are up to date, you're ready to merge code bac
 
 ### Continuous integration
 
-Running this command locally each time we make a change is tiresome. Productions teams trigger visual test runs when code is pushed in their CI/CD pipeline. While we won't set that up in this tutorial, you can learn more in [Chromatic's CI docs](https://www.chromatic.com/docs/ci).
+Running this command locally each time we make a change is tiresome. Productions teams trigger visual test runs when code is pushed in their CI/CD pipeline. While we won't set that up in this tutorial, you can learn more in [Chromatic's CI docs](https://www.chromatic.com/docs/ci?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook).
 
 ## Your journey begins
 

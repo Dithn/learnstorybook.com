@@ -2,12 +2,12 @@
 title: 'دروس ستوريبوك مع رياكت'
 tocTitle: '!ابدأ'
 description: 'جهّز ستوريبوك في بيئة التطوير الخاصة بك'
-commit: 'b66f341'
+commit: 'afe05db'
 ---
 
 <div style="direction: rtl">
 
-ستوريبوك يعمل جنبا إلى جنب مع تطبيقك في بيئة التطوير. يساعدك على بناء مكونات واجهة مستخدم منعزلة عن منطق العمل وسياق التطبيق الخاص بك. هذه النسخة من درس "مقدمة عن ستوريبوك" مخصصة لرياكت, نسخ اخرى من هذا الدرس: [رياكت نايتف](/intro-to-storybook/react-native/en/get-started), [فيو](/intro-to-storybook/vue/en/get-started), [انجيولار](/intro-to-storybook/angular/en/get-started), [سفيلت](/intro-to-storybook/svelte/en/get-started) و[إمبر](/intro-to-storybook/ember/en/get-started).
+ستوريبوك يعمل جنبا إلى جنب مع تطبيقك في بيئة التطوير. يساعدك على بناء مكونات واجهة مستخدم منعزلة عن منطق العمل وسياق التطبيق الخاص بك. هذه النسخة من درس "مقدمة عن ستوريبوك" مخصصة لرياكت, نسخ اخرى من هذا الدرس: [رياكت نايتف](/intro-to-storybook/react-native/en/get-started/), [فيو](/intro-to-storybook/vue/en/get-started/), [انجيولار](/intro-to-storybook/angular/en/get-started/), [سفيلت](/intro-to-storybook/svelte/en/get-started/).
 
 ![ستوريبوك وتطبيقك](/intro-to-storybook/storybook-relationship.jpg)
 
@@ -20,7 +20,7 @@ commit: 'b66f341'
 
 <div style="direction: ltr">
 
-```bash
+```shell:clipboard=false
 # Clone the template
 npx degit chromaui/intro-storybook-react-template taskbox
 
@@ -40,7 +40,7 @@ yarn
 
 <div style="direction: ltr">
 
-```bash
+```shell:clipboard=false
 # Run the test runner (Jest) in a terminal:
 yarn test --watchAll
 

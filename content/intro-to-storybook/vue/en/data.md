@@ -2,7 +2,7 @@
 title: 'Wire in data'
 tocTitle: 'Data'
 description: 'Learn how to wire in data to your UI component'
-commit: 'c881ddc'
+commit: 'fafbc81'
 ---
 
 So far, we have created isolated stateless components-–great for Storybook, but ultimately not helpful until we give them some data in our app.
@@ -13,45 +13,75 @@ This tutorial doesn’t focus on the particulars of building an app, so we won�
 
 Our `TaskList` component as currently written is “presentational” in that it doesn’t talk to anything external to its own implementation. To get data into it, we need a “container”.
 
-This example uses [Vuex](https://vuex.vuejs.org), Vue's default data management library, to build a straightforward data model for our app. However, the pattern used here applies just as well to other data management libraries like [Apollo](https://www.apollographql.com/client/) and [MobX](https://mobx.js.org/).
+This example uses [Pinia](https://pinia.vuejs.org/), Vue's default data management library, to build a simple data model for our application and help us manage the state of our tasks.
 
 Add the necessary dependency to your project with:
 
-```bash
-yarn add vuex@next --save
+```shell
+yarn add pinia
 ```
 
-First, we'll create a simple Vuex store that responds to actions that change the task's state in a file called `store.js` in the `src` directory (intentionally kept simple):
+First, we'll create a simple Pinia store that responds to actions that change the task's state in a file called `store.ts` in the `src` directory (intentionally kept simple):
 
-```js:title=src/store.js
-import { createStore } from 'vuex';
+```ts:title=src/store.ts
+import type { TaskData } from './types'
 
-export default createStore({
-  state: {
-    tasks: [
-      { id: '1', title: 'Something', state: 'TASK_INBOX' },
-      { id: '2', title: 'Something more', state: 'TASK_INBOX' },
-      { id: '3', title: 'Something else', state: 'TASK_INBOX' },
-      { id: '4', title: 'Something again', state: 'TASK_INBOX' },
-    ],
-  },
-  mutations: {
-    ARCHIVE_TASK(state, id) {
-      state.tasks.find(task => task.id === id).state = 'TASK_ARCHIVED';
-    },
-    PIN_TASK(state, id) {
-      state.tasks.find(task => task.id === id).state = 'TASK_PINNED';
-    },
-  },
+/* A simple Pinia store/actions implementation.
+ * A true app would be more complex and separated into different files.
+ */
+import { defineStore } from 'pinia'
+
+interface TaskBoxState {
+  tasks: TaskData[]
+  status: 'idle' | 'loading' | 'failed' | 'succeeded'
+  error: string | null
+}
+
+/*
+ * The initial state of our store when the app loads.
+ * Usually, you would fetch this from a server. Let's not worry about that now
+ */
+const defaultTasks: TaskData[] = [
+  { id: '1', title: 'Something', state: 'TASK_INBOX' },
+  { id: '2', title: 'Something more', state: 'TASK_INBOX' },
+  { id: '3', title: 'Something else', state: 'TASK_INBOX' },
+  { id: '4', title: 'Something again', state: 'TASK_INBOX' },
+]
+
+/*
+ * The store is created here.
+ * You can read more about Pinia defineStore in the docs:
+ * https://pinia.vuejs.org/core-concepts/
+ */
+export const useTaskStore = defineStore('taskbox', {
+  state: (): TaskBoxState => ({
+    tasks: defaultTasks,
+    status: 'idle',
+    error: null,
+  }),
   actions: {
-    archiveTask({ commit }, id) {
-      commit('ARCHIVE_TASK', id);
+    archiveTask(id: string) {
+      const task = this.tasks.find((task) => task.id === id)
+      if (task) {
+        task.state = 'TASK_ARCHIVED'
+      }
     },
-    pinTask({ commit }, id) {
-      commit('PIN_TASK', id);
+    pinTask(id: string) {
+      const task = this.tasks.find((task) => task.id === id)
+      if (task) {
+        task.state = 'TASK_PINNED'
+      }
     },
   },
-});
+  getters: {
+    getFilteredTasks: (state) => {
+      const filteredTasks = state.tasks.filter(
+        (t) => t.state === 'TASK_INBOX' || t.state === 'TASK_PINNED',
+      )
+      return filteredTasks
+    },
+  },
+})
 ```
 
 Then we'll update our `TaskList` to read data out of the store. First, let's move our existing presentational version to the file `src/components/PureTaskList.vue` (renaming the component to `PureTaskList`) and wrap it with a container.
@@ -59,16 +89,75 @@ Then we'll update our `TaskList` to read data out of the store. First, let's mov
 In `src/components/PureTaskList.vue`:
 
 ```html:title=src/components/PureTaskList.vue
+<!--This file moved from TaskList.vue-->
 <template>
-  <!-- same content as before -->
-</template>
+  <div class="list-items">
+    <template v-if="loading">
+      <div v-for="n in 6" :key="n" class="loading-item" data-testid="loading" id="loading">
+        <span class="glow-checkbox" />
+        <span class="glow-text"> <span>Loading</span> <span>cool</span> <span>state</span> </span>
+      </div>
+    </template>
 
-<script>
-  import Task from './Task';
-  export default {
-    name: 'PureTaskList',
-    // same content as before
-  };
+    <div v-else-if="isEmpty" class="list-items" data-testid="empty" id="empty">
+      <div class="wrapper-message">
+        <span class="icon-check" />
+        <p class="title-message">You have no tasks</p>
+        <p class="subtitle-message">Sit back and relax</p>
+      </div>
+    </div>
+
+    <template v-else>
+      <Task
+        v-for="task in tasksInOrder"
+        :key="task.id"
+        :task="task"
+        @archive-task="onArchiveTask"
+        @pin-task="onPinTask"
+      />
+    </template>
+  </div>
+</template>
+<script lang="ts" setup>
+import type { TaskData } from '../types'
+
+import { computed } from 'vue'
+
+import Task from './Task.vue'
+
+type TaskListProps = {
+  tasks: TaskData[]
+  loading?: boolean
+}
+
+const props = defineProps<TaskListProps>()
+
+const isEmpty = computed(() => props.tasks.length === 0)
+const tasksInOrder = computed(() => {
+  return [
+    ...props.tasks.filter((t) => t.state === 'TASK_PINNED'),
+    ...props.tasks.filter((t) => t.state !== 'TASK_PINNED'),
+  ]
+})
+
+const emit = defineEmits<{
+  (e: 'archive-task', id: string): void
+  (e: 'pin-task', id: string): void
+}>()
+
+/**
+ * Event handler for archiving tasks
+ */
+function onArchiveTask(taskId: string): void {
+  emit('archive-task', taskId)
+}
+
+/**
+ * Event handler for pinning tasks
+ */
+function onPinTask(taskId: string): void {
+  emit('pin-task', taskId)
+}
 </script>
 ```
 
@@ -79,112 +168,103 @@ In `src/components/TaskList.vue`:
   <PureTaskList :tasks="tasks" @archive-task="archiveTask" @pin-task="pinTask" />
 </template>
 
-<script>
-  import PureTaskList from './PureTaskList';
+<script lang="ts" setup>
+import PureTaskList from './PureTaskList.vue'
 
-  import { computed } from 'vue';
+import { computed } from 'vue'
 
-  import { useStore } from 'vuex';
+import { useTaskStore } from '../store'
 
-  export default {
-    components: { PureTaskList },
-    name: 'TaskList',
-    setup() {
-      //👇 Creates a store instance
-      const store = useStore();
+const taskStore = useTaskStore()
+//👇 Creates a store instance
+const store = useTaskStore()
 
-      //👇 Retrieves the tasks from the store's state
-      const tasks = computed(() => store.state.tasks);
+//👇 Retrieves the tasks from the store's state auxiliary getter function
+const tasks = computed(() => store.getFilteredTasks)
 
-      //👇 Dispatches the actions back to the store
-      const archiveTask = task => store.dispatch('archiveTask', task);
-      const pinTask = task => store.dispatch('pinTask', task);
-
-      return {
-        tasks,
-        archiveTask,
-        pinTask,
-      };
-    },
-  };
+//👇 Dispatches the actions back to the store
+const archiveTask = (task: string) => store.archiveTask(task)
+const pinTask = (task: string) => store.pinTask(task)
 </script>
 ```
 
-The reason to keep the presentational version of the `TaskList` separate is that it is easier to test and isolate. As it doesn't rely on the presence of a store, it is much easier to deal with from a testing perspective. Let's rename `src/components/TaskList.stories.js` into `src/components/PureTaskList.stories.js` and ensure our stories use the presentational version:
+The reason to keep the presentational version of the `TaskList` separate is that it is easier to test and isolate. As it doesn't rely on the presence of a store, it is much easier to deal with from a testing perspective. Let's rename `src/components/TaskList.stories.ts` into `src/components/PureTaskList.stories.ts` and ensure our stories use the presentational version:
 
-```diff:title=src/components/PureTaskList.stories.js
-+ import PureTaskList from './PureTaskList.vue';
+```ts:title=src/components/PureTaskList.stories.ts
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
-import * as TaskStories from './Task.stories';
+import PureTaskList from './PureTaskList.vue'
 
-export default {
-+ component: PureTaskList,
-+ title: 'PureTaskList',
-  decorators: [
-    () => ({ template: '<div style="margin: 3em;"><story/></div>' }),
-  ],
-  argTypes: {
-    onPinTask: {},
-    onArchiveTask: {},
+import * as TaskStories from './Task.stories'
+
+export const TaskListData = [
+  { ...TaskStories.TaskData, id: '1', title: 'Task 1' },
+  { ...TaskStories.TaskData, id: '2', title: 'Task 2' },
+  { ...TaskStories.TaskData, id: '3', title: 'Task 3' },
+  { ...TaskStories.TaskData, id: '4', title: 'Task 4' },
+  { ...TaskStories.TaskData, id: '5', title: 'Task 5' },
+  { ...TaskStories.TaskData, id: '6', title: 'Task 6' },
+]
+
+const meta = {
+  component: PureTaskList,
+  title: 'PureTaskList',
+  tags: ['autodocs'],
+  excludeStories: /.*Data$/,
+  decorators: [() => ({ template: '<div style="margin: 3em;"><story/></div>' })],
+  args: {
+    ...TaskStories.TaskData.events,
   },
-};
+} satisfies Meta<typeof PureTaskList>
 
-const Template = (args, { argTypes }) => ({
-+ components: { PureTaskList },
- setup() {
-    return { args, ...TaskStories.actionsData };
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {
+  args: {
+    // Shaping the stories through args composition.
+    // Inherited data coming from the Default story.
+    tasks: TaskListData,
   },
-+ template: '<PureTaskList v-bind="args" />',
-});
+}
 
-export const Default = Template.bind({});
-Default.args = {
-  // Shaping the stories through args composition.
-  // The data was inherited from the Default story in task.stories.js.
-  tasks: [
-    { ...TaskStories.Default.args.task, id: '1', title: 'Task 1' },
-    { ...TaskStories.Default.args.task, id: '2', title: 'Task 2' },
-    { ...TaskStories.Default.args.task, id: '3', title: 'Task 3' },
-    { ...TaskStories.Default.args.task, id: '4', title: 'Task 4' },
-    { ...TaskStories.Default.args.task, id: '5', title: 'Task 5' },
-    { ...TaskStories.Default.args.task, id: '6', title: 'Task 6' },
-  ],
-};
+export const WithPinnedTasks: Story = {
+  args: {
+    // Shaping the stories through args composition.
+    // Inherited data coming from the Default story.
+    tasks: [
+      ...Default.args.tasks.slice(0, 5),
+      { id: '6', title: 'Task 6 (pinned)', state: 'TASK_PINNED' },
+    ],
+  },
+}
 
-export const WithPinnedTasks = Template.bind({});
-WithPinnedTasks.args = {
-  // Shaping the stories through args composition.
-  // Inherited data coming from the Default story.
-  tasks: [
-    ...Default.args.tasks.slice(0, 5),
-    { id: '6', title: 'Task 6 (pinned)', state: 'TASK_PINNED' },
-  ],
-};
+export const Loading: Story = {
+  args: {
+    tasks: [],
+    loading: true,
+  },
+}
 
-export const Loading = Template.bind({});
-Loading.args = {
-  tasks: [],
-  loading: true,
-};
-
-export const Empty = Template.bind({});
-Empty.args = {
-  // Shaping the stories through args composition.
-  // Inherited data coming from the Loading story.
-  ...Loading.args,
-  loading: false,
-};
+export const Empty: Story = {
+  args: {
+    // Shaping the stories through args composition.
+    // Inherited data coming from the Loading story.
+    ...Loading.args,
+    loading: false,
+  },
+}
 ```
 
 <video autoPlay muted playsInline loop>
   <source
-    src="/intro-to-storybook/finished-tasklist-states-6-0.mp4"
+    src="/intro-to-storybook/finished-puretasklist-states-9-0.mp4"
     type="video/mp4"
   />
 </video>
 
 <div class="aside">
-💡 With this change, all of our tests will require an update. Update the imports and re-run the test command with the <code>-u</code> flag to update them. Also, don't forget to commit your changes with git!
+💡 Don't forget to commit your changes with git!
 </div>
 
-Now that we have some actual data populating our component, obtained from the Vuex store, we could have wired it to `src/App.vue` and render the component there. Don't worry about it. We'll take care of it in the next chapter.
+Now that we have some actual data populating our component, obtained from the Pinia store, we could have wired it to `src/App.vue` and render the component there. Don't worry about it. We'll take care of it in the next chapter.

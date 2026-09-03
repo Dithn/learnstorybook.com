@@ -2,182 +2,485 @@
 title: '화면 구성하기'
 tocTitle: '화면'
 description: '컴포넌트로 화면을 구성해봅시다'
-commit: '79829b2'
+commit: '12a7932'
 ---
 
-지금까지 작은 것에서부터 시작하여 복잡성을 점점 더하는 상향식의 UI를 만드는 것에 집중해왔습니다. 이를 통해 각 컴포넌트를 독립적으로 개발하고 데이터의 요구 사항을 파악하며 Storybook에서 사용해 볼 수 있었습니다. 모두 서버를 구축하거나 화면을 만들 필요가 없었습니다!
+우리는 지금까지 작은 것에서부터 시작하여 복잡성을 점점 더하는 방식으로 UI를 만들었습니다. 이를 통해 각 컴포넌트를 독립적으로 개발하고 데이터의 요구 사항을 파악하며 스토리북(Storybook)에서 사용해 볼 수 있었습니다. 모두 서버를 구축하거나 화면을 만들 필요가 없었습니다!
 
-이번 챕터에서는 화면에서 컴포넌트를 결합하고 Storybook에서 그 화면을 개발함으로써 계속하여 완성도를 높여보겠습니다.
+이번 챕터에서는 화면에서 컴포넌트를 결합하고 스토리북에서 그 화면을 개발함으로써 계속하여 완성도를 높여보겠습니다.
 
-## 중첩된 컨테이너 컴포넌트
+## 화면에 연결하기
 
-앱이 매우 간단하므로 우리가 만들 화면은 매우 사소합니다. 일부 레이아웃에서 `TaskList` 컴포넌트 (Redux를 통해 자체적으로 데이터를 제공함)을 감싸고, 최상위 레벨의 `error` 필드를 Redux에서 가져오는 것입니다(이 에러는 서버 연결에 문제가 있으면 설정되는 항목이라고 가정해봅시다). `InboxScreen.js`를 `components`폴더 안에 생성해주세요.
+우리 애플리케이션은 간단하기 때문에 만들 화면도 매우 간단합니다. 원격 API에서 데이터를 가져와 `TaskList` 컴포넌트(리덕스(Redux)를 통해 자체적으로 데이터를 제공함)를 레이아웃으로 감싸고, 최상위 레벨의 `error` 필드를 스토어에서 가져오는 것입니다. (서버 연결에 문제가 발생할 경우를 대비해 해당 필드를 설정한다고 가정해 봅시다.)
 
-```javascript
-// src/components/InboxScreen.js
+우리는 먼저 Redux 스토어(`src/lib/store.ts`)를 업데이트하여 원격 API에 연결하고, 애플리케이션의 다양한 상태(예: `error`, `succeeded`)를 처리하도록 하겠습니다.
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+```ts:title=src/lib/store.ts
+/* A simple redux store/actions/reducer implementation.
+ * A true app would be more complex and separated into different files.
+ */
+import type { TaskData } from '../types';
+
+import {
+  configureStore,
+  createSlice,
+  createAsyncThunk,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
+
+interface TaskBoxState {
+  tasks: TaskData[];
+  status: 'idle' | 'loading' | 'failed' | 'succeeded';
+  error: string | null;
+}
+
+/*
+ * The initial state of our store when the app loads.
+ * Usually, you would fetch this from a server. Let's not worry about that now
+ */
+const TaskBoxData: TaskBoxState = {
+  tasks: [],
+  status: 'idle',
+  error: null,
+};
+/*
+ * Creates an asyncThunk to fetch tasks from a remote endpoint.
+ * You can read more about Redux Toolkit's thunks in the docs:
+ * https://redux-toolkit.js.org/api/createAsyncThunk
+ */
+export const fetchTasks = createAsyncThunk('taskbox/fetchTasks', async () => {
+  const response = await fetch(
+    'https://jsonplaceholder.typicode.com/todos?userId=1'
+  );
+  const data = await response.json();
+  const result = data.map(
+    (task: { id: number; title: string; completed: boolean }) => ({
+      id: `${task.id}`,
+      title: task.title,
+      state: task.completed ? 'TASK_ARCHIVED' : 'TASK_INBOX',
+    })
+  );
+  return result;
+});
+
+/*
+ * The store is created here.
+ * You can read more about Redux Toolkit's slices in the docs:
+ * https://redux-toolkit.js.org/api/createSlice
+ */
+const TasksSlice = createSlice({
+  name: 'taskbox',
+  initialState: TaskBoxData,
+  reducers: {
+    updateTaskState: (
+      state,
+      action: PayloadAction<{ id: string; newTaskState: TaskData['state'] }>
+    ) => {
+      const task = state.tasks.find((task) => task.id === action.payload.id);
+      if (task) {
+        task.state = action.payload.newTaskState;
+      }
+    },
+  },
+  /*
+   * Extends the reducer for the async actions
+   * You can read more about it at https://redux-toolkit.js.org/api/createAsyncThunk
+   */
+  extraReducers(builder) {
+    builder
+      .addCase(fetchTasks.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+        state.tasks = [];
+      })
+      .addCase(fetchTasks.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.error = null;
+        // Add any fetched tasks to the array
+        state.tasks = action.payload;
+      })
+      .addCase(fetchTasks.rejected, (state) => {
+        state.status = 'failed';
+        state.error = 'Something went wrong';
+        state.tasks = [];
+      });
+  },
+});
+
+// The actions contained in the slice are exported for usage in our components
+export const { updateTaskState } = TasksSlice.actions;
+
+/*
+ * Our app's store configuration goes here.
+ * Read more about Redux's configureStore in the docs:
+ * https://redux-toolkit.js.org/api/configureStore
+ */
+const store = configureStore({
+  reducer: {
+    taskbox: TasksSlice.reducer,
+  },
+});
+
+// Define RootState and AppDispatch types
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+
+export default store;
+```
+
+이제 원격 API 엔드포인트에서 데이터를 검색하여 스토어를 새롭게 업데이트 하고 앱의 다양한 상태를 처리하도록 준비했습니다. 이제 `src/components` 폴더에 `InboxScreen.tsx` 파일을 만들어봅시다:
+
+```tsx:title=src/components/InboxScreen.tsx
+import type { RootState, AppDispatch } from '../lib/store';
+
+import { useEffect } from 'react';
+
+import { useDispatch, useSelector } from 'react-redux';
+
+import { fetchTasks } from '../lib/store';
 
 import TaskList from './TaskList';
 
-export function PureInboxScreen({ error }) {
+export default function InboxScreen() {
+  const dispatch = useDispatch<AppDispatch>();
+  // We're retrieving the error field from our updated store
+  const { error } = useSelector((state: RootState) => state.taskbox);
+  // The useEffect triggers the data fetching when the component is mounted
+  useEffect(() => {
+    dispatch(fetchTasks());
+  }, []);
+
   if (error) {
     return (
       <div className="page lists-show">
         <div className="wrapper-message">
           <span className="icon-face-sad" />
-          <div className="title-message">Oh no!</div>
-          <div className="subtitle-message">Something went wrong</div>
+          <p className="title-message">Oh no!</p>
+          <p className="subtitle-message">Something went wrong</p>
         </div>
       </div>
     );
   }
-
   return (
     <div className="page lists-show">
       <nav>
-        <h1 className="title-page">
-          <span className="title-wrapper">Taskbox</span>
-        </h1>
+        <h1 className="title-page">Taskbox</h1>
       </nav>
       <TaskList />
     </div>
   );
 }
 
-PureInboxScreen.propTypes = {
-  /** The error message */
-  error: PropTypes.string,
-};
-
-PureInboxScreen.defaultProps = {
-  error: null,
-};
-
-export default connect(({ error }) => ({ error }))(PureInboxScreen);
 ```
 
-또한 `App` 컴포넌트를 변경하여 `InboxScreen`을 렌더링 합니다. (올바른 화면 선택을 위하여 router를 사용해도 되지만 여기서는 걱정하지 않도록 하겠습니다.)
+또한 `App` 컴포넌트를 변경하여 `InboxScreen`을 렌더링 합니다. (올바른 화면 선택을 위하여 router를 사용해도 되지만 여기서는 고려하지 않도록 하겠습니다.)
 
-```javascript
-// src/App.js
+```diff:title=src/App.tsx
+- import { useState } from 'react'
+- import reactLogo from './assets/react.svg'
+- import viteLogo from '/vite.svg'
+- import './App.css'
 
-import React from 'react';
-import { Provider } from 'react-redux';
-import store from './lib/redux';
++ import './index.css';
++ import store from './lib/store';
 
-import InboxScreen from './components/InboxScreen';
++ import { Provider } from 'react-redux';
++ import InboxScreen from './components/InboxScreen';
 
-import './index.css';
 function App() {
+- const [count, setCount] = useState(0)
   return (
-    <Provider store={store}>
-      <InboxScreen />
-    </Provider>
+-   <div className="App">
+-     <div>
+-       <a href="https://vitejs.dev" target="_blank">
+-         <img src={viteLogo} className="logo" alt="Vite logo" />
+-       </a>
+-       <a href="https://reactjs.org" target="_blank">
+-         <img src={reactLogo} className="logo react" alt="React logo" />
+-       </a>
+-     </div>
+-     <h1>Vite + React</h1>
+-     <div className="card">
+-       <button onClick={() => setCount((count) => count + 1)}>
+-         count is {count}
+-       </button>
+-       <p>
+-         Edit <code>src/App.jsx</code> and save to test HMR
+-       </p>
+-     </div>
+-     <p className="read-the-docs">
+-       Click on the Vite and React logos to learn more
+-     </p>
+-   </div>
++   <Provider store={store}>
++     <InboxScreen />
++   </Provider>
   );
 }
 export default App;
 ```
 
-그러나 여기서 흥미로운 점은 Storybook에서 스토리를 렌더링 할 때입니다.
+그러나 여기서 흥미로운 점은 스토리북에서 스토리를 렌더링 할 때입니다.
 
-앞에서 살펴보았듯이 `TaskList` 컴포넌트는 `PureTaskList`라는 표상적 컴포넌트를 렌더링 하는 **컨테이너(container)**입니다. 정의에 의하면 컨테이너 컴포넌트는 독립적인 환경에서 간단하게 렌더링 될 수 없습니다. 컨테이너 컴포넌트는 어떠한 컨텍스트가 전달되거나 서비스에 연결되기를 기대하기 때문입니다. 이것이 의미하는 것은 Storybook에서 컨테이너를 렌더링 하기 위해서는 필요한 컨텍스트나 서비스를 mock(예를 들어 가상 버전을 제공하기)하여야 한다는 것입니다.
+앞에서 살펴보았듯이 `TaskList` 컴포넌트는 이제 **연결된** 컴포넌트가 되었습니다. 그리고 Redux 저장소에 의존하여 작업을 렌더링하고 있습니다.`InboxScreen` 또한 연결된 컴포넌트이므로 비슷한 작업을 수행하고 따라서 `InboxScreen.stories.tsx`에서 스토리를 설정할 때에도 스토어를 제공할 수 있습니다:
 
-`TaskList`을 Storybook에 배치할 때 `PureTaskList`를 렌더링하고 컨테이너를 피함으로써 이 문제에서 벗어날 수 있습니다. 이와 비슷한 방식으로 `PureInboxScreen`을 Storybook에 렌더링 할 것입니다.
+```tsx:title=src/components/InboxScreen.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
-하지만 `PureInboxScreen` 자체는 표상적 컴포넌트이지만 그 하위 컴포넌트인 `TaskList`는 아니기 때문에 문제가 발생합니다. 어떤 의미에서 보면 `PureInboxScreen`는 “컨테이너화”되는 것에 의해 오염되었다고 볼 수 있습니다. 따라서 `InboxScreen.stories.js`에서 스토리를 설정할 때:
+import { Provider } from 'react-redux';
 
-```javascript
-// src/components/InboxScreen.stories.js
+import InboxScreen from './InboxScreen';
 
-import React from 'react';
+import store from '../lib/store';
 
-import { PureInboxScreen } from './InboxScreen';
-
-export default {
-  component: PureInboxScreen,
+const meta = {
+  component: InboxScreen,
   title: 'InboxScreen',
-};
+  decorators: [(story) => <Provider store={store}>{story()}</Provider>],
+  tags: ['autodocs'],
+} satisfies Meta<typeof InboxScreen>;
 
-const Template = (args) => <PureInboxScreen {...args} />;
+export default meta;
+type Story = StoryObj<typeof meta>;
 
-export const Default = Template.bind({});
+export const Default: Story = {};
 
-export const Error = Template.bind({});
-Error.args = {
-  error: 'Something',
-};
+export const Error: Story = {};
 ```
 
-비록 `error` 스토리가 제대로 작동할지라도, `TaskList`에 연결할 Redux store가 없기 때문에 `default` 스토리에 문제가 있음을 알 수 있습니다. (또한 단위 테스트로 `PureInboxScreen`을 테스트할 때도 비슷한 문제가 발생할 것입니다.)
+`error` 스토리에서 문제를 빠르게 찾아 낼 수 있습니다. 올바른 상태를 표시하는 대신 작업 목록을 표시해 줍니다. 이 문제를 피하는 한 가지 방법은 지난 장에서와 유사하게 각 상태에 대해 모의 버전을 제공하는 것이지만, 대신 이 문제를 해결하는데 도움이 되도록 잘 알려진 API mocking 라이브러리를 스토리북 애드온과 함께 사용합니다.
 
-![고장난 inbox](/intro-to-storybook/broken-inboxscreen.png)
+<!-- TODO:
+  - Follow up with Design to get an updated image that showcases Task, TaskList, and InboxScreen
+-->
 
-이 문제를 피하는 한 가지 방법으로 앱의 최상위 수준에서만 컨테이너 컴포넌트를 렌더링 하는 대신 필요한 모든 데이터를 상위의 컴포넌트에서 하위의 컴포넌트로 전달하는 것입니다.
+![고장난 inbox 스크린 상태](/intro-to-storybook/broken-inbox-error-state-9-0-optimized.png)
 
-그러나 개발자가 불가피하게 컴포넌트 계층의 하위 계층에서 컨테이너를 렌더링 할 **필요가 생길 것입니다**. Storybook에서 전체 또는 대부분의 앱을 렌더링하려면 우리는 이러한 문제에 대한 해결책이 필요합니다.
+## API 서비스 모킹(Mocking)
+
+우리의 애플리케이션은 매우 간단하고 원격 API 호출에 크게 의존하지 않기 때문에 [Mock Service Worker](https://mswjs.io/) 와 [Storybook's MSW addon](https://storybook.js.org/addons/msw-storybook-addon)를 사용할 예정입니다. Mock Service Worker 는 모의 API 라이브러리입니다. 서비스 워커에 의존하여 네트워크 요청을 캡처하고 그 응답으로 모의 데이터를 제공합니다.
+
+[Get started section](/intro-to-storybook/react/ko/get-started)에서 앱을 설정할 때 두 패키지들이 함께 설치됩니다. 남은 것은 이를 구성하고 사용하도록 스토리를 업데이트 하는 것입니다.
+
+터미널에서 다음 명령을 실행하여 `public` 폴더 안에 일반 서비스 워커를 생성합니다:
+
+```shell
+yarn init-msw
+```
+
+그리고 나서, `.storybook/preview.ts` 를 업데이트 하고 초기화해야 합니다:
+
+```diff:title=.storybook/preview.ts
+import type { Preview } from '@storybook/react-vite';
+
+import { initialize, mswLoader } from 'msw-storybook-addon';
+
+import '../src/index.css';
+
+// Registers the msw addon
+initialize();
+
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      },
+    },
+  },
+  loaders: [mswLoader],
+};
+
+export default preview;
+```
+
+마지막으로 `InboxScreen` 스토리를 업데이트하고 모의 원격 API 호출 [파라미터(parameter)](https://storybook.js.org/docs/writing-stories/parameters)를 포함합니다.
+
+```diff:title=src/components/InboxScreen.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
++ import { http, HttpResponse } from 'msw';
+
++ import { MockedState } from './TaskList.stories';
+
+import { Provider } from 'react-redux';
+
+import InboxScreen from './InboxScreen';
+
+import store from '../lib/store';
+
+const meta = {
+  component: InboxScreen,
+  title: 'InboxScreen',
+  decorators: [(story) => <Provider store={store}>{story()}</Provider>],
+  tags: ['autodocs'],
+} satisfies Meta<typeof InboxScreen>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
++ parameters: {
++   msw: {
++     handlers: [
++       http.get('https://jsonplaceholder.typicode.com/todos?userId=1', () => {
++         return HttpResponse.json(MockedState.tasks);
++       }),
++     ],
++   },
++ },
+};
+
+export const Error: Story = {
++ parameters: {
++   msw: {
++     handlers: [
++       http.get('https://jsonplaceholder.typicode.com/todos?userId=1', () => {
++         return new HttpResponse(null, {
++           status: 403,
++         });
++       }),
++     ],
++   },
++ },
+};
+```
 
 <div class="aside">
-여담으로 데이터를 하위 계층에 전달하는 것은 합당한 접근 방식입니다. 특히 <a href="http://graphql.org/">GraphQL</a>을 사용하는 경우에 그렇습니다. 저희는 <a href="https://www.chromatic.com">Chromatic</a>을 만들 때 이러한 방법으로 800개 이상의 스토리를 만들었습니다.
+
+💡 또 다른 방법으로, 가능한 접근 방식은 데이터를 계층 구조 아래로 전달하는 것입니다. 특히 [GraphQL](http://graphql.org/)을 사용할 때. 이것은 저희 [Chromatic](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook)이 800개 이상의 스토리를 구축한 방법입니다.
+
 </div>
 
-## decorators와 함께 컨텍스트를 제공하기
+스토리북을 확인하면 `error` 스토리가 의도한 대로 작동하는지 확인 할 수있습니다. MSW 는 원격 API 호출을 가로채 적절한 응답을 제공합니다.
 
-좋은 소식은 스토리 내에서 `InboxScreen`에 Redux store를 제공하기가 매우 쉽다는 것입니다! decorators를 통해 모방된 Redux store를 사용하면 됩니다.
-
-```javascript
-// src/components/InboxScreen.stories.js
-
-import React from 'react';
-import { Provider } from 'react-redux';
-import { action } from '@storybook/addon-actions';
-import { PureInboxScreen } from './InboxScreen';
-import * as TaskListStories from './TaskList.stories';
-
-// A super-simple mock of a redux store
-const store = {
-  getState: () => {
-    return {
-      tasks: TaskListStories.Default.args.tasks,
-    };
-  },
-  subscribe: () => 0,
-  dispatch: action('dispatch'),
-};
-
-export default {
-  component: PureInboxScreen,
-  decorators: [(story) => <Provider store={store}>{story()}</Provider>],
-  title: 'InboxScreen',
-};
-
-const Template = (args) => <PureInboxScreen {...args} />;
-
-export const Default = Template.bind({});
-
-export const Error = Template.bind({});
-Error.args = {
-  error: 'Something',
-};
-```
-
-[Apollo](https://www.npmjs.com/package/apollo-storybook-decorator)와 [Relay](https://github.com/orta/react-storybooks-relay-container) 등 여타 데이터 라이브러리에 대해서도 모방된 컨텍스트를 제공하는 방식은 비슷합니다.
-
-Storybook에서 state를 순환해봄으로써 우리가 올바르게 하고 있는지를 쉽게 테스트할 수 있도록 해줍니다:
-
-<video autoPlay muted playsInline loop >
-
+<video autoPlay muted playsInline loop>
   <source
-    src="/intro-to-storybook/finished-inboxscreen-states-6-0.mp4"
+    src="/intro-to-storybook/inbox-screen-with-working-msw-addon-optimized-9.0.mp4"
     type="video/mp4"
   />
 </video>
 
-## 컴포넌트 기반 개발
+## 상호작용 테스트
 
-우리는 가장 아래에 해당하는 `Task`로부터 시작하여, `TaskList`로 진행하였고 이제 전체 화면을 구성하는 UI를 완성하였습니다. `InboxScreen`은 중첩된 컨테이너 컴포넌트를 수용하고 그에 수반하는 스토리들을 포함하고 있습니다.
+지금까지 간단한 구성 요소에서 시작하여 화면에 이르기까지 완전히 작동하는 응용 프로그램을 처음부터 구축하고 스토리를 사용하여 각 변경 사항을 지속적으로 테스트할 수 있었습니다. 그러나 각각의 새로운 스토리는 UI가 깨지지 않도록 다른 모든 스토리를 수동으로 확인해야 합니다. 그것은 많은 추가 작업입니다.
+
+이 워크플로우를 자동화하고 컴포넌트 상호작용을 자동으로 테스트할 수 없을까요?
+
+### play 함수를 사용하여 상호작용 테스트 작성하기
+
+스토리북의 [`play`](https://storybook.js.org/docs/react/writing-stories/play-function) 함수가 이를 돕습니다. play 함수는 스토리가 렌더링된 후 실행되는 작은 코드 스니펫이 포함됩니다.이 함수는 프레임워크에 구애받지 않는 DOM API를 사용하므로, 프론트엔드 프레임워크의 종류와 상관없이 play 함수를 작성하여 UI와 상호작용하고 사용자의 동작을 시뮬레이션하는 스토리를 작성할 수 있습니다. 우리는 이 함수를 사용하여 태스크를 업데이트할 때 UI가 예상대로 작동하는지 확인할 것입니다.
+
+새로 만든 `InboxScreen` 스토리를 업데이트하고 다음을 추가하여 컴포넌트 상호작용을 추가해 봅시다:
+
+```diff:title=src/components/InboxScreen.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
++ import { waitFor, waitForElementToBeRemoved } from 'storybook/test';
+
+import { http, HttpResponse } from 'msw';
+
+import { MockedState } from './TaskList.stories';
+
+import { Provider } from 'react-redux';
+
+import InboxScreen from './InboxScreen';
+
+import store from '../lib/store';
+
+const meta = {
+  component: InboxScreen,
+  title: 'InboxScreen',
+  decorators: [(story) => <Provider store={store}>{story()}</Provider>],
+  tags: ['autodocs'],
+} satisfies Meta<typeof InboxScreen>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('https://jsonplaceholder.typicode.com/todos?userId=1', () => {
+          return HttpResponse.json(MockedState.tasks);
+        }),
+      ],
+    },
+  },
++ play: async ({ canvas, userEvent }) => {
++   // Waits for the component to transition from the loading state
++   await waitForElementToBeRemoved(await canvas.findByTestId('loading'));
++   // Waits for the component to be updated based on the store
++   await waitFor(async () => {
++     // Simulates pinning the first task
++     await userEvent.click(canvas.getByLabelText('pinTask-1'));
++     // Simulates pinning the third task
++     await userEvent.click(canvas.getByLabelText('pinTask-3'));
++   });
++ },
+};
+
+export const Error: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('https://jsonplaceholder.typicode.com/todos?userId=1', () => {
+          return new HttpResponse(null, {
+            status: 403,
+          });
+        }),
+      ],
+    },
+  },
+};
+```
+
+<div class="aside">
+
+💡 `Interactions` 패널은 각 단계별 흐름을 제공해 스토리북 테스트를 시각화하는데 도움을 줍니다. 또한 상호작용을 일시 정지하고, 재개하고, 되감기 하거나 각 단계별로 실행할 수 있는 유용한 UI 제어 기능을 제공합니다.
+
+</div>
+
+`Default` 스토리를 확인해보세요. 상호작용 패널을 클릭하여 스토리의 play function 안에 있는 상호작용 목록을 확인해보세요.
+
+<video autoPlay muted playsInline loop>
+  <source
+    src="/intro-to-storybook/storybook-play-function-react.mp4"
+    type="video/mp4"
+  />
+</video>
+
+## Vitest 애드온을 사용한 테스트 자동화
+
+play function을 통해 우리는 빠르게 컴포넌트와 사용자 의 상호작용을 시뮬레이션 하고, 작업을 업데이트할 때 컴포넌트가 어떻게 동작하는지 검증하여 UI 일관성을 유지할 수 있었습니다.
+하지만 스토리북을 자세히 살펴보면, 상호작용 테스트는 스토리를 볼 때만 실행되는 것을 알 수 있습니다. 이는 변경사항이 있을때마다 모든 스토리를 직접 살펴봐야 한다는 뜻입니다. 자동화할 수 없을까요?
+
+가능합니다! 스토리북의 [Vitest 애드온](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon)은 상호작용 테스트를 더 자동화된 방식으로 실행할 수 있도록 해주고 Vitest의 강력한 기능을 활용하여 효율적이고 빠른 테스트를 경험할 수 있게 합니다. 작동 방식을 살펴보겠습니다!
+
+스토리북을 실행한 상태에서 사이드바에서 "Run tests" 버튼을 클릭합니다. 그러면 스토리의 렌더링 방식, 동작 방식, play function에 정의되어있는 상호작용(`InboxScreen`스토리에 방금 추가한 것을 포함)에 대한 테스트가 실행됩니다.
+
+<video autoPlay muted playsInline loop>
+  <source
+    src="/intro-to-storybook/storybook-vitest-addon-react.mp4"
+    type="video/mp4"
+  />
+</video>
+
+<div class="aside">
+
+💡 Vitest 애드온은 여기에서 본 것 외에도 다른 종류의 테스트를 포함하여 훨씬 더 많은 기능을 제공합니다. 이에 대한 더 많은 정보를 얻으려면 [공식 문서](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon)를 읽어보는 것이 좋습니다.
+
+더 깊이 있는 테스트를 원하신다면, [테스트 핸드북](/ui-testing-handbook/)을 확인해보세요. 이 핸드북은 규모가 큰 프론트엔드 팀이 사용하는 테스트 전략을 다루고 있어 개발 워크플로우를 향상시키는 데 도움을 줄 것입니다.
+
+</div>
+
+이제 우리는 일일히 확인할 필요 없이 UI 테스트를 자동화하는 도구를 갖게 되었습니다. 이는 우리가 애플리케이션을 만들어가면서 UI의 일관성과 기능성을 유지할 수 있게 해주는 훌륭한 방식입니다. 무엇보다도 테스트가 실패할 경우에 즉시 알 수 있어 해결하지 못한 문제들을 쉽고 빠르게 해결할 수 있습니다.
+
+## 컴포넌트 주도 개발
+
+우리는 맨처음 `Task` 컴포넌트에서 시작했고, `TaskList`로 진행했고, 이제 전체 화면 UI를 다룰 수 있습니다. `InboxScreen` 은 연결된 컴포넌트들을 포함하며 스토리를 포함하고 있습니다.
 
 <video autoPlay muted playsInline loop style="width:480px; height:auto; margin: 0 auto;">
   <source
@@ -186,6 +489,10 @@ Storybook에서 state를 순환해봄으로써 우리가 올바르게 하고 있
   />
 </video>
 
-[**컴포넌트 기반 개발 (Component-Driven Development)**](https://www.componentdriven.org/)은 컴포넌트의 상위 계층으로 올라감에 따른 복잡성을 점진적으로 확장할 수 있도록 해줍니다. 이것의 이점 중 하나는 보다 개발 과정에 집중할 수 있으며 가능한 모든 UI 순열의 적용 범위가 늘어난다는 것입니다. 간단히 말하면, 컴포넌트 기반 개발(CDD)은 더 높은 품질과 복잡성을 가진 사용자 인터페이스를 만들 수 있도록 도와줍니다.
+[**Component-Driven Development**](https://www.componentdriven.org/)를 사용하면 구성 요소 계층 구조를 위로 이동하면서 복잡성을 점진적으로 확장할 수 있습니다. 다양한 이점 중 특히 개발 프로세스와 가능한 모든 UI 를 적용할 수 있도록 집중 되었습니다. 간단히 말해서 CDD는 고품질의 복잡한 사용자 인터페이스를 구축하는 데 도움이 됩니다.
 
-아직 끝이 아닙니다! UI가 완성되었다고 할 일이 모두 끝난 것은 아닙니다. 우리는 또한 시간이 지나도 UI가 내구성을 유지할 수 있도록 해야 합니다.
+아직 완료되지 않았습니다. UI가 빌드되었다고 작업이 끝난 것이 아닙니다. 또한 시간이 지나도 내구성이 유지되도록 보장해주어야 합니다.
+
+<div class="aside">
+💡 깃(Git)에 변경한 내역들을 commit 하는 것도 잊지 마세요!
+</div>

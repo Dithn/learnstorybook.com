@@ -2,7 +2,7 @@
 title: '组装复合组件'
 tocTitle: '合成组件'
 description: '使用更简单的组件 组装复合组件'
-commit: 'e955d6c'
+commit: '83d639e'
 ---
 
 上一章节我们构建了第一个组件；本章节扩展学习如何构建一个 Tasks 列表，TaskList 组件。将组件组合在一起，看看当引入更多复杂性时会发生什么。
@@ -23,9 +23,7 @@ Taskbox 通过将 固定任务 置于默认任务之上 来强调 固定任务�
 
 从粗略的实现开始 `TaskList`。你需要先导入 `Task` 组件，并将属性和行为作为输入传递。
 
-```javascript
-// src/components/TaskList.js
-
+```js:title=src/components/TaskList.js
 import React from 'react';
 
 import Task from './Task';
@@ -56,9 +54,7 @@ export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
 
 接下来在 story 文件中创建 `Tasklist` 的测试状态。
 
-```javascript
-// src/components/TaskList.stories.js
-
+```js:title=src/components/TaskList.stories.js
 import React from 'react';
 
 import TaskList from './TaskList';
@@ -132,9 +128,7 @@ Empty.args = {
 
 我们的组件仍然很粗糙，但现在我们已经了解了要努力的故事。你可能会想到 `.list-items` 包装过于简单化。你是对的 - 在大多数情况下，我们不会只是添加一个包装器来创建一个新的组件。但是 **真正的复杂性** 的 `TaskList` 组件在边缘情况下会显示 `withPinnedTasks`，`loading`，和 `empty`。
 
-```javascript
-// src/components/TaskList.js
-
+```js:title=src/components/TaskList.js
 import React from 'react';
 
 import Task from './Task';
@@ -205,9 +199,7 @@ export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
 
 随着组件的增长，输入要求也在增长。要求定义 `TaskList` 的 _props_。因为 `Task` 是一个子组件，请确保提供正确形状的数据来呈现它。为了节省时间和头痛，请重用您定义的早期 `Task` 的 propTypes。
 
-```javascript
-// src/components/TaskList.js
-
+```js:title=src/components/TaskList.js
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -250,9 +242,7 @@ Storybook 故事与手动可视化测试和快照测试 (见上文) 相结合，
 
 创建一个名为的测试文件`TaskList.test.js`。在这里，我们将构建我们的测试，对输出进行断言。
 
-```javascript
-// src/components/TaskList.test.js
-
+```js:title=src/components/TaskList.test.js
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '@testing-library/jest-dom/extend-expect';

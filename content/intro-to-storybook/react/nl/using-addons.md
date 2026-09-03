@@ -2,7 +2,6 @@
 title: 'Addons'
 tocTitle: 'Addons'
 description: 'Leer hoe je add-ons kunt integreren en gebruiken aan de hand van een populair voorbeeld'
-commit: '3d53594'
 ---
 
 Storybook beschikt over een robuust systeem van [add-ons](https://storybook.js.org/docs/react/configure/storybook-addons) waarmee je de developer experience kunt verbeteren voor iedereen in je team. Als je deze tutorial lineair hebt gevolgd, hebben we tot nu toe naar meerdere add-ons verwezen en je zal er al een geïmplementeerd hebben in het [Testing-hoofdstuk](/intro-to-storybook/react/nl/test/).
@@ -13,7 +12,7 @@ Storybook beschikt over een robuust systeem van [add-ons](https://storybook.js.o
 😍 Je kunt de lijst met officieel ondersteunde en goede community-add-ons <a href="https://storybook.js.org/addons">hier bekijken</a>.
 </div>
 
-We zouden nog veel kunnen schrijven over het configureren en gebruiken van add-ons voor al je specifieke use-cases. Laten we nu werken aan de integratie van een van de meest populaire add-ons in het ecosysteem van Storybook: [knobs](https://github.com/storybooks/storybook/tree/master/addons/knobs).
+We zouden nog veel kunnen schrijven over het configureren en gebruiken van add-ons voor al je specifieke use-cases. Laten we nu werken aan de integratie van een van de meest populaire add-ons in het ecosysteem van Storybook: [knobs](https://github.com/storybookjs/addon-knobs).
 
 ## Knobs opzetten
 
@@ -30,15 +29,13 @@ Knobs is een geweldige bron voor designers en developers om te experimenteren en
 
 Eerst moeten we alle benodigde dependencies installeren.
 
-```bash
+```shell
 yarn add -D @storybook/addon-knobs
 ```
 
 Registreer Knobs in je `.storybook/addons.js` bestand.
 
-```javascript
-// .storybook/addons.js
-
+```javascript:title=.storybook/addons.js
 import '@storybook/addon-actions/register';
 import '@storybook/addon-knobs/register';
 import '@storybook/addon-links/register';
@@ -58,9 +55,7 @@ Laten we het object knob type gebruiken in de `Task` component.
 
 Importeer eerst de `withKnobs` decorator en de `object` knob in `Task.stories.js`:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -69,17 +64,13 @@ import { withKnobs, object } from '@storybook/addon-knobs/react';
 
 Geef vervolgens binnen de stories van `Task`, `withKnobs` als parameter door aan de functie `addDecorator()`:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 storiesOf('Task', module).addDecorator(withKnobs).add(/*...*/);
 ```
 
 Integreer ten slotte het knob type `object` in de "standaard"-story:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 storiesOf('Task', module)
   .addDecorator(withKnobs)
   .add('default', () => {
@@ -91,7 +82,7 @@ storiesOf('Task', module)
 
 Nu zou een nieuw tabblad "Knobs" moeten verschijnen naast het tabblad "Action Logger" in het onderste paneel.
 
-Zoals [hier](https://github.com/storybooks/storybook/tree/master/addons/knobs#object) gedocumenteerd, accepteert het knoptype `object` een label en een standaardobject als parameters. Het label is constant en verschijnt links van een tekstveld in je add-on paneel. Het object dat je hebt doorgegeven, wordt weergegeven als een editeerbare JSON-blob. Zolang je geldige JSON indient, wordt je component aangepast op basis van de data die aan het object worden doorgegeven!
+Zoals [hier](https://github.com/storybookjs/addon-knobs#object) gedocumenteerd, accepteert het knoptype `object` een label en een standaardobject als parameters. Het label is constant en verschijnt links van een tekstveld in je add-on paneel. Het object dat je hebt doorgegeven, wordt weergegeven als een editeerbare JSON-blob. Zolang je geldige JSON indient, wordt je component aangepast op basis van de data die aan het object worden doorgegeven!
 
 ## Addons evolueren het bereik van je Storybook
 
@@ -105,9 +96,7 @@ Bovendien, met gemakkelijke toegang tot het bewerken van doorgegeven data aan ee
 
 Dankzij het feit dat we snel verschillende inputs van een component kunnen proberen, kunnen we dergelijke problemen relatief gemakkelijk vinden en oplossen! Laten we het afbrekingsprobleem oplossen door een style toe te voegen aan `Task.js`:
 
-```javascript
-// src/components/Task.js
-
+```js:title=src/components/Task.js
 // This is the input for our task title. In practice we would probably update the styles for this element
 // but for this tutorial, let's fix the problem with an inline style:
 <input
@@ -127,9 +116,7 @@ Natuurlijk kunnen we dit probleem altijd reproduceren door dezelfde input in de 
 
 Laten we een story toevoegen voor het lange tekst geval in `Task.stories.js`:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 const longTitle = `This task's name is absurdly large. In fact, I think if I keep going I might end up with content overflow. What will happen? The star that represents a pinned task could have text overlapping. The text could cut-off abruptly when it reaches the star. I hope not`;
 
 storiesOf('Task', module)

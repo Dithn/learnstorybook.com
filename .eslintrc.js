@@ -1,12 +1,11 @@
 const prettierConfig = require('./.prettierrc');
 
 module.exports = {
-  parser: 'babel-eslint',
-  extends: ['airbnb', 'prettier', 'plugin:jest/recommended'],
-  plugins: ['prettier', 'jest'],
+  parser: '@babel/eslint-parser',
+  extends: ['airbnb', 'prettier', 'plugin:storybook/recommended'],
+  plugins: ['prettier'],
   env: {
     browser: true,
-    'jest/globals': true,
   },
   globals: {
     graphql: 'readonly',
@@ -39,6 +38,19 @@ module.exports = {
       },
     ],
     'react/jsx-props-no-spreading': 0,
-    'react/jsx-one-expression-per-line': 0
+    'react/jsx-one-expression-per-line': 0,
   },
+  overrides: [
+    {
+      /**
+       * This file is pulled from frontpage and contains imports that don't exist in this project.
+       * It still builds, though, so we're disabling these rules for this file.
+       */
+      files: ['site-metadata.js'],
+      rules: {
+        'import/extensions': 'off',
+        'import/no-unresolved': 'off',
+      },
+    },
+  ],
 };

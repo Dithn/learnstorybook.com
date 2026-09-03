@@ -2,7 +2,7 @@
 title: 'اربط البيانات'
 tocTitle: 'البياتات'
 description: 'تعلم كيفية ربط البيانات مع مكون واجهة المستخدم'
-commit: '5da7c68'
+commit: 'acf26d6'
 ---
 
 <div style="direction: rtl">
@@ -21,7 +21,7 @@ commit: '5da7c68'
 
 <div style="direction: ltr">
 
-```bash
+```shell
 yarn add react-redux redux
 ```
 

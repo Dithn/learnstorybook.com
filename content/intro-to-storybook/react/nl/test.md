@@ -2,7 +2,6 @@
 title: 'Test UI componenten'
 tocTitle: 'Testen'
 description: 'Leer manieren om UI componenten te testen'
-commit: '3e283f7'
 ---
 
 Geen Storybook tutorial zou compleet zijn zonder testen. Testen is essentieel voor het maken van UI's van hoge kwaliteit. In modulaire systemen kunnen kleine tweaks leiden tot grote regressies. Tot nu toe zijn we drie soorten tests tegengekomen:
@@ -28,7 +27,7 @@ Visuele regressie tests, ook visuele tests genoemd, zijn ontworpen om veranderin
 
 Storybook is een fantastisch hulpmiddel voor visuele regressie tests, omdat elke story in wezen een testspecificatie is. Elke keer dat we een story schrijven of bijwerken, krijgen we gratis een specificatie!
 
-Er zijn een aantal hulpmiddelen voor visuele regressie tests. Voor professionele teams raden we [**Chromatic**](https://www.chromatic.com/) aan, een add-on gemaakt door de ontwikkelaars van Storybook die tests in de cloud uitvoert. Het laat ons ook toe om Storybook online te publiceren zoals we gezien hebben in het [vorige hoofdstuk](/intro-to-storybook/react/nl/deploy/)
+Er zijn een aantal hulpmiddelen voor visuele regressie tests. Voor professionele teams raden we [**Chromatic**](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) aan, een add-on gemaakt door de ontwikkelaars van Storybook die tests in de cloud uitvoert. Het laat ons ook toe om Storybook online te publiceren zoals we gezien hebben in het [vorige hoofdstuk](/intro-to-storybook/react/nl/deploy/)
 
 ## Een UI wijziging opmerken
 
@@ -38,21 +37,20 @@ Laten we zien hoe het werkt door the achtergrond van de `Task` component aan te 
 
 Start met het aanmaken van een nieuwe branch voor deze verandering:
 
-```bash
+```shell
 git checkout -b change-task-background
 ```
 
 Verander `Task` naar het volgende:
 
-```js
-// src/components/Task.js
+```js:title=src/components/Task.js
 <div className="title">
   <input
     type="text"
     value={title}
     readOnly={true}
     placeholder="Input title"
-    style={{ textOverflow: 'ellipsis', background: 'red' }}
+    style={{ backgroundColor: 'red' }}
   />
 </div>
 ```
@@ -63,19 +61,19 @@ Dit geeft een nieuwe achtergrondkleur weer voor het item.
 
 Voeg het bestand toe:
 
-```bash
+```shell
 git add src\components\Task.js
 ```
 
 Commit het:
 
-```bash
+```shell
 git commit -m “change task background to red”
 ```
 
 En push de wijzigingen naar de remote repo:
 
-```bash
+```shell
 git push -u origin head
 ```
 

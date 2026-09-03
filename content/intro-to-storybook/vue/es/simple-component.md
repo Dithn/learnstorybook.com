@@ -2,7 +2,7 @@
 title: 'Construye un componente simples'
 tocTitle: 'Componente Simples'
 description: 'Construye un componente simple en aislamiento'
-commit: '893e2c2'
+commit: '18e218e'
 ---
 
 Construiremos nuestra UI siguiendo la metodología (CDD) [Component-Driven Development](https://www.componentdriven.org/). Es un proceso que construye UIs de “abajo hacia arriba”, empezando con los componentes y terminando con las vistas. CDD te ayudará a escalar la cantidad de complejidad con la que te enfrentas a medida que construyes la UI.
@@ -34,6 +34,7 @@ Comenzaremos con una implementación básica de `Task`, simplemente teniendo en 
 </template>
 <script>
   export default {
+    // eslint-disable-next-line vue/multi-word-component-names
     name: 'Task',
     props: {
       task: {
@@ -191,6 +192,7 @@ Nuestro componente todavía es bastante rudimentario en este momento. Vamos a ha
 </template>
 <script>
   export default {
+    // eslint-disable-next-line vue/multi-word-component-names
     name: 'Task',
     props: {
       task: {
@@ -238,7 +240,7 @@ La prueba de instantáneas se refiere a la práctica de registrar la salida "cor
 
 Con el [complemento Storyshots](https://github.com/storybooks/storybook/tree/master/addons/storyshots) se crea una prueba de instantánea para cada una de las historias. Úselo agregando las siguientes dependencias en modo desarrollo:
 
-```bash
+```shell
 yarn add -D @storybook/addon-storyshots jest-vue-preprocessor
 ```
 

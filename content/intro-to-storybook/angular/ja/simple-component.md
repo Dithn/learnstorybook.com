@@ -2,7 +2,7 @@
 title: '単純なコンポーネントを作る'
 tocTitle: '単純なコンポーネント'
 description: '単純なコンポーネントを切り離して作りましょう'
-commit: '37404c2'
+commit: '0b2da1f'
 ---
 
 それでは、[コンポーネント駆動開発](https://www.componentdriven.org/) (CDD) の手法にのっとって UI を作ってみましょう。コンポーネント駆動開発とは、UI を最初にコンポーネントから作り始めて、最後に画面を作り上げる「ボトムアップ」の開発プロセスです。CDD を用いれば UI を作る際に直面する複雑性を軽減することができます。
@@ -288,7 +288,7 @@ Storybook はアプリケーションの UI を作成する際に目視でテス
 
 [Storyshots アドオン](https://github.com/storybooks/storybook/tree/master/addons/storyshots)を使用することで、それぞれのストーリーにスナップショットテストが作成されます。開発時の依存関係を以下のコマンドで追加してください:
 
-```bash
+```shell
 npm install -D @storybook/addon-storyshots
 ```
 
@@ -303,13 +303,11 @@ initStoryshots();
 最後に、`package.json`の`jest`キーに小さな変更を加える必要があります。
 
 ```diff:title=package.json
-{
-   "transform": {
-      "^.+\\.(ts|html)$": "ts-jest",
-      "^.+\\.js$": "babel-jest",
-+     "^.+\\.stories\\.[jt]sx?$": "@storybook/addon-storyshots/injectFileName"
-    },
-}
+"transform": {
+  "^.+\\.(ts|html)$": "ts-jest",
+   "^.+\\.js$": "babel-jest",
++  "^.+\\.stories\\.[jt]sx?$": "@storybook/addon-storyshots/injectFileName"
+},
 ```
 
 以上の修正をしてから`npm run test` を実行すると、以下のような出力が得られます。

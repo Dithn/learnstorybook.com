@@ -22,17 +22,17 @@ I hope condensing these learnings into a pragmatic workflow helps you implement 
 
 If you've been coding along, your repository and deployed Storybook should look like this:
 
-- 📕 [GitHub repository](https://github.com/chromaui/ui-testing-guide-code/tree/workflow)
-- 🌎 [Deployed Storybook](https://main--60876bbe754b7b0021704b3d.chromatic.com)
+- 📕 [GitHub repository](https://github.com/chromaui/ui-testing-guide-code/tree/Storybook-7-0)
+- 🌎 [Deployed Storybook](https://storybook-7-0--60876bbe754b7b0021704b3d.chromatic.com/)
 
 ## More resources
 
 Want more? Here are some additional helpful resources:
 
-- [**Visual Testing Handbook**](/visual-testing-handbook) is an in-depth guide to testing UI appearance—with learnings from leading engineering teams like BBC, Adobe, Target and more.
-- [**How to test UIs with Storybook**](https://storybook.js.org/docs/react/writing-tests/introduction) details how you can use Storybook for UI testing.
+- [**Visual Testing Handbook**](/visual-testing-handbook/) is an in-depth guide to testing UI appearance—with learnings from leading engineering teams like BBC, Adobe, Target and more.
+- [**How to test UIs with Storybook**](https://storybook.js.org/docs/writing-tests) details how you can use Storybook for UI testing.
 - [**Discord chat**](https://discord.gg/UUt2PJb) puts you in contact with the Storybook community and maintainers.
-- [**Blog**](https://medium.com/storybookjs) showcases the latest releases and features to streamline your UI development workflow.
+- [**Blog**](https://storybook.js.org/blog/) showcases the latest releases and features to streamline your UI development workflow.
 
 Thanks for learning with us. Subscribe to the Storybook mailing list to get notified when helpful articles and guides like this are published.
 

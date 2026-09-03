@@ -2,10 +2,10 @@
 title: 'Tutorial Storybook para Vue'
 tocTitle: 'Empezando'
 description: 'Configurar Vue Storybook en tu entorno de desarrollo'
-commit: 'b218a07'
+commit: '7bff3f5'
 ---
 
-Storybook se ejecuta junto con tu aplicación en modo desarrollo. Te ayuda a crear componentes de interfaz de usuario aislados de la lógica y el contexto de tu aplicación. Esta edición del tutorial de Aprende Storybook es para Vue; existe otras ediciones para [React](/intro-to-storybook/react/es/get-started), [React Native](/intro-to-storybook/react-native/es/get-started/), [Angular](/intro-to-storybook/angular/es/get-started) y [Svelte](/intro-to-storybook/svelte/es/get-started).
+Storybook se ejecuta junto con tu aplicación en modo desarrollo. Te ayuda a crear componentes de interfaz de usuario aislados de la lógica y el contexto de tu aplicación. Esta edición del tutorial de Aprende Storybook es para Vue; existe otras ediciones para [React](/intro-to-storybook/react/es/get-started/), [React Native](/intro-to-storybook/react-native/es/get-started/), [Angular](/intro-to-storybook/angular/es/get-started/) y [Svelte](/intro-to-storybook/svelte/es/get-started/).
 
 ![Storybook and your app](/intro-to-storybook/storybook-relationship.jpg)
 
@@ -15,7 +15,7 @@ Necesitaremos seguir algunos pasos para configurar el proceso de build de nuestr
 
 Vamos a ejecutar los siguientes comandos:
 
-```bash
+```shell:clipboard=false
 # Clone the template
 npx degit chromaui/intro-storybook-vue-template taskbox
 cd taskbox
@@ -29,7 +29,7 @@ yarn
 
 Podemos comprobar rápidamente que los distintos entornos de nuestra aplicación funcionan correctamente:
 
-```bash
+```shell:clipboard=false
 # Run the test runner (Jest) in a terminal:
 yarn test:unit
 # Start the component explorer on port 6006:
@@ -49,19 +49,19 @@ Dependiendo de en qué parte de la aplicación estés trabajando, es posible que
 En esta etapa, es seguro agregar nuestros archivos a un repositorio local. Ejecute los siguientes comandos para inicializar un repositorio local, agregue y confirme los cambios que hemos realizado hasta ahora.
 
 ```shell
-$ git init
+git init
 ```
 
 Seguido por:
 
 ```shell
-$ git add .
+git add .
 ```
 
 Y finalmente:
 
 ```shell
-$ git commit -m "first commit"
+git commit -m "first commit"
 ```
 
 ¡Comencemos a construir nuestro primer componente!

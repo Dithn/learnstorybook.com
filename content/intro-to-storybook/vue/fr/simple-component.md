@@ -2,7 +2,7 @@
 title: 'Construire un simple composant'
 tocTitle: 'Un simple composant'
 description: 'Construire un simple composant en isolation'
-commit: '893e2c2'
+commit: '18e218e'
 ---
 
 Nous allons construire notre propre interface utilisateur en suivant la méthode [Component-Driven Development](https://www.componentdriven.org/). C'est un processus qui créé des interfaces utilisateurs du début à la fin, en commençant par les composants et terminant avec les écrans. CDD vous aide à adapter la complexité à laquelle vous êtes confronté lors de la création de l'interface utilisateur.
@@ -18,7 +18,7 @@ Nous allons construire notre propre interface utilisateur en suivant la méthode
 
 Pour débuter la construction du composant `Tâche`, nous écrivons d'abord nos tests d'état correspondant aux différents types de taches visibles ci-dessus. Ensuite, nous utilisons Storybook pour construire le composant de manière isolée avec des données bouchonnées. Nous pourrons “tester visuellement“ l'apparence du composant pour chaque état que nous avons.
 
-Le procédure est similaire au [Test-driven development](https://en.wikipedia.org/wiki/Test-driven_development) (TDD) que nous pouvons appeler “[Visual TDD](https://blog.hichroma.com/visual-test-driven-development-aec1c98bed87)”.
+Le procédure est similaire au [Test-driven development](https://en.wikipedia.org/wiki/Test-driven_development) (TDD) que nous pouvons appeler “[Visual TDD](https://www.chromatic.com/blog/visual-test-driven-development/)”.
 
 ## Configuration
 
@@ -26,8 +26,7 @@ Premièrement, créons le composant Tâche et le fichier story associé : `src/c
 
 Nous allons commencer avec l'implémentation de base de la `Tâche`, en prenant simplement les attributs dont nous aurons besoin et les deux actions que vous pouvez effectuer sur une tâche (la déplacer entre les listes) :
 
-```html
-<!--src/components/Task.vue-->
+```html:title=src/components/Task.vue
 <template>
   <div class="list-item">
     <input type="text" :readonly="true" :value="this.task.title" />
@@ -36,6 +35,7 @@ Nous allons commencer avec l'implémentation de base de la `Tâche`, en prenant 
 
 <script>
   export default {
+    // eslint-disable-next-line vue/multi-word-component-names
     name: 'task',
     props: {
       task: {
@@ -52,8 +52,7 @@ Ci-dessus, nous donnons une structure simple du composant `Tâche` basé sur l'e
 
 Ci-dessous nous construisons les trois états de test d'une Tâche dans le fichier story :
 
-```javascript
-// src/components/Task.stories.js
+```js:title=src/components/Task.stories.js
 import { action } from '@storybook/addon-actions';
 import Task from './Task';
 export default {
@@ -145,12 +144,11 @@ Les <a href="https://storybook.js.org/docs/vue/essentials/actions"><b>actions</b
 
 ## Configuration
 
-Nous devons effectuer quelques modifications à la configuration de Storybook afin qu'il remarque non seulement nos stories récemment créées, mais aussi nous permettre d'utiliser les fichiers CSS modifiés dans le [chapitre précédent](/intro-to-storybook/vue/fr/get-started).
+Nous devons effectuer quelques modifications à la configuration de Storybook afin qu'il remarque non seulement nos stories récemment créées, mais aussi nous permettre d'utiliser les fichiers CSS modifiés dans le [chapitre précédent](/intro-to-storybook/vue/fr/get-started/).
 
 Commencez par changer votre fichier de configuration Storybook (`.storybook/main.js`) avec ceci :
 
-```javascript
-// .storybook/main.js
+```js:title=.storybook/main.js
 module.exports = {
   //👇 Location of our stories
   stories: ['../src/components/**/*.stories.js'],
@@ -160,9 +158,7 @@ module.exports = {
 
 Après avoir effectué la modification ci-dessus, dans le dossier `.storybook`, ajoutez un nouveau fichier appelé `preview.js` avec ces informations :
 
-```javascript
-// .storybook/preview.js
-
+```js:title=.storybook/preview.js
 import '../src/index.css'; //👈 The app's CSS file goes here
 ```
 
@@ -181,8 +177,7 @@ Maintenant que nous avons Storybook de configuré, que les styles sont importés
 
 Notre composant est encore assez rudimentaire pour le moment. Nous allons faire quelques modifications pour qu'il corresponde au design attendu sans pour autant rentrer trop dans le détail :
 
-```html
-<!--src/components/Task.vue-->
+```html:title=src/components/Task.vue
 <template>
   <div :class="taskClass">
     <label class="checkbox">
@@ -202,6 +197,7 @@ Notre composant est encore assez rudimentaire pour le moment. Nous allons faire 
 
 <script>
   export default {
+    // eslint-disable-next-line vue/multi-word-component-names
     name: 'task',
     props: {
       task: {
@@ -255,13 +251,13 @@ Assurez-vous que vos composants gèrent des données qui ne changent pas, afin q
 
 Avec le [plugin Storyshots](https://github.com/storybooks/storybook/tree/master/addons/storyshots) un test instantané est créé pour chacune de vos stories. Utilisez-le en ajoutant la dépendance suivante :
 
-```bash
+```shell
 yarn add -D @storybook/addon-storyshots jest-vue-preprocessor
 ```
 
 Puis créez un fichier `tests/unit/storybook.spec.js` avec le code suivant :
 
-```javascript
+```js:title=tests/unit/storybook.spec.js
 // tests/unit/storybook.spec.js
 import initStoryshots from '@storybook/addon-storyshots';
 
@@ -270,8 +266,7 @@ initStoryshots();
 
 Nous devons ajouter une ligne dans votre `jest.config.js`:
 
-```js
-
+```js:title=jest.config.js
   // jest.config.js
   transformIgnorePatterns: ["/node_modules/(?!(@storybook/.*\\.vue$))"],
 ```

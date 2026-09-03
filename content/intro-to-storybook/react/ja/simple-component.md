@@ -2,10 +2,10 @@
 title: '単純なコンポーネントを作る'
 tocTitle: '単純なコンポーネント'
 description: '単純なコンポーネントを切り離して作りましょう'
-commit: 'c07ce59'
+commit: '1e576c5'
 ---
 
-それでは、[コンポーネント駆動開発](https://www.componentdriven.org/) (CDD) の手法にのっとって UI を作ってみましょう。コンポーネント駆動開発とは、UI を最初にコンポーネントから作り始めて、最後に画面を作り上げる「ボトムアップ」の開発プロセスです。CDD を用いれば UI を作る際に直面する複雑性を軽減することができます。
+それでは、[コンポーネント駆動開発](https://www.componentdriven.org/) (CDD) の手法にのっとって UI を作ってみましょう。コンポーネント駆動開発とは、UI を最初にコンポーネントから作り始めて、最後に画面を作り上げる「ボトムアップ」の開発プロセスです。CDD を用いれば、 UI を作る際に直面する複雑性を軽減できます。
 
 ## Task (タスク)
 
@@ -20,19 +20,19 @@ commit: 'c07ce59'
 
 ## セットアップする
 
-まずは、タスクのコンポーネントと、対応するストーリーファイル `src/components/Task.js` と `src/components/Task.stories.js` を作成しましょう。
+まずは、タスクのコンポーネントと、対応するストーリーファイル `src/components/Task.jsx` と `src/components/Task.stories.jsx` を作成しましょう。
 
-`Task` の基本的な実装から始めます。`Task` は上述したプロパティと、タスクに対して実行できる 2 つの (リスト間を移動させる) アクションを引数として取ります:
+`Task` の基本的な実装から始めます。`Task` は上述したプロパティと、タスクに対して実行できる 2 つの (リスト間を移動させる) アクションを引数として取ります。
 
-```javascript
-// src/components/Task.js
-
+```js:title=src/components/Task.jsx
 import React from 'react';
 
 export default function Task({ task: { id, title, state }, onArchiveTask, onPinTask }) {
   return (
     <div className="list-item">
-      <input type="text" value={title} readOnly={true} />
+      <label htmlFor="title" aria-label={title}>
+        <input type="text" value={title} readOnly={true} name="title" />
+      </label>
     </div>
   );
 }
@@ -40,50 +40,47 @@ export default function Task({ task: { id, title, state }, onArchiveTask, onPinT
 
 上のコードは Todo アプリケーションの HTML を基にした `Task` の簡単なマークアップです。
 
-下のコードは `Task` に対する 3 つのテスト用の状態をストーリーファイルに書いています:
+下のコードは `Task` に対する 3 つのテスト用の状態をストーリーファイルに書くものです。
 
-```javascript
-// src/components/Task.stories.js
-
-import React from 'react';
-
+```js:title=src/components/Task.stories.jsx
 import Task from './Task';
 
 export default {
   component: Task,
   title: 'Task',
+  tags: ['autodocs'],
 };
 
-const Template = (args) => <Task {...args} />;
-
-export const Default = Template.bind({});
-Default.args = {
-  task: {
-    id: '1',
-    title: 'Test Task',
-    state: 'TASK_INBOX',
-    updatedAt: new Date(2018, 0, 1, 9, 0),
+export const Default = {
+  args: {
+    task: {
+      id: '1',
+      title: 'Test Task',
+      state: 'TASK_INBOX',
+    },
   },
 };
 
-export const Pinned = Template.bind({});
-Pinned.args = {
-  task: {
-    ...Default.args.task,
-    state: 'TASK_PINNED',
+export const Pinned = {
+  args: {
+    task: {
+      ...Default.args.task,
+      state: 'TASK_PINNED',
+    },
   },
 };
 
-export const Archived = Template.bind({});
-Archived.args = {
-  task: {
-    ...Default.args.task,
-    state: 'TASK_ARCHIVED',
+export const Archived = {
+  args: {
+    task: {
+      ...Default.args.task,
+      state: 'TASK_ARCHIVED',
+    },
   },
 };
 ```
 
-Storybook には基本となる 2 つの階層があります。コンポーネントとその子供となるストーリーです。各ストーリーはコンポーネントに連なるものだと考えてください。コンポーネントには必要なだけストーリーを記述することができます。
+Storybook には基本となる 2 つの階層があります。コンポーネントとその子供となるストーリーです。各ストーリーはコンポーネントに連なるものだと考えてください。コンポーネントには必要なだけストーリーを記述できます。
 
 - **コンポーネント**
   - ストーリー
@@ -93,60 +90,66 @@ Storybook には基本となる 2 つの階層があります。コンポーネ�
 Storybook にコンポーネントを認識させるには、以下の内容を含む `default export` を記述します:
 
 - `component` -- コンポーネント自体
-- `title` -- Storybook のサイドバーにあるコンポーネントを参照する方法
+- `title` -- Storybook のサイドバーでコンポーネントをグループ化または分類するためのタイトル
+- `tags` -- このコンポーネントのドキュメントを自動生成するためのタグ
 
-ストーリーを定義するには、テスト用の状態ごとにストーリーを生成する関数をエクスポートします。ストーリーとは、特定の状態で描画された要素 (例えば、プロパティを指定したコンポーネントなど) を返す関数で、React の[状態を持たない関数コンポーネント](https://reactjs.org/docs/components-and-props.html#function-and-class-components)のようなものです。
+ストーリーを定義するには、コンポーネント ストーリー フォーマット 3 ( [CSF3](https://storybook.js.org/docs/api/csf) )を使用してテストケースを構築します。このフォーマットは、各テストケースを簡潔に構築するために設計されています。各コンポーネントの状態を含むオブジェクトをエクスポートすることで、テストをより直感的に定義し、ストーリーをより効率的に作成・再利用できます。
 
-コンポーネントにストーリーが複数連なっているので、各ストーリーを単一の `Template` 変数に割り当てるのが便利です。このパターンを導入することで、書くべきコードの量が減り、保守性も上がります。
-
-<div class="aside">
-
-`Template.bind({})` は関数のコピーを作成する [JavaScript の標準的な](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Function/bind) テクニックで、同じ実装を使いながら、エクスポートされたそれぞれのストーリーに独自のプロパティを設定することができます。
-
-</div>
-
-Arguments (略して [`args`](https://storybook.js.org/docs/react/writing-stories/args)) を使用することで、コントロールアドオンを通して、Storybook を再起動することなく、コンポーネントを動的に編集することができるようになります。[`args`](https://storybook.js.org/docs/react/writing-stories/args) の値が変わるとコンポーネントもそれに合わせて変わります。
+Arguments (略して [`args`](https://storybook.js.org/docs/writing-stories/args)) を使用することで、コントロールアドオンを通して、Storybook を再起動することなく、コンポーネントを動的に編集することができるようになります。[`args`](https://storybook.js.org/docs/writing-stories/args) の値が変わるとコンポーネントもそれに合わせて変わります。
 
 ストーリーを作る際には素となるタスク引数を使用してコンポーネントが想定するタスクの状態を作成します。想定されるデータは実際のデータと同じように作ります。さらに、このデータをエクスポートすることで、今後作成するストーリーで再利用することが可能となります。
 
-<div class="aside">
-<a href="https://storybook.js.org/docs/react/essentials/actions"><b>アクションアドオン</b></a>は切り離された環境で UI コンポーネントを開発する際の動作確認に役立ちます。アプリケーションの実行中には状態や関数を参照出来ないことがよくあります。<code>action()</code> はそのスタブとして使用できます。
-</div>
-
 ## 設定する
 
-作成したストーリーを認識させ、[前の章](/intro-to-storybook/react/ja/get-started)で変更した CSS ファイルを使用できるようにするため、Storybook の設定をいくつか変更する必要があります。
+作成したストーリーを認識させたり、CSS ファイル (`src/index.css`にあります) を Storybook 上で使用できるようにするため、Storybook の設定をいくつか変更する必要があります。
 
-まず、設定ファイル (`.storybook/main.js`) を以下のように変更してください:
+まず、設定ファイル (`.storybook/main.js`) を以下のように変更してください。
 
-```javascript
-// .storybook/main.js
-
-module.exports = {
-  //👇 Location of our stories
-  stories: ['../src/components/**/*.stories.js'],
+```diff:title=.storybook/main.js
+/** @type { import('@storybook/react-vite').StorybookConfig } */
+const config = {
+- stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
++ stories: ['../src/components/**/*.stories.@(js|jsx)'],
+  staticDirs: ['../public'],
   addons: [
     '@storybook/addon-links',
     '@storybook/addon-essentials',
-    '@storybook/preset-create-react-app',
+    '@storybook/addon-interactions',
   ],
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
+  docs: {
+    autodocs: 'tag',
+  },
 };
+export default config;
 ```
 
-上記の変更が完了したら、`.storybook` フォルダー内の `preview.js` を、以下のように変更してください:
+上記の変更が完了したら、`.storybook` フォルダー内の `preview.js` を、以下のように変更してください。
 
-```javascript
-// .storybook/preview.js
-
-import '../src/index.css'; //👈 The app's CSS file goes here
+```diff:title=.storybook/preview.js
++ import '../src/index.css';
 
 //👇 Configures Storybook to log the actions( onArchiveTask and onPinTask ) in the UI.
-export const parameters = {
-  actions: { argTypesRegex: '^on[A-Z].*' },
+/** @type { import('@storybook/react').Preview } */
+const preview = {
+  parameters: {
+    actions: { argTypesRegex: "^on[A-Z].*" },
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      },
+    },
+  },
 };
+
+export default preview;
 ```
 
-[`parameters`](https://storybook.js.org/docs/react/writing-stories/parameters) は Storybook の機能やアドオンの振る舞いをコントロールするのに使用します。この例では、アクション (呼び出しのモック) がどのように扱われるかを設定しています。
+[`parameters`](https://storybook.js.org/docs/writing-stories/parameters) は Storybook の機能やアドオンの振る舞いをコントロールするのに使用します。この例では、アクション (`actions`、呼び出しのモック) がどのように扱われるかを設定しています。
 
 アクションアドオンを使用することで、クリックした時などに Storybook の **actions** パネルにその情報を表示するコールバックを作成できます。これにより、ピン留めボタンを作成するとき、ボタンがクリックされたことがテスト用の UI 上で確認できます。
 
@@ -154,7 +157,7 @@ Storybook のサーバーを再起動すると、タスクの 3 つの状態の�
 
 <video autoPlay muted playsInline loop>
   <source
-    src="/intro-to-storybook/inprogress-task-states-6-0.mp4"
+    src="/intro-to-storybook/inprogress-task-states-7-0.mp4"
     type="video/mp4"
   />
 </video>
@@ -163,47 +166,63 @@ Storybook のサーバーを再起動すると、タスクの 3 つの状態の�
 
 ここまでで、Storybook のセットアップが完了し、スタイルをインポートし、テストケースを作りました。早速、デザインに合わせてコンポーネントの HTML を実装していきましょう。
 
-今のところコンポーネントは簡素な状態です。まずはデザインを実現するために最低限必要なコードを書いてみましょう:
+今のところコンポーネントは簡素な状態です。まずはデザインを実現するために最低限必要なコードを書いてみましょう。
 
-```javascript
-// src/components/Task.js
-
+```jsx:title=src/components/Task.jsx
 import React from 'react';
 
 export default function Task({ task: { id, title, state }, onArchiveTask, onPinTask }) {
   return (
     <div className={`list-item ${state}`}>
-      <label className="checkbox">
+      <label
+        htmlFor="checked"
+        aria-label={`archiveTask-${id}`}
+        className="checkbox"
+      >
         <input
           type="checkbox"
-          defaultChecked={state === 'TASK_ARCHIVED'}
           disabled={true}
           name="checked"
+          id={`archiveTask-${id}`}
+          checked={state === "TASK_ARCHIVED"}
         />
-        <span className="checkbox-custom" onClick={() => onArchiveTask(id)} />
+        <span
+          className="checkbox-custom"
+          onClick={() => onArchiveTask(id)}
+        />
       </label>
-      <div className="title">
-        <input type="text" value={title} readOnly={true} placeholder="Input title" />
-      </div>
 
-      <div className="actions" onClick={(event) => event.stopPropagation()}>
-        {state !== 'TASK_ARCHIVED' && (
-          // eslint-disable-next-line jsx-a11y/anchor-is-valid
-          <a onClick={() => onPinTask(id)}>
-            <span className={`icon-star`} />
-          </a>
-        )}
-      </div>
+      <label htmlFor="title" aria-label={title} className="title">
+        <input
+          type="text"
+          value={title}
+          readOnly={true}
+          name="title"
+          placeholder="Input title"
+        />
+      </label>
+
+      {state !== "TASK_ARCHIVED" && (
+        <button
+          className="pin-button"
+          onClick={() => onPinTask(id)}
+          id={`pinTask-${id}`}
+          aria-label={`pinTask-${id}`}
+          key={`pinTask-${id}`}
+        >
+          <span className={`icon-star`} />
+        </button>
+      )}
     </div>
   );
 }
 ```
 
-追加したマークアップとインポートした CSS により以下のような UI ができます:
+追加したマークアップとインポートした CSS により以下のような UI ができます。
 
 <video autoPlay muted playsInline loop>
   <source
-    src="/intro-to-storybook/finished-task-states-6-0.mp4"
+    src="/intro-to-storybook/finished-task-states-7-0.mp4"
     type="video/mp4"
   />
 </video>
@@ -212,79 +231,135 @@ export default function Task({ task: { id, title, state }, onArchiveTask, onPinT
 
 `propTypes` を使い React にコンポーネントが想定するデータ構造を示すのがベストプラクティスです。これにより想定するデータ構造がコードからわかるだけでなく、早期に問題を見つけるのに役立ちます。
 
-```javascript
-// src/components/Task.js
-
+```diff:title=src/components/Task.jsx
 import React from 'react';
-import PropTypes from 'prop-types';
++ import PropTypes from 'prop-types';
 
 export default function Task({ task: { id, title, state }, onArchiveTask, onPinTask }) {
-  // ...
+  return (
+    <div className={`list-item ${state}`}>
+      <label
+        htmlFor="checked"
+        aria-label={`archiveTask-${id}`}
+        className="checkbox"
+      >
+        <input
+          type="checkbox"
+          disabled={true}
+          name="checked"
+          id={`archiveTask-${id}`}
+          checked={state === "TASK_ARCHIVED"}
+        />
+        <span
+          className="checkbox-custom"
+          onClick={() => onArchiveTask(id)}
+        />
+      </label>
+
+      <label htmlFor="title" aria-label={title} className="title">
+        <input
+          type="text"
+          value={title}
+          readOnly={true}
+          name="title"
+          placeholder="Input title"
+        />
+      </label>
+
+      {state !== "TASK_ARCHIVED" && (
+        <button
+          className="pin-button"
+          onClick={() => onPinTask(id)}
+          id={`pinTask-${id}`}
+          aria-label={`pinTask-${id}`}
+          key={`pinTask-${id}`}
+        >
+          <span className={`icon-star`} />
+        </button>
+      )}
+    </div>
+  );
 }
 
-Task.propTypes = {
-  /** Composition of the task */
-  task: PropTypes.shape({
-    /** Id of the task */
-    id: PropTypes.string.isRequired,
-    /** Title of the task */
-    title: PropTypes.string.isRequired,
-    /** Current state of the task */
-    state: PropTypes.string.isRequired,
-  }),
-  /** Event to change the task to archived */
-  onArchiveTask: PropTypes.func,
-  /** Event to change the task to pinned */
-  onPinTask: PropTypes.func,
-};
++ Task.propTypes = {
++  /** Composition of the task */
++  task: PropTypes.shape({
++    /** Id of the task */
++    id: PropTypes.string.isRequired,
++    /** Title of the task */
++    title: PropTypes.string.isRequired,
++    /** Current state of the task */
++    state: PropTypes.string.isRequired,
++  }),
++  /** Event to change the task to archived */
++  onArchiveTask: PropTypes.func,
++  /** Event to change the task to pinned */
++  onPinTask: PropTypes.func,
++ };
 ```
 
 これで、開発中にタスクコンポーネントが間違って使用された際、警告が表示されます。
 
 <div class="aside">
-別の方法としてコンポーネントのプロパティを TypeScript など JavaScript の型システムで作成する方法もあります。
+💡 別の方法としてコンポーネントのプロパティを TypeScript など JavaScript の型システムで作成する方法もあります。
 </div>
 
 ## 完成！
 
-これでサーバーを起動したり、フロントエンドアプリケーションを起動したりすることなく、コンポーネントを作りあげることができました。次の章では、Taskbox の残りのコンポーネントを、同じように少しずつ作成していきます。
+これでサーバーを起動したり、フロントエンドアプリケーションを起動したりすることなく、コンポーネントを作りあげることができました。次の章では、Taskbox の残りのコンポーネントを、同じように少しずつ作成します。
 
-見た通り、コンポーネントだけを切り離して作り始めるのは早くて簡単です。あらゆる状態を掘り下げてテストできるので、高品質で、バグが少なく、洗練された UI を作ることができることでしょう。
+見た通り、コンポーネントを切り離して開発を始めるのは、迅速かつ簡単です。あらゆる状態を掘り下げてテストできるので、高品質で、バグが少なく、洗練された UI を作ることができることでしょう。
 
-## 自動化されたテスト
+## アクセシビリティの問題の検知
 
-Storybook はアプリケーションの UI を作成する際に目視でテストする素晴らしい方法を与えてくれます。ストーリーがあれば、タスクの外観が壊れていないことを確認しながらアプリケーションを開発できます。しかしこれは完全に手動の作業なので、警告やエラーがなく表示されていることを、それぞれの状態を確認しながら誰かがクリックしていかなければなりません。なんとか自動化できないものでしょうか。
+アクセシビリティテストとは、[WCAG](https://www.w3.org/WAI/standards-guidelines/wcag/) のルールと他の業界で認められたベストプラクティスに基づく経験則に対して、自動化ツールを用いることでレンダリングされた DOM を監視することを指します。これは視覚障害、聴覚障害、認知障害などの障害をお持ちの方を含む、できるだけ多くのユーザーがアプリケーションを利用できるように、明らかなアクセシビリティの違反を検知するために QA の第一線として機能します。
 
-### スナップショットテスト
+Storybook には公式の[アクセシビリティアドオン](https://storybook.js.org/addons/@storybook/addon-a11y)があります。このアドオンは、Deque の [axe-core](https://github.com/dequelabs/axe-core) がベースで、[WCAG の問題の 57%](https://www.deque.com/blog/automated-testing-study-identifies-57-percent-of-digital-accessibility-issues/) に対応しています。
 
-スナップショットテストとは、特定の入力に対してコンポーネントの「既知の良好な」出力を記録し、将来、出力が変化したコンポーネントを特定できるようにするテスト手法です。
-これで補完することにより、コンポーネントの新しいバージョンでの変化を Storybook で素早く確認できるようになります。
+それでは、どのように動かすのか見てみましょう! 以下のコマンドでアドオンをインストールします。
 
-<div class="aside">
-コンポーネントに渡すデータは変化しないものを使用してください。そうすれば毎回スナップショットテストの結果が同じになります。日付や、ランダムに生成された値に気を付けましょう。
-</div>
-
-[Storyshots アドオン](https://github.com/storybooks/storybook/tree/master/addons/storyshots)を使用することで、それぞれのストーリーにスナップショットテストが作成されます。開発時の依存関係を以下のコマンドで追加してください:
-
-```bash
-yarn add -D @storybook/addon-storyshots react-test-renderer
+```shell
+yarn add --dev @storybook/addon-a11y
 ```
 
-次に、`src/storybook.test.js` ファイルを以下の内容で作成します:
+アドオンを利用可能にするために、Storybook の設定ファイル(`.storybook/main.js`)を以下のように設定します。
 
-```javascript
-// src/storybook.test.js
-
-import initStoryshots from '@storybook/addon-storyshots';
-initStoryshots();
+```diff:title=.storybook/main.js
+/** @type { import('@storybook/react-vite').StorybookConfig } */
+const config = {
+  stories: ['../src/components/**/*.stories.@(js|jsx)'],
+  staticDirs: ['../public'],
+  addons: [
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    '@storybook/addon-interactions',
++   '@storybook/addon-a11y',
+  ],
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
+  docs: {
+    autodocs: 'tag',
+  },
+};
+export default config;
 ```
 
-これだけです。`yarn test` を実行すれば以下のような出力が得られます:
+![タスクのアクセシビリティの問題をStorybookで表示する](/intro-to-storybook/finished-task-states-accessibility-issue-7-0.png)
 
-![Task テストランナー](/intro-to-storybook/task-testrunner.png)
+ストーリーをひととおり見てみると、このアドオンがひとつのアクセシビリティの問題を検知したことがわかります。[**"Elements must have sufficient color contrast"**](https://dequeuniversity.com/rules/axe/4.4/color-contrast?application=axeAPI) というエラーメッセージは、タイトルと背景に十分なコントラストがないことを指しています。そのため、アプリケーションの CSS (`src/index.css`)を編集して、テキストのカラーをより暗いグレーに修正する必要があります。
 
-これで `Task` の各ストーリーに対するスナップショットテストが出来ました。`Task` の実装を変更するたびに、変更内容の確認を求められるようになります。
+```diff:title=src/index.css
+.list-item.TASK_ARCHIVED input[type="text"] {
+- color: #a0aec0;
++ color: #4a5568;
+  text-decoration: line-through;
+}
+```
+
+以上です！これで、UI のアクセシビリティ向上の最初のステップが完了です。アプリケーションをさらに複雑にしても、他のすべてのコンポーネントに対してこのプロセスを繰り返すことができ、追加のツールやテスト環境を準備する必要はありません。
 
 <div class="aside">
-Git へのコミットを忘れずに行ってください！
+💡 Git へのコミットを忘れずに行ってください！
 </div>

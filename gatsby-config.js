@@ -1,31 +1,31 @@
 const isDeployPreview = process.env.CONTEXT === 'deploy-preview';
+const isProduction = process.env.CONTEXT === 'production';
 const permalinkBase = isDeployPreview ? process.env.DEPLOY_PRIME_URL : 'https://storybook.js.org';
 
 module.exports = {
   flags: {
-    PRESERVE_WEBPACK_CACHE: true,
-    FAST_DEV: true,
-    QUERY_ON_DEMAND: true,
+    FAST_DEV: false,
   },
   pathPrefix: `/tutorials`,
   siteMetadata: {
     title: 'Storybook Tutorials',
     description:
-      'Learn how to develop UIs with components and design systems. Our in-depth frontend guides are created by Storybook maintainers and peer-reviewed by the open source community.',
+      'Learn how to build and test UI components with Storybook. Our in-depth frontend guides are created by Storybook maintainers and peer-reviewed by the open source community.',
     permalink: `${permalinkBase}/tutorials`,
     siteUrl: permalinkBase,
     githubUrl: 'https://github.com/chromaui/learnstorybook.com',
     contributeUrl: 'https://github.com/chromaui/learnstorybook.com/#contribute',
-    storybookVersion: 6.4,
+    storybookVersion: 10,
     tutorialStatus: {
       'intro-to-storybook': {
         react: {
           de: 5.3,
-          en: 6.4,
-          es: 5.3,
-          fr: 6.1,
-          ja: 6.1,
-          ko: 6.1,
+          en: 10,
+          es: 8.3,
+          fr: 8.3,
+          it: 7.6,
+          ja: 8.3,
+          ko: 10,
           nl: 5.3,
           pt: 5.3,
           'zh-CN': 6.1,
@@ -33,65 +33,46 @@ module.exports = {
           ar: 6.3,
         },
         'react-native': {
-          en: 5.3,
+          en: 8.1,
           es: 5.3,
+          pt: 7.6,
         },
         vue: {
-          en: 6.4,
+          en: 10,
           es: 6.1,
           fr: 5.3,
+          ja: 10,
           pt: 5.3,
-          'zh-CN': 6.3,
+          it: 7.6,
+          'zh-CN': 8.1,
         },
         angular: {
-          en: 6.4,
+          en: 10,
           ja: 6.3,
           es: 6.3,
           pt: 5.3,
         },
         svelte: {
-          en: 6.4,
+          en: 10,
           es: 5.3,
-        },
-        ember: {
-          en: 6.3,
-        },
-      },
-      'design-systems-for-developers': {
-        react: {
-          en: 6.4,
-          ko: 6.1,
-          pt: 5.3,
-          'zh-CN': 6.3,
         },
       },
       'visual-testing-handbook': {
         react: {
-          en: 6.4,
-          es: 6.3,
-        },
-      },
-      'create-an-addon': {
-        react: {
-          en: 6.4,
-          fr: 6.4,
-          es: 6.4,
+          en: 10,
+          es: 9.0,
+          ko: 9.0,
         },
       },
       'ui-testing-handbook': {
         react: {
-          en: 6.4,
+          en: 8.3,
+          ko: 6.5,
         },
       },
     },
   },
   plugins: [
-    {
-      resolve: 'gatsby-plugin-layout',
-      options: {
-        component: require.resolve(`./src/components/composite/AppLayout.js`),
-      },
-    },
     'gatsby-plugin-react-helmet',
     {
       resolve: `gatsby-source-filesystem`,
@@ -105,6 +86,7 @@ module.exports = {
       resolve: `gatsby-transformer-remark`,
       options: {
         plugins: [
+          `gatsby-remark-code-buttons-with-diff-support`,
           `gatsby-remark-copy-linked-files`,
           {
             resolve: `gatsby-remark-images`,
@@ -120,8 +102,17 @@ module.exports = {
         ],
       },
     },
-    `gatsby-plugin-emotion`,
     `gatsby-plugin-sitemap`,
+    ...(isProduction
+      ? [
+          {
+            resolve: `gatsby-plugin-plausible`,
+            options: {
+              domain: 'storybook.js.org',
+            },
+          },
+        ]
+      : []),
     ...(process.env.GOOGLE_ANALYTICS_TRACKING_ID && !isDeployPreview
       ? [
           {
@@ -133,12 +124,12 @@ module.exports = {
           },
         ]
       : []),
-    ...(process.env.FACEBOOK_PIXEL_ID && !isDeployPreview
+    ...(process.env.GOOGLE_TAG_TRACKING_ID && !isDeployPreview
       ? [
           {
-            resolve: 'gatsby-plugin-facebook-pixel',
+            resolve: `gatsby-plugin-google-gtag`,
             options: {
-              pixelId: process.env.FACEBOOK_PIXEL_ID,
+              trackingIds: [process.env.GOOGLE_TAG_TRACKING_ID],
             },
           },
         ]

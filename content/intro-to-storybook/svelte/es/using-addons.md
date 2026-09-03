@@ -12,7 +12,7 @@ Storybook cuenta con un sistema robusto de [complementos](https://storybook.js.o
   😍 Puede ver la lista de complementos de la comunidad con respaldo oficial y con un fuerte respaldo <a href="https://storybook.js.org/addons"> aquí </a>.
 </div>
 
-Podríamos escribir para siempre sobre la configuración y el uso de complementos para todos sus casos de uso particulares. Por ahora, trabajemos para integrar uno de los complementos más populares dentro del ecosistema de Storybook: [knobs](https://github.com/storybooks/storybook/tree/master/addons/knobs).
+Podríamos escribir para siempre sobre la configuración y el uso de complementos para todos sus casos de uso particulares. Por ahora, trabajemos para integrar uno de los complementos más populares dentro del ecosistema de Storybook: [knobs](https://github.com/storybookjs/addon-knobs).
 
 ## Configurando Knobs
 
@@ -29,15 +29,13 @@ Knobs es un recurso increíble para que los diseñadores y desarrolladores exper
 
 Primero, tendremos que agregarlo como una dependencia de desarrollo
 
-```bash
+```shell
 npm install -D @storybook/addon-knobs
 ```
 
 Registra Knobs en tu archivo `.storybook/main.js`.
 
-```javascript
-// .storybook/main.js
-
+```js:title=.storybook/main.js
 module.exports = {
   stories: ['../src/components/**/*.stories.js'],
   addons: ['@storybook/addon-actions', '@storybook/addon-links', '@storybook/addon-knobs'],
@@ -58,18 +56,14 @@ Usemos el tipo de knob de objeto en el componente `Task`.
 
 Primero, importe el decorador `withKnobs` y el tipo de knob `object` a `Task.stories.js`:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 import { action } from '@storybook/addon-actions';
 import { withKnobs, object } from '@storybook/addon-knobs';
 ```
 
 A continuación, dentro de la exportación `default` del archivo`Task.stories`, agregue `withKnobs` como elemento de `decorators`:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 export default {
   title: 'Task',
   decorators: [withKnobs],
@@ -79,9 +73,7 @@ export default {
 
 Por último, integre el tipo de knob `object` dentro de la historia "predeterminada":
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 export const Default = () => ({
   Component: Task,
   props: {
@@ -97,7 +89,7 @@ export const Default = () => ({
 
 Ahora debería aparecer una nueva pestaña "Knobs" al lado de la pestaña "Action Logger" en el panel inferior.
 
-Como se documenta [aquí](https://github.com/storybooks/storybook/tree/master/addons/knobs#object), el tipo `object` del knob acepta una etiqueta y un objeto predeterminado como parámetros. La etiqueta es constante y se muestra a la izquierda de un campo de texto en el panel de complementos. El objeto que ha pasado se representará como un blob JSON editable. ¡Siempre que envíe un JSON válido, su componente se ajustará en función de los datos que se pasan al objeto!
+Como se documenta [aquí](https://github.com/storybookjs/addon-knobs#object), el tipo `object` del knob acepta una etiqueta y un objeto predeterminado como parámetros. La etiqueta es constante y se muestra a la izquierda de un campo de texto en el panel de complementos. El objeto que ha pasado se representará como un blob JSON editable. ¡Siempre que envíe un JSON válido, su componente se ajustará en función de los datos que se pasan al objeto!
 
 ## Complementos evolucionan el alcance de tus Storybooks
 
@@ -111,9 +103,7 @@ Además, con un fácil acceso para editar los datos pasados ​​a un component
 
 ¡Gracias a poder probar rápidamente diferentes entradas a un componente, podemos encontrar y solucionar estos problemas con relativa facilidad! Arreglemos el problema de desbordamiento agregando un estilo a `Task.svelte`:
 
-```svelte
-<!-- src/components/Task.svelte -->
-
+```svelte:title=src/components/Task.svelte
 <!-- This is the input for our task title. In practice we would probably update the styles for this element
   but for this tutorial, let's fix the problem with an inline style:-->
 <input
@@ -133,9 +123,7 @@ Por supuesto, siempre podemos reproducir este problema ingresando la misma entra
 
 Agreguemos una historia para el caso de texto largo en `Task.stories.js`:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 // above code stays the same
 
 const longTitle = `This task's name is absurdly large. In fact, I think if I keep going I might end up with content overflow. What will happen? The star that represents a pinned task could have text overlapping. The text could cut-off abruptly when it reaches the star. I hope not!`;

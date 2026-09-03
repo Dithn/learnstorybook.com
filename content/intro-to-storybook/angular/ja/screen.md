@@ -2,7 +2,7 @@
 title: '画面を作る'
 tocTitle: '画面'
 description: 'コンポーネントをまとめて画面を作りましょう'
-commit: '8cb73c6'
+commit: '45615b4'
 ---
 
 今までボトムアップ (小さく始めてから複雑性を追加していく) で UI の作成に集中してきました。ボトムアップで作業することで、Storybook で遊びながら、それぞれのコンポーネントを切り離された環境で、それぞれに必要なデータを考えながら開発することができました。サーバーを立ち上げたり、画面を作ったりする必要は全くありませんでした！
@@ -267,7 +267,7 @@ Error.args = {
 ですが、開発では**きっと**コンポーネント階層の下位の層でコンテナーを描画する必要が出てくるでしょう。アプリケーション全体、もしくは大部分を Storyook で描画したいなら、解決策が必要です。
 
 <div class="aside">
-💡 補足として、データを下の階層に渡していくことは正当な手法です。<a href="http://graphql.org/">GraphQL</a> を使う場合は特に。<a href="https://www.chromatic.com">Chromatic</a> を作る際にはこの手法で 800 以上のストーリーを作成しました。
+💡 補足として、データを下の階層に渡していくことは正当な手法です。<a href="http://graphql.org/">GraphQL</a> を使う場合は特に。<a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a> を作る際にはこの手法で 800 以上のストーリーを作成しました。
 </div>
 
 ## デコレーターを使用してコンテキストを渡す

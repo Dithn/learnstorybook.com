@@ -2,12 +2,12 @@
 title: 'Testing user flows'
 tocTitle: 'User flow'
 description: 'Verify that your UI works end-to-end'
-commit: 'e7a2c1b'
+commit: '74eeff9'
 ---
 
 Debugging in production is a nightmare. You have to check every layer of your app. Is it a component bug, a misfiring event, styling, app state, or perhaps a broken API? It could be any of the above, and you have to untangle why.
 
-UIs help folks navigate a sequence of steps on multiple pages to accomplish their goals. So far, we've seen how Storybook makes it easy to isolate each of those pages and run [visual](../visual-testing), [accessibility](../accessibility-testing) and [interaction](../interaction-testing) tests on them. But to verify the entire flow and catch integration issues, you need end-to-end (E2E) UI tests.
+UIs help folks navigate a sequence of steps on multiple pages to accomplish their goals. So far, we've seen how Storybook makes it easy to isolate each of those pages and run [visual](/ui-testing-handbook/react/en/visual-testing/), [accessibility](/ui-testing-handbook/react/en/accessibility-testing/) and [interaction](/ui-testing-handbook/react/en/interaction-testing/) tests on them. But to verify the entire flow and catch integration issues, you need end-to-end (E2E) UI tests.
 
 ## Does your UI work end-to-end?
 
@@ -22,12 +22,12 @@ Teams use E2E tests to ensure that the user experience works as intended. To run
 
 ### Testing the complete application comes with trade-offs
 
-On the surface, E2E and [interaction tests](../interaction-testing) seem pretty similar. But remember, your users interact with the entire app and not just the UI components. E2E tests run at the app level, which allows them to uncover integration issues between the frontend and backend. But that also requires you to maintain test infrastructure for more layers of your tech stack (time-consuming!).
+On the surface, E2E and [interaction tests](/ui-testing-handbook/react/en/interaction-testing/) seem pretty similar. But remember, your users interact with the entire app and not just the UI components. E2E tests run at the app level, which allows them to uncover integration issues between the frontend and backend. But that also requires you to maintain test infrastructure for more layers of your tech stack (time-consuming!).
 
 Component level testing is done by self-contained tools which can mount, render and test components. With E2E tests, _you're responsible_ for spinning up the application. For which, you have two options:
 
 1.  **Maintain a full test environment**: this includes front-end, back-end, services, and seeded test data. For example, the O'Reilly team uses Docker to spin up their entire app infrastructure and run E2E tests.
-2.  **Maintain a front-end only test environment** paired with a mock back-end**.** For example, Twilio tests flows by using Cypress to stub out network requests.
+2.  **Maintain a front-end only test environment** paired with a mock back-end. For example, Twilio tests flows by using Cypress to stub out network requests.
 
 Either way, the complexity ramps up with the scale of your system. The larger the system the more cumbersome it is to replicate the setup on a continuous integration server and then connect to a cloud browser to run the tests.
 
@@ -48,24 +48,31 @@ We’ll write an E2E test for the authentication flow: navigate to the login pag
   <img style="flex: 1 1 auto; min-width: 0;" src="/ui-testing-handbook/taskbox.png" alt="inbox page" />
 </figure>
 
-Start the app in development mode by running `yarn start`. Then open [http://localhost:3000](http://localhost:3000/) and you’ll be presented with the login screen.
+Start the app in development mode by running `yarn dev`. Then open [http://localhost:5173](http://localhost:5173) and you’ll be presented with the login screen.
 
 ### Set up Cypress
 
-Run: `yarn add cypress --dev` to install the Cypress package. Then add the Cypress command to the scripts field of your `package.json` file.
+Run `yarn add --dev cypress` to install the Cypress package. Then add the Cypress command to the scripts field of your `package.json` file.
 
-```json:title=package.json
- "scripts": {
-   "cypress": "cypress open"
- }
+```json:clipboard=false
+{
+  "scripts": {
+    "cypress": "cypress open"
+  }
+}
 ```
 
-Next, add a `cypress.json` file at the root of your project. Here we can configure the base URL for our application so that we don’t have to repeat ourselves when writing out actual test commands.
+Next, add a `cypress.config.js` file at the root of your project. Here we can configure the base URL for our application so that we don’t have to repeat ourselves when writing out actual test commands.
 
-```json:title=cypress.json
-{
-  "baseUrl": "http://localhost:3000"
-}
+```javascript:title=cypress.config.js
+import { defineConfig } from 'cypress';
+
+export default defineConfig({
+  e2e: {
+    baseUrl: 'http://localhost:5173/',
+    supportFile: false,
+  },
+});
 ```
 
 And finally, run `yarn cypress` to finish up the setup process. This will add a `cypress` folder to your project. All the test files will live here. It will also start the Cypress test runner.
@@ -74,7 +81,7 @@ And finally, run `yarn cypress` to finish up the setup process. This will add a 
 
 Cypress test structure is quite similar to other types of testing you might be familiar with. You start by describing what you’re going to test. Each test lives in an `it` block where you run assertions. Here’s what the authentication user flow test looks like:
 
-```javascript:title=cypress/e2e/auth.spec.js
+```javascript:title=cypress/e2e/auth.cy.js
 describe('The Login Page', () => {
   it('user can authenticate using the login form', () => {
     const email = 'alice.carr@test.com';
@@ -90,7 +97,7 @@ describe('The Login Page', () => {
     cy.get('button[type=submit]').click();
 
     // UI should display the user's task list
-    cy.get('[aria-label="tasks"] li').should('have.length', 6);
+    cy.get('[aria-label="tasks"] div').should("have.length", 6);
   });
 });
 ```
@@ -101,7 +108,7 @@ The last bit of the test runs assertions. In other words, we verify whether the 
 
 Switch over to the Cypress window and you should see that the test is executed.
 
-![](/ui-testing-handbook/cypress-error.png)
+![](/ui-testing-handbook/cypress-userflow-test-error.png)
 
 But, notice that the test failed. That’s because we’re only running the front-end of the application. All HTTP requests will fail since we don’t have an active back-end. Instead of spinning up the actual back-end we’ll use stubbed network requests.
 
@@ -109,42 +116,46 @@ But, notice that the test failed. That’s because we’re only running the fron
 
 The `cy.intercept` method allows us to intercept network requests and respond with mock data. The auth user flow relies on two requests: `/authenticate` to log in and `/tasks` to fetch the user’s tasks. To stub these requests we're gonna need some mock data.
 
-In the [composition testing chapter](../composition-testing/), we created mock data for the task list stories. We'll now reuse that in our Cypress test.
+In the [composition testing chapter](/ui-testing-handbook/react/en/composition-testing/), we created mock data for the task list stories. We'll now reuse that in our Cypress test.
 
-```javascript:title=TaskList.stories.js
-import React from 'react';
-import { TaskList } from './TaskList';
-import Task from './Task.stories';
+```javascript:title=TaskList.stories.jsx
+import TaskList from './TaskList';
+
+import * as TaskStories from './Task.stories';
 
 export default {
   component: TaskList,
   title: 'TaskList',
   argTypes: {
-    ...Task.argTypes,
+    ...TaskStories.argTypes,
   },
 };
-const Template = (args) => <TaskList {...args} />;
 
-export const Default = Template.bind({});
-Default.args = {
-  tasks: [
-    { id: '1', state: 'TASK_INBOX', title: 'Build a date picker' },
-    { id: '2', state: 'TASK_INBOX', title: 'QA dropdown' },
-    {
-      id: '3',
-      state: 'TASK_INBOX',
-      title: 'Write a schema for account avatar component',
-    },
-    { id: '4', state: 'TASK_INBOX', title: 'Export logo' },
-    { id: '5', state: 'TASK_INBOX', title: 'Fix bug in input error state' },
-    { id: '6', state: 'TASK_INBOX', title: 'Draft monthly blog to customers' },
-  ],
+export const Default = {
+  args: {
+    tasks: [
+      { id: '1', state: 'TASK_INBOX', title: 'Build a date picker' },
+      { id: '2', state: 'TASK_INBOX', title: 'QA dropdown' },
+      {
+        id: '3',
+        state: 'TASK_INBOX',
+        title: 'Write a schema for account avatar component',
+      },
+      { id: '4', state: 'TASK_INBOX', title: 'Export logo' },
+      { id: '5', state: 'TASK_INBOX', title: 'Fix bug in input error state' },
+      {
+        id: '6',
+        state: 'TASK_INBOX',
+        title: 'Draft monthly blog to customers',
+      },
+    ],
+  },
 };
 ```
 
 Let’s go ahead and update the test to mock those two network requests.
 
-```diff:title=cypress/e2e/auth.spec.js
+```diff:title=cypress/e2e/auth.cy.js
 + import { Default as TaskListDefault } from '../../src/components/TaskList.stories';
 
 describe('The Login Page', () => {
@@ -179,14 +190,14 @@ describe('The Login Page', () => {
     cy.get('button[type=submit]').click();
 
     // UI should display the user's task list
-    cy.get('[aria-label="tasks"] li').should('have.length', 6);
+    cy.get('[aria-label="tasks"] div').should("have.length", 6);
   });
 });
 ```
 
 Re-run the test and it should be passing now.
 
-![](/ui-testing-handbook/cypress-success.png)
+![](/ui-testing-handbook/cypress-userflow-test-success.png)
 
 We booted up the entire application and simulated user behaviour and tested the login flow with Cypress. In this one test, we checked data flow, form submission and API calls.
 

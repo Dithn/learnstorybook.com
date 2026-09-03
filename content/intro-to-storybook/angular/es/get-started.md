@@ -2,13 +2,13 @@
 title: 'Tutorial de Storybook para Angular'
 tocTitle: 'Empezando'
 description: 'Configurar Angular Storybook en tu entorno de desarrollo'
-commit: '69a7f00'
+commit: 'bc34d9c'
 ---
 
 Storybook se ejecuta junto con su aplicación en modo de desarrollo. Le ayuda a crear componentes de interfaz de
 usuario aislados de la lógica de negocio y el contexto de su aplicación. Esta edición del tutorial de Storybook es para
 Angular;
-existen otras ediciones para [React](/intro-to-storybook/react/en/get-started), [React Native](/intro-to-storybook/react-native/en/get-started), [Vue](/intro-to-storybook/vue/en/get-started), [Svelte](/intro-to-storybook/svelte/en/get-started) y [Ember](/intro-to-storybook/ember/en/get-started).
+existen otras ediciones para [React](/intro-to-storybook/react/en/get-started/), [React Native](/intro-to-storybook/react-native/en/get-started/), [Vue](/intro-to-storybook/vue/en/get-started/), [Svelte](/intro-to-storybook/svelte/en/get-started/).
 
 ![Storybook and your app](/intro-to-storybook/storybook-relationship.jpg)
 
@@ -22,7 +22,7 @@ tu flujo de trabajo de desarrollo.
 
 Ejecutemos los siguientes comandos:
 
-```bash
+```shell:clipboard=false
 # Clone the template
 npx degit chromaui/intro-storybook-angular-template taskbox
 
@@ -38,7 +38,7 @@ npm install
 
 Ahora podemos comprobar rápidamente que los distintos entornos de nuestra aplicación funcionan correctamente:
 
-```bash
+```shell:clipboard=false
 # Run the test runner (Jest) in a terminal:
 npm run test
 
@@ -61,25 +61,25 @@ Dependiendo de la parte de la aplicación en la que estés trabajando, es posibl
 En esta etapa, es seguro agregar nuestros archivos a un repositorio local. Ejecute los siguientes comandos para inicializar un repositorio local, agregue y confirme los cambios que hemos realizado hasta ahora.
 
 ```shell
-$ git init
+git init
 ```
 
 Seguido de:
 
 ```shell
-$ git branch -M main
+git branch -M main
 ```
 
 En seguida:
 
 ```shell
-$ git add .
+git add .
 ```
 
 Y finalmente:
 
 ```shell
-$ git commit -m "first commit"
+git commit -m "first commit"
 ```
 
 ¡Comencemos a construir nuestro primer componente!

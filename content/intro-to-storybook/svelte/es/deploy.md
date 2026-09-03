@@ -30,20 +30,20 @@ Antes de implementar en Netlify, debemos seguir algunos pasos adicionales. Si si
 
 Primero, desea configurar Git para su proyecto en el directorio local.
 
-```bash
-$ git init
+```shell
+git init
 ```
 
 A continuación, agregue archivos al primer commit.
 
-```bash
-$ git add .
+```shell
+git add .
 ```
 
 Ahora haz commit de los archivos.
 
-```bash
-$ git commit -m "taskbox UI"
+```shell
+git commit -m "taskbox UI"
 ```
 
 ### Configurar un repositorio en GitHub
@@ -54,13 +54,13 @@ Ve a Github y configura un repositorio [aquí](https://github.com/new). Nombra t
 
 En la nueva configuración del repositorio copia la URL de origen del repositorio y añádelo a tu proyecto git con este comando:
 
-```bash
-$ git remote add origin https://github.com/<your username>/taskbox.git
+```shell
+git remote add origin https://github.com/<your username>/taskbox.git
 ```
 
 Finalmente haz push al repo en GitHub.
 
-```bash
+```shell
 $ git push -u origin main
 ```
 
@@ -86,7 +86,7 @@ Configura Netlify resaltando el comando build que se ejecutará en tu CI y el di
 
 ![Ajustes Netlify](/intro-to-storybook/netlify-settings-npm.png)
 
-<div class="aside"><p>Si su implementación falla con Netlify, agregue <a href="https://storybook.js.org/docs/configurations/cli-options/#for-build-storybook">--quiet </a> al script <code>build-storybook</code>.</p></div>
+<div class="aside"><p>Si su implementación falla con Netlify, agregue <a href="https://storybook.js.org/docs/svelte/api/cli-options#build-storybook">--quiet </a> al script <code>build-storybook</code>.</p></div>
 
 Ahora envía el formulario para construir e implementar el código en la rama `main` del taskbox.
 

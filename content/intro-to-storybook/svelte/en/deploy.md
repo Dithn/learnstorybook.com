@@ -2,7 +2,6 @@
 title: 'Deploy Storybook'
 tocTitle: 'Deploy'
 description: 'Learn how to deploy Storybook online'
-commit: '73f95be'
 ---
 
 Throughout this tutorial, we built components on our local development machine. At some point, we'll need to share our work to get team feedback. Let's deploy Storybook online to help teammates review UI implementation.
@@ -15,7 +14,7 @@ Running `yarn build-storybook` will output a static Storybook in the `storybook-
 
 ## Publish Storybook
 
-This tutorial uses <a href="https://www.chromatic.com/">Chromatic</a>, a free publishing service made by the Storybook maintainers. It allows us to deploy and host our Storybook safely and securely in the cloud.
+This tutorial uses [Chromatic](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook), a free publishing service made by the Storybook maintainers. It allows us to deploy and host our Storybook safely and securely in the cloud.
 
 ### Set up a repository in GitHub
 
@@ -27,25 +26,25 @@ Go to GitHub and create a new repository for our project [here](https://github.c
 
 In the new repo, grab the origin URL of the repo and add it to your git project with this command:
 
-```bash
-$ git remote add origin https://github.com/<your username>/taskbox.git
+```shell
+git remote add origin https://github.com/<your username>/taskbox.git
 ```
 
 Finally, push our local repo to the remote repo on GitHub with:
 
-```bash
-$ git push -u origin main
+```shell
+git push -u origin main
 ```
 
 ### Get Chromatic
 
 Add the package as a development dependency.
 
-```bash
+```shell
 yarn add -D chromatic
 ```
 
-Once the package is installed, [log in to Chromatic](https://www.chromatic.com/start) with your GitHub account (Chromatic will only ask for lightweight permissions), then we'll create a new project called "taskbox" and sync it with the GitHub repository we've set up.
+Once the package is installed, [log in to Chromatic](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) with your GitHub account (Chromatic will only ask for lightweight permissions), then we'll create a new project called "taskbox" and sync it with the GitHub repository we've set up.
 
 Click `Choose GitHub repo` under collaborators and select your repo.
 
@@ -58,7 +57,7 @@ Click `Choose GitHub repo` under collaborators and select your repo.
 
 Copy the unique `project-token` that was generated for your project. Then execute it by issuing the following in the command line to build and deploy our Storybook. Make sure to replace `project-token` with your project token.
 
-```bash
+```shell
 yarn chromatic --project-token=<project-token>
 ```
 
@@ -66,7 +65,14 @@ yarn chromatic --project-token=<project-token>
 
 When finished, you'll get a link `https://random-uuid.chromatic.com` to your published Storybook. Share the link with your team to get feedback.
 
-![Storybook deployed with chromatic package](/intro-to-storybook/chromatic-manual-storybook-deploy-6-0.png)
+<!--
+ TOOO:
+   - Follow up Design to get updated versions of this assets
+     - One for non-React versions that showcase the same structure (i.e., Task, PureTaskList and InboxScreen)
+     - One for React that showcases the following structure (i.e., Task, TaskList and InboxScreen)
+ -->
+
+![Storybook deployed with chromatic package](/intro-to-storybook/chromatic-manual-storybook-deploy-non-react.png)
 
 Hooray! We published Storybook with one command, but manually running a command every time we want to get feedback on UI implementation is repetitive. Ideally, we'd publish the latest version of components whenever we push code. We'll need to continuously deploy Storybook.
 
@@ -89,41 +95,47 @@ on: push
 
 # List of jobs
 jobs:
-  test:
-    # Operating System
+  chromatic:
+    name: 'Run Chromatic'
     runs-on: ubuntu-latest
     # Job steps
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - run: yarn
         #👇 Adds Chromatic as a step in the workflow
-      - uses: chromaui/action@v1
+      - uses: chromaui/action@latest
         # Options required for Chromatic's GitHub Action
         with:
-          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/en/deploy/ to obtain it
+          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/svelte/en/deploy/ to obtain it
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-<div class="aside"><p>💡 For brevity purposes <a href=" https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository ">GitHub secrets</a> weren't mentioned. Secrets are secure environment variables provided by GitHub so that you don't need to hard code the <code>project-token</code>.</p></div>
+<div class="aside">
+
+💡 For brevity purposes [GitHub secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) weren't mentioned. Secrets are secure environment variables provided by GitHub so that you don't need to hard code the `project-token`.
+
+</div>
 
 ### Commit the action
 
 In the command line, issue the following command to add the changes that you've made:
 
-```bash
+```shell
 git add .
 ```
 
 Then commit them by issuing:
 
-```bash
+```shell
 git commit -m "GitHub action setup"
 ```
 
 Finally, push them to the remote repository with:
 
-```bash
+```shell
 git push origin main
 ```
 

@@ -2,6 +2,7 @@
 title: 'Deploy Storybook'
 tocTitle: 'Deploy'
 description: 'Leren hoe we Storybook online deployen'
+commit: 'ca9b814'
 ---
 
 Doorheen deze tutorial hebben we componenten lokaal op onze development machine gebouwd. Er komt een punt waar we ons werk willen delen met het team om zo feedback te verkrijgen. Laten we Storybook online deployen om ons team te helpen met het reviewen van de UI implementatie.
@@ -14,16 +15,16 @@ Om Storybook te deployen, moeten we het eerst exporteren als een statische web-a
 
 ## Storybook publiceren
 
-Deze tutorial gebruikt <a href="https://www.chromatic.com/">Chromatic</a>, een gratis dienst gemaakt door de mensen die Storybook onderhouden. Het laat ons toe om Storybook veilig in de cloud te deployen.
+Deze tutorial gebruikt <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a>, een gratis dienst gemaakt door de mensen die Storybook onderhouden. Het laat ons toe om Storybook veilig in de cloud te deployen.
 
 ### Een GitHub repository opzetten
 
-Voor we beginnen, moet onze lokale code synchroniseren met een remote versiecontrolesysteem. Toen we ons project initialiseerden in het [Get started hoofdstuk](/intro-to-storybook/react/nl/get-started), had Create React App (CRA) alreeds een lokale repository voor ons gemaakt. Op dit moment is het oké om onze bestanden toe te voegen aan de eerste commit.
+Voor we beginnen, moet onze lokale code synchroniseren met een remote versiecontrolesysteem. Toen we ons project initialiseerden in het [Get started hoofdstuk](/intro-to-storybook/react/nl/get-started/), had Create React App (CRA) alreeds een lokale repository voor ons gemaakt. Op dit moment is het oké om onze bestanden toe te voegen aan de eerste commit.
 
 Voor de volgende commando's uit om de veranderingen die we tot dusver hebben gemaakt toe te voegen en te committen.
 
-```bash
-$ git add .
+```shell
+git add .
 ```
 
 Ga naar GitHub om [hier](https://github.com/new) een nieuwe repository voor ons project te creëren. Noem de repo “taskbox”, hetzelfde als ons lokaal project.
@@ -32,25 +33,25 @@ Ga naar GitHub om [hier](https://github.com/new) een nieuwe repository voor ons 
 
 Kopieer in de nieuwe repo-setup de oorspronkelijke URL van de repo en voeg deze toe aan je git-project met dit commando:
 
-```bash
-$ git remote add origin https://github.com/<your username>/taskbox.git
+```shell
+git remote add origin https://github.com/<your username>/taskbox.git
 ```
 
 Tenslotte, push de lokale repo naar de remote repo op GitHub met het volgende:
 
-```bash
-$ git push -u origin main
+```shell
+git push -u origin main
 ```
 
 ### Voeg Chromatic toe
 
 Voeg de package toe als een development dependency.
 
-```bash
+```shell
 yarn add -D chromatic
 ```
 
-Eenmaal de package is geïnstalleerd, [log je in op Chromatic](https://www.chromatic.com/start) met je Github account (Chromatic zal je voor enkele niet-intrusieve permissies vragen). Dan creëren we ons nieuw project, genoemd "taskbox" en synchroniseren we het met de Github repository die we hebben opgezet.
+Eenmaal de package is geïnstalleerd, [log je in op Chromatic](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) met je Github account (Chromatic zal je voor enkele niet-intrusieve permissies vragen). Dan creëren we ons nieuw project, genoemd "taskbox" en synchroniseren we het met de Github repository die we hebben opgezet.
 
 Klik `Choose Github repo` onder "collaborators" en selecteer je repo.
 
@@ -63,7 +64,7 @@ Klik `Choose Github repo` onder "collaborators" en selecteer je repo.
 
 Kopieer de unieke `project-token` die gegenereerd werd voor je project. Voor het dan uit door het volgende commando uit te voeren op de command line, om zo onze Storybook te bouwen en te deployen. Denk er zeker aan om `project-token` te vervangen door jouw projecttoken.
 
-```bash
+```shell
 npx chromatic --project-token=<project-token>
 ```
 
@@ -77,9 +78,7 @@ Creër een nieuwe folder in de root folder van ons project, genoemd `.github`. M
 
 Maak een nieuw bestand genoemd `chromatic.yml` aan zoals hierbeneden. Vervang `project-token` met je eigen projecttoken.
 
-```yaml
-# .github/workflows/chromatic.yml
-
+```yaml:title=.github/workflows/chromatic.yml
 # Workflow name
 name: 'Chromatic Deployment'
 
@@ -99,7 +98,7 @@ jobs:
       - uses: chromaui/action@v1
         # Options required for Chromatic's GitHub Action
         with:
-          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/en/deploy/ to obtain it
+          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/nl/deploy/ to obtain it
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -110,19 +109,19 @@ jobs:
 
 Voer het volgende commando uit op de commandline uit om de veranderingen die gedaan zijn toe te voegen:
 
-```bash
+```shell
 git add .
 ```
 
 Commit ze dan door het volgende uit te voeren:
 
-```bash
+```shell
 git commit -m "GitHub action setup"
 ```
 
 Tenslotte push je ze naar de remote repository met het volgende commando:
 
-```bash
+```shell
 git push origin main
 ```
 

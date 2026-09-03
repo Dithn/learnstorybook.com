@@ -2,7 +2,7 @@
 title: 'قم ببناء مكون بسيط'
 tocTitle: 'مكون بسيط'
 description: 'قم ببناء مكون بسيط بشكل منعزل'
-commit: 'c07ce59'
+commit: '1e576c5'
 ---
 
 <div style="direction: rtl">
@@ -289,7 +289,7 @@ export default function Task({ task: { id, title, state }, onArchiveTask, onPinT
 
 <div style="direction: ltr">
 
-```bash
+```shell
 yarn add -D @storybook/addon-storyshots react-test-renderer
 ```
 

@@ -2,7 +2,7 @@
 title: 'UI Testing Playbook'
 tocTitle: 'Workflow'
 description: 'A testing workflow that doesn’t slow you down'
-commit: '0fde846'
+commit: 'f330642'
 ---
 
 It's easy to find tools that test different parts of the UI. But knowing how to combine them into a productive workflow is tricky. If you get it wrong, it spirals into a maintenance nightmare.
@@ -21,18 +21,17 @@ The Task component already allows users to edit, pin and archive a task. We'll a
 
 For this demo, let's jump straight to the point where you're ready to test. Download the updated files and place them in the `/src` directory:
 
-- [src/components/Task.js](https://raw.githubusercontent.com/chromaui/ui-testing-guide-code/83c4adfc1f4ccee57278f8cfce539af1c1aa2463/src/components/Task.js)
-- [src/components/TaskList.js](https://raw.githubusercontent.com/chromaui/ui-testing-guide-code/83c4adfc1f4ccee57278f8cfce539af1c1aa2463/src/components/TaskList.js)
-- [src/InboxScreen.js](https://raw.githubusercontent.com/chromaui/ui-testing-guide-code/83c4adfc1f4ccee57278f8cfce539af1c1aa2463/src/InboxScreen.js)
-- [src/useTasks.js](https://raw.githubusercontent.com/chromaui/ui-testing-guide-code/83c4adfc1f4ccee57278f8cfce539af1c1aa2463/src/useTasks.js)
+- [src/components/Task.jsx](https://raw.githubusercontent.com/chromaui/ui-testing-guide-code/910607eb1d6c9a593c9577ad6eb0e074a9b762d8/src/components/Task.jsx)
+- [src/components/TaskList.jsx](https://raw.githubusercontent.com/chromaui/ui-testing-guide-code/910607eb1d6c9a593c9577ad6eb0e074a9b762d8/src/components/TaskList.jsx)
+- [src/InboxScreen.jsx](https://raw.githubusercontent.com/chromaui/ui-testing-guide-code/910607eb1d6c9a593c9577ad6eb0e074a9b762d8/src/InboxScreen.jsx)
 
 ### Visual & Composition tests
 
 First, we're going to ensure that the updated UI styles match the spec. The Task component now requires the `onDeleteTask` prop to handle deletions. Let's mock that out as an action in the Task stories.
 
-```diff:title=src/components/Task.stories.js
-import React from 'react';
-import { Task } from './Task';
+```diff:title=src/components/Task.stories.jsx
+import Task from './Task';
+
 export default {
   component: Task,
   title: 'Task',
@@ -42,16 +41,19 @@ export default {
     onEditTitle: { action: 'onEditTitle' },
 +   onDeleteTask: { action: 'onDeleteTask' },
   },
-  parameters: {
-    a11y: {
- ...
+};
 ```
 
 #### During development
 
 Instead of booting up the entire application, you can use Storybook to focus on just the Task component. Then cycle through all its stories to manually verify their appearance.
 
-![](/ui-testing-handbook/task-stories.gif)
+<video autoPlay muted playsInline loop>
+  <source
+    src="/ui-testing-handbook/task-story-workflow-initial-7-0.mp4"
+    type="video/mp4"
+  />
+</video>
 
 #### PR check
 
@@ -65,7 +67,12 @@ Chromatic will be triggered automatically when you create a pull request. On com
 
 ### Accessibility tests
 
-![](/ui-testing-handbook/task-a11y.gif)
+<video autoPlay muted playsInline loop>
+  <source
+    src="/ui-testing-handbook/task-story-workflow-a11y.mp4"
+    type="video/mp4"
+  />
+</video>
 
 #### During development
 
@@ -77,77 +84,53 @@ To catch regressions you need to run on all your components. You can do that by 
 
 ![](/ui-testing-handbook/ci-a11y.png)
 
-### Interaction tests
+### Component tests
 
 The user can delete a task by clicking on the _trash can_ button, we’ll need to add in a test to verify that behaviour.
 
-![](/ui-testing-handbook/manual-interaction.gif)
+<video autoPlay muted playsInline loop>
+  <source
+    src="/ui-testing-handbook/inbox-screen-story-workflow-delete-task-7-0.mp4"
+    type="video/mp4"
+  />
+</video>
 
 #### During development
 
-During development, manually verify the interaction using the InboxScreen stories. If it’s working as expected, you can move on to adding in an interaction test using Jest and Testing Library.
+During development, manually verify the interaction using the InboxScreen stories. If it works as expected, you can add a component test using a play function.
 
-```diff:title=src/InboxScreen.test.js
-import React from 'react';
-import '@testing-library/jest-dom/extend-expect';
-import {
-  render,
-  waitFor,
-  cleanup,
-  within,
-  fireEvent,
-} from '@testing-library/react';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { composeStories } from '@storybook/testing-react';
-import { getWorker } from 'msw-storybook-addon';
-import * as stories from './InboxScreen.stories';
+```javascript:title=src/InboxScreen.stories.jsx
+// ... code omitted for brevity ...
 
-expect.extend(toHaveNoViolations);
+export const DeleteTask = {
+  parameters: {
+    ...Default.parameters,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const getTask = (id) => canvas.findByRole('listitem', { name: id });
 
-describe('InboxScreen', () => {
-  afterEach(() => {
-    cleanup();
-  });
+    const itemToDelete = await getTask('task-1');
+    const deleteButton = await findByRole(itemToDelete, 'button', {
+      name: 'delete',
+    });
 
-  afterAll(() => getWorker().close());
-
-  const { Default } = composeStories(stories);
-
-  it('should pin a task', async () => { ... });
-  it('should archive a task', async () => { ... });
-  it('should edit a task', async () => { ... });
-  it('Should have no accessibility violations', async () => { ... });
-
-+ it('should delete a task', async () => {
-+   const { queryByText, getByRole, getAllByRole } = render(<Default />);
-+
-+   await waitFor(() => {
-+     expect(queryByText('You have no tasks')).not.toBeInTheDocument();
-+   });
-+
-+   const getTask = () => getByRole('listitem', { name: 'Export logo' });
-+
-+   const deleteButton = within(getTask()).getByRole('button', {
-+     name: 'delete',
-+   });
-+
-+   fireEvent.click(deleteButton);
-+
-+   expect(getAllByRole('listitem').length).toBe(5);
-+ });
-});
-
+    // Click the delete button
+    await userEvent.click(deleteButton);
+    await expect(canvas.getAllByRole('listitem').length).toBe(5);
+  },
+};
 ```
 
-Run `yarn test` to confirm that all tests are passing. Notice how Jest runs in watch mode and only executes tests related to files that changed.
+Run `yarn run test-storybook` to confirm that all tests are passing. Notice how Jest runs in watch mode and only executes tests related to files that changed.
 
-![](/ui-testing-handbook/jest.png)
+![](/ui-testing-handbook/test-runner-delete.png)
 
 #### PR check
 
-Github Actions will run Jest when the pull request is created and report status via PR checks.
+Github Actions will run the test runner when the pull request is created and report status via PR checks.
 
-![](/ui-testing-handbook/jest-ci.png)
+![](/ui-testing-handbook/test-runner-ci.png)
 
 ## User flow tests
 

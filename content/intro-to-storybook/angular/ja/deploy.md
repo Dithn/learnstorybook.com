@@ -2,7 +2,7 @@
 title: 'Storybook をデプロイする'
 tocTitle: 'デプロイ'
 description: 'Storybook をインターネット上にデプロイする方法を学びましょう'
-commit: '4bed2f6'
+commit: '0107aa6'
 ---
 
 ここまで、ローカルの開発マシンでコンポーネントを作成してきました。しかし、ある時点で、フィードバックを得るためにチームに作業を共有しなければならないこともあるでしょう。チームメートに UI の実装をレビューしてもらうため、Storybook をインターネット上にデプロイしてみましょう。
@@ -15,7 +15,7 @@ Storybook をデプロイするには、まず静的サイトとしてエクス�
 
 ## Storybook を発行する
 
-このチュートリアルでは、Storybook のメンテナーが作成した、無料のホスティングサービスである <a href="https://www.chromatic.com/">Chromatic</a> を使用します。Chromatic を使えば、クラウド上に Storybook を安全に、デプロイしホストすることができます。
+このチュートリアルでは、Storybook のメンテナーが作成した、無料のホスティングサービスである <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a> を使用します。Chromatic を使えば、クラウド上に Storybook を安全に、デプロイしホストすることができます。
 
 ### GitHub にリポジトリーを作成する
 
@@ -27,13 +27,13 @@ Storybook をデプロイするには、まず静的サイトとしてエクス�
 
 新しいリポジトリーを作ったら origin の URL をコピーして、次のコマンドを実行し、ローカルの Git プロジェクトにリモートを追加します:
 
-```bash
+```shell
 git remote add origin https://github.com/<your username>/taskbox.git
 ```
 
 最後にローカルリポジトリーを GitHub のリモートリポジトリーにプッシュします:
 
-```bash
+```shell
 git push -u origin main
 ```
 
@@ -41,11 +41,11 @@ git push -u origin main
 
 パッケージを開発時の依存関係に追加します。
 
-```bash
+```shell
 npm install -D chromatic
 ```
 
-パッケージをインストールしたら、GitHub のアカウントを使用して [Chromatic にログイン](https://www.chromatic.com/start)します。(Chromatic は一部のアクセス許可を要求します。) 「taskbox」という名前でプロジェクトを作成し、GitHub のリポジトリーと同期させます。
+パッケージをインストールしたら、GitHub のアカウントを使用して [Chromatic にログイン](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook)します。(Chromatic は一部のアクセス許可を要求します。) 「taskbox」という名前でプロジェクトを作成し、GitHub のリポジトリーと同期させます。
 
 「colaborators」の下にある `Choose from GitHub` をクリックし、リポジトリーを選択します。
 
@@ -58,7 +58,7 @@ npm install -D chromatic
 
 作成したプロジェクト用に生成された一意の `project-token` をコピーします。次に、Storybook をビルドし、デプロイするため、以下のコマンドを実行します。その際、コマンドの `<project-token>` の場所にコピーしたトークンを貼り付けるのを忘れないでください。
 
-```bash
+```shell
 npx chromatic --project-token=<project-token>
 ```
 
@@ -100,7 +100,7 @@ jobs:
       - uses: chromaui/action@v1
         # Options required for Chromatic's GitHub Action
         with:
-          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/angular/en/deploy/ to obtain it
+          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/angular/ja/deploy/ to obtain it
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -113,19 +113,19 @@ jobs:
 
 コマンドラインで以下のコマンドを実行し、今までの内容をステージングします:
 
-```bash
+```shell
 git add .
 ```
 
 さらに以下のコマンドでコミットします:
 
-```bash
+```shell
 git commit -m "GitHub action setup"
 ```
 
 最後にリモートリポジトリーにプッシュします:
 
-```bash
+```shell
 git push origin main
 ```
 

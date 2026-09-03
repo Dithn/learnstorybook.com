@@ -2,7 +2,6 @@
 title: 'Teste de componentes de interface de utilizador'
 tocTitle: 'Testes'
 description: 'Aprendizagem das formas de teste dos componentes interface utilizador'
-commit: '3e283f7'
 ---
 
 Qualquer tutorial de Storybook não estaria completo sem serem mencionados os testes. Estes são essenciais na criação de interfaces de utilizador de alta qualidade. Nos sistemas modulares, ajustes minúsculos poderão levar a regressões gigantescas. Até agora foram descritos três tipos de testes:
@@ -28,7 +27,7 @@ Os testes visuais de regressão são desenhados para capturar alterações de ap
 
 O Storybook é uma ferramenta fantástica para este tipo de testes, por que cada estória é na sua essência uma especificação de teste. Cada vez que é escrita ou atualizada uma estória, obtemos uma especificação de graça!
 
-Existem inúmeras ferramentas para este propósito. Para equipas profissionais é recomendado o [**Chromatic**](https://www.chromatic.com/), um extra desenvolvido pela equipa de manutenção do Storybook que efetua testes na núvem.
+Existem inúmeras ferramentas para este propósito. Para equipas profissionais é recomendado o [**Chromatic**](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook), um extra desenvolvido pela equipa de manutenção do Storybook que efetua testes na núvem.
 
 ## Configuração de testes de regressão visual
 
@@ -39,27 +38,27 @@ Em seguida vai ser elaborada uma breve introdução desta.
 
 Quando o projeto foi inicializado, o Create React App criou um repositório local. Vamos adicionar as alterações efetuadas:
 
-```bash
-$ git add -A
+```shell
+git add -A
 ```
 
 É feito o commit dos ficheiros.
 
-```bash
-$ git commit -m "taskbox UI"
+```shell
+git commit -m "taskbox UI"
 ```
 
 ### Obter o Chromatic
 
 Adiciona-se o pacote como dependência.
 
-```bash
+```shell
 yarn add -D chromatic
 ```
 
 Um aspeto fantástico acerca deste extra é que recorre á Git history para se manter a par dos componentes de interface de utilizador.
 
-Faça a [autenticação na plataforma Chromatic](https://www.chromatic.com/start), com a conta GitHub (O Chromatic pede permissões ligeiras). Em seguida crie um projeto com o nome "taskbox" e copie e guarde seu o `project-token` único.
+Faça a [autenticação na plataforma Chromatic](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook), com a conta GitHub (O Chromatic pede permissões ligeiras). Em seguida crie um projeto com o nome "taskbox" e copie e guarde seu o `project-token` único.
 
 <video autoPlay muted playsInline loop style="width:520px; margin: 0 auto;">
   <source
@@ -70,11 +69,11 @@ Faça a [autenticação na plataforma Chromatic](https://www.chromatic.com/start
 
 Execute o comando de testes na consola de forma a configurar os testes visuais de regressão para o Storybook. Não esquecer de adicionar o `project-token` fornecido ao invés de `<project-token>`.
 
-```bash
+```shell
 npx chromatic --project-token=<project-token>
 ```
 
-<div class="aside"> Se o seu Storybook tiver um script de compilação personalizado, poderá ter que <a href="https://www.chromatic.com/docs/setup#command-options">adicionar opções</a> a este comando. </div>
+<div class="aside"> Se o seu Storybook tiver um script de compilação personalizado, poderá ter que <a href="https://www.chromatic.com/docs/setup?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook#command-options">adicionar opções</a> a este comando. </div>
 
 Assim que o primeiro teste estiver concluído, é obtida a base de testes para cada estória. Por outras palavras, uma captura de cada estória considerada "boa". Alterações futuras a estas estórias, irão ser comparadas com esta base.
 
@@ -92,7 +91,7 @@ O que irá gerar uma nova cor de fundo para o item.
 
 Usando agora o comando de testes, para efectuar um outro teste com o Chromatic.
 
-```bash
+```shell
 npx chromatic --project-token=<project-token>
 ```
 

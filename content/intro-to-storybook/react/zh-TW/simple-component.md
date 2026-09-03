@@ -2,7 +2,7 @@
 title: '打造簡易元件'
 tocTitle: '簡易元件'
 description: '打造獨立的簡易元件'
-commit: 'c07ce59'
+commit: '1e576c5'
 ---
 
 我們會按照[元件驅動開發](https://www.componentdriven.org/) (CDD) 方法論來打造 UI，是「由下而上」的流程。從元件開始，一路至各種畫面。CDD 在打造 UI 時，面臨不斷擴大的複雜程度很有幫助。
@@ -254,7 +254,7 @@ Storybook 讓我們在建造應用程式的 UI 過程中，方便進行手動測
 
 使用 [Storyshots addon](https://github.com/storybooks/storybook/tree/master/addons/storyshots) 就可以為每個 story 做好快照測試。加入以下的開發套件即可：
 
-```bash
+```shell
 yarn add -D @storybook/addon-storyshots react-test-renderer
 ```
 

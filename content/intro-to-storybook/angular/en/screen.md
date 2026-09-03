@@ -2,399 +2,433 @@
 title: 'Construct a screen'
 tocTitle: 'Screens'
 description: 'Construct a screen out of components'
-commit: '8cb73c6'
+commit: '45615b4'
 ---
 
 We've concentrated on building UIs from the bottom up, starting small and adding complexity. Doing so has allowed us to develop each component in isolation, figure out its data needs, and play with it in Storybook. All without needing to stand up a server or build out screens!
 
 In this chapter, we continue to increase the sophistication by combining components in a screen and developing that screen in Storybook.
 
-## Nested container components
+## Connected screens
 
-As our app is straightforward, the screen we’ll build is pretty trivial, simply wrapping the `TaskList` component (which supplies its own data via ngxs) in some layout and pulling a top-level `error` field out of our store (let's assume we'll set that field if we have some problem connecting to our server).
+As our application is straightforward, the screen we'll build is pretty trivial. It simply fetches data from a remote API, wraps the `TaskList` component (which supplies its own data via signals) in some layout, and pulls a top-level `error` field out of the store (let's assume we'll set that field if we have some problem connecting to our server).
 
-Let's start by updating our store ( in `src/app/state/task.state.ts`) to include the error field we want:
+We'll start by updating our store (in `src/app/state/store.ts`) to connect to a remote API and handle the various states for our application (i.e., `error`, `succeeded`):
 
-```diff:title=src/app/state/task.state.ts
-import { State, Selector, Action, StateContext } from '@ngxs/store';
-import { Task } from '../models/task.model';
+```ts:title=src/app/state/store.ts
+// A simple Angular state management implementation using signals update methods and initial data.
+// A true app would be more complex and separated into different files.
+import type { TaskData } from '../types';
 
-// defines the actions available to the app
-export const actions = {
-  ARCHIVE_TASK: 'ARCHIVE_TASK',
-  PIN_TASK: 'PIN_TASK',
-  // Defines the new error field we need
-+ ERROR: 'APP_ERROR',
+import { Injectable, signal, computed } from '@angular/core';
+
+interface TaskBoxState {
+  tasks: TaskData[];
+  status: 'idle' | 'loading' | 'error' | 'success';
+  error: string | null;
+}
+
+const initialState: TaskBoxState = {
+  tasks: [],
+  status: 'idle',
+  error: null,
 };
 
-export class ArchiveTask {
-  static readonly type = actions.ARCHIVE_TASK;
-
-  constructor(public payload: string) {}
-}
-
-export class PinTask {
-  static readonly type = actions.PIN_TASK;
-
-  constructor(public payload: string) {}
-}
-+ // The class definition for our error field
-+ export class AppError {
-+   static readonly type = actions.ERROR;
-+   constructor(public payload: boolean) {}
-+ }
-
-// The initial state of our store when the app loads.
-// Usually you would fetch this from a server
-const defaultTasks = {
-  1: { id: '1', title: 'Something', state: 'TASK_INBOX' },
-  2: { id: '2', title: 'Something more', state: 'TASK_INBOX' },
-  3: { id: '3', title: 'Something else', state: 'TASK_INBOX' },
-  4: { id: '4', title: 'Something again', state: 'TASK_INBOX' },
-};
-
-export class TaskStateModel {
-  entities: { [id: number]: Task };
-+ error: boolean;
-}
-
-// Sets the default state
-@State<TaskStateModel>({
-  name: 'tasks',
-  defaults: {
-    entities: defaultTasks,
-+   error: false,
-  },
+@Injectable({
+  providedIn: 'root',
 })
-export class TasksState {
-  @Selector()
-  static getAllTasks(state: TaskStateModel) {
-    const entities = state.entities;
-    return Object.keys(entities).map(id => entities[+id]);
-  }
+export class Store {
+  private state = signal<TaskBoxState>(initialState);
 
-+ // Defines a new selector for the error field
-+ @Selector()
-+ static getError(state: TaskStateModel) {
-+   const { error } = state;
-+   return error;
-+ }
-  //
-  // Triggers the PinTask action, similar to redux
-  @Action(PinTask)
-  pinTask({ patchState, getState }: StateContext<TaskStateModel>, { payload }: PinTask) {
-    const state = getState().entities;
+  // Public readonly signal for components to subscribe to
+  readonly tasks = computed(() => this.state().tasks);
+  readonly status = computed(() => this.state().status);
+  readonly error = computed(() => this.state().error);
 
-    const entities = {
-      ...state,
-      [payload]: { ...state[payload], state: 'TASK_PINNED' },
-    };
+  readonly getFilteredTasks = computed(() => {
+    const filteredTasks = this.state().tasks.filter(
+      (t) => t.state === 'TASK_INBOX' || t.state === 'TASK_PINNED'
+    );
+    return filteredTasks;
+  });
 
-    patchState({
-      entities,
-    });
-  }
-  // Triggers the PinTask action, similar to redux
-  @Action(ArchiveTask)
-  archiveTask({ patchState, getState }: StateContext<TaskStateModel>, { payload }: ArchiveTask) {
-    const state = getState().entities;
+  archiveTask(id: string): void {
+    this.state.update((currentState) => {
+      const filteredTasks = currentState.tasks
+        .map(
+          (task): TaskData =>
+            task.id === id ? { ...task, state: 'TASK_ARCHIVED' as TaskData['state'] } : task
+        )
+        .filter((t) => t.state === 'TASK_INBOX' || t.state === 'TASK_PINNED');
 
-    const entities = {
-      ...state,
-      [payload]: { ...state[payload], state: 'TASK_ARCHIVED' },
-    };
-
-    patchState({
-      entities,
+      return {
+        ...currentState,
+        tasks: filteredTasks,
+      };
     });
   }
 
-+ // Function to handle how the state should be updated when the action is triggered
-+ @Action(AppError)
-+ setAppError({ patchState, getState }: StateContext<TaskStateModel>, { payload }: AppError) {
-+   const state = getState();
-+   patchState({
-+     error: !state.error,
-+   });
-+ }
+  pinTask(id: string): void {
+    this.state.update((currentState) => ({
+      ...currentState,
+      tasks: currentState.tasks.map((task) =>
+        task.id === id ? { ...task, state: 'TASK_PINNED' } : task
+      ),
+    }));
+  }
+  async fetchTasks(): Promise<void> {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/todos?userId=1');
+      const data = await response.json();
+      const result = data
+        .map((task: { id: number; title: string; completed: boolean }) => ({
+          id: `${task.id}`,
+          title: task.title,
+          state: task.completed ? 'TASK_ARCHIVED' : 'TASK_INBOX',
+        }))
+        .filter((task: TaskData) => task.state === 'TASK_INBOX' || task.state === 'TASK_PINNED');
+
+      this.state.update((currentState) => ({
+        ...currentState,
+        tasks: result,
+        status: 'success',
+        error: null,
+      }));
+
+    } catch (error) {
+      this.state.update((currentState) => ({
+        ...currentState,
+        error: error instanceof Error ? error.message : 'Failed to fetch tasks',
+      }));
+    }
+  }
 }
 ```
 
-Now that we have the store updated with the new field. Let's create `pure-inbox-screen.component.ts` in `src/app/components/` directory:
+Now that we've updated our store to retrieve the data from a remote API endpoint and prepared it to handle the various states of our app, let's create our `inbox-screen.component.ts` in the `src/app/components` directory:
 
-```ts:title=src/app/components/pure-inbox-screen.component.ts
-import { Component, Input } from '@angular/core';
+```ts:title=src/app/components/inbox-screen.component.ts
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, computed } from '@angular/core';
+
+import { Store } from '../state/store';
+
+import { TaskListComponent } from './task-list.component';
 
 @Component({
-  selector: 'app-pure-inbox-screen',
+  selector: 'app-inbox-screen',
+  standalone: true,
+  imports: [CommonModule, TaskListComponent],
   template: `
-    <div *ngIf="error" class="page lists-show">
+    <div *ngIf="isError()" class="page lists-show">
       <div class="wrapper-message">
         <span class="icon-face-sad"></span>
-        <div class="title-message">Oh no!</div>
-        <div class="subtitle-message">Something went wrong</div>
+        <p class="title-message">Oh no!</p>
+        <p class="subtitle-message">Something went wrong</p>
       </div>
     </div>
 
-    <div *ngIf="!error" class="page lists-show">
+    <div *ngIf="!isError()" class="page lists-show">
       <nav>
-        <h1 class="title-page">
-          <span class="title-wrapper">Taskbox</span>
-        </h1>
+        <h1 class="title-page">Taskbox</h1>
       </nav>
       <app-task-list></app-task-list>
     </div>
   `,
 })
-export class PureInboxScreenComponent {
-  @Input() error: any;
+export class InboxScreenComponent implements OnInit {
+  store = inject(Store);
+
+  isError = computed(() => this.store.status() === 'error');
+
+  ngOnInit(): void {
+    this.store.fetchTasks();
+  }
 }
 ```
 
-Then, we can create a container, which again grabs the data for the `PureInboxScreen` component in `inbox-screen.component.ts`:
+We also need to change the `app.ts` component to render the `InboxScreen` component (eventually, we would use a router to choose the correct screen, but let's not worry about that here):
 
-```ts:title=src/app/components/inbox-screen.component.ts
-import { Component } from '@angular/core';
-import { Select } from '@ngxs/store';
-import { TasksState } from '../state/task.state';
-import { Observable } from 'rxjs';
+```diff:title=src/app/app.ts
+import { Component, signal } from '@angular/core';
+- import { RouterOutlet } from '@angular/router';
 
-@Component({
-  selector: 'app-inbox-screen',
-  template: `
-    <app-pure-inbox-screen [error]="error$ | async"></app-pure-inbox-screen>
-  `,
-})
-export class InboxScreenComponent {
-  @Select(TasksState.getError) error$: Observable<any>;
-}
-```
-
-We also need to change the `AppComponent` component to render the `InboxScreen` component (eventually, we would use a router to choose the correct screen, but let's not worry about that here):
-
-```diff:title=src/app/app.component.ts
-import { Component } from '@angular/core';
++ import { InboxScreenComponent } from './components/inbox-screen.component';
 
 @Component({
   selector: 'app-root',
-- templateUrl: './app.component.html',
-- styleUrls: ['./app.component.css']
-+ template: `
-+   <app-inbox-screen></app-inbox-screen>
-+ `,
+- imports: [RouterOutlet],
+-  templateUrl: './app.html',
+-  styleUrl: './app.css'
++  imports: [InboxScreenComponent],
++  template: `<app-inbox-screen></app-inbox-screen>`,
 })
-export class AppComponent {
-- title = 'intro-storybook-angular-template';
-+ title = 'taskbox';
+
+export class App {
+  protected readonly title = signal('taskbox');
 }
 ```
 
-And finally, the `app.module.ts`:
-
-```diff:title=src/app/app.module.ts
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { TaskModule } from './components/task.module';
-import { NgxsModule } from '@ngxs/store';
-import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
-import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
-import { AppComponent } from './app.component';
-
-+ import { InboxScreenComponent } from './components/inbox-screen.component';
-+ import { PureInboxScreenComponent } from './components/pure-inbox-screen.component';
-
-@NgModule({
-+ declarations: [AppComponent, InboxScreenComponent, PureInboxScreenComponent],
-  imports: [
-    BrowserModule,
-    TaskModule,
-    NgxsModule.forRoot([]),
-    NgxsReduxDevtoolsPluginModule.forRoot(),
-    NgxsLoggerPluginModule.forRoot(),
-  ],
-  providers: [],
-  bootstrap: [AppComponent],
-})
-export class AppModule {}
-```
-
-<div class="aside"><p>Don't forget to update the test file <code>src/app/app.component.spec.ts</code>. Or the next time you run your tests they will fail.</p></div>
-
 However, where things get interesting is in rendering the story in Storybook.
 
-As we saw previously, the `TaskList` component is a **container** that renders the `PureTaskList` presentational component. By definition, container components cannot be simply rendered in isolation; they expect to be passed some context or connected to a service. What this means is that to render a container in Storybook, we must mock (i.e., provide a pretend version) the context or service it requires.
+As we saw previously, the `TaskList` component is a **container** that renders the `PureTaskList` presentational component. By definition, container components cannot be rendered in isolation; they expect to be passed some context or connected to a service. What this means is that to render a container in Storybook, we must mock the context or service it requires.
 
-When placing the `TaskList` into Storybook, we were able to dodge this issue by simply rendering the `PureTaskList` and avoiding the container. We'll do something similar and render the `PureInboxScreen` in Storybook also.
+When placing the `TaskList` into Storybook, we were able to dodge this issue by simply rendering the `PureTaskList` and avoiding the container. However, as our application grows, it quickly becomes unmanageable to keep the connected components out of Storybook and create presentational components for each. As our `InboxScreen` is a connected component, we'll need to provide a way to mock the store and the data it provides.
 
-However, we have a problem with the `PureInboxScreen` because although the `PureInboxScreen` itself is presentational, its child, the `TaskList`, is not. In a sense, the `PureInboxScreen` has been polluted by “container-ness”. So when we set up our stories in `pure-inbox-screen.stories.ts`:
+So when we set up our stories in `inbox-screen.stories.ts`:
 
-```ts:title=src/app/components/pure-inbox-screen.stories.ts
-import { moduleMetadata, Meta, Story } from '@storybook/angular';
+```ts:title=src/app/components/inbox-screen.stories.ts
+import type { Meta, StoryObj } from '@storybook/angular';
 
-import { CommonModule } from '@angular/common';
+import { InboxScreenComponent } from './inbox-screen.component';
 
-import { PureInboxScreenComponent } from './pure-inbox-screen.component';
-
-import { TaskModule } from './task.module';
-
-export default {
-  component: PureInboxScreenComponent,
-  decorators: [
-    moduleMetadata({
-      declarations: [PureInboxScreenComponent],
-      imports: [CommonModule, TaskModule],
-    }),
-  ],
-  title: 'PureInboxScreen',
-} as Meta;
-
-const Template: Story = args => ({
-  props: args,
-});
-
-export const Default = Template.bind({});
-
-export const Error = Template.bind({});
-Error.args = {
-  error: true,
+const meta: Meta<InboxScreenComponent> = {
+  component: InboxScreenComponent,
+  title: 'InboxScreen',
+  tags: ['autodocs'],
 };
+
+export default meta;
+type Story = StoryObj<InboxScreenComponent>;
+
+export const Default: Story = {}
+
+export const Error: Story = {}
 ```
 
-We see that all our stories are no longer working. It's to the fact that both depend on our store and, even though we're using a "pure" component for the error, both stories still need context.
+We can quickly spot an issue with the `Error` story. Instead of displaying the right state, it shows a list of tasks. We could easily apply the same approach as in the last chapter. Instead, we'll use a well-known API mocking library alongside a Storybook addon to help us solve this issue.
 
-![Broken inbox](/intro-to-storybook/broken-inbox-angular.png)
+![Broken inbox screen state](/intro-to-storybook/broken-inbox-error-state-9-0-angular.png)
 
-One way to sidestep this problem is to never render container components anywhere in your app except at the highest level and instead pass all data requirements down the component hierarchy.
+## Mocking API services
 
-However, developers **will** inevitably need to render containers further down the component hierarchy. If we want to render most or all of the app in Storybook (we do!), we need a solution to this issue.
+As our application is pretty straightforward and doesn't depend too much on remote API calls, we're going to use [Mock Service Worker](https://mswjs.io/) and [Storybook's MSW addon](https://storybook.js.org/addons/msw-storybook-addon). Mock Service Worker is an API mocking library. It relies on service workers to capture network requests and provides mocked data in responses.
+
+When we set up our app in the [Get started section](/intro-to-storybook/svelte/en/get-started/) both packages were also installed. All that remains is to configure them and update our stories to use them.
+
+In your terminal, run the following command to generate a generic service worker inside your `public` folder:
+
+```shell
+npm run init-msw
+```
+
+Then, we'll need to update our `.storybook/preview.ts` and initialize them:
+
+```diff:title=.storybook/preview.ts
+import type { Preview } from '@storybook/angular';
+
+import { setCompodocJson } from '@storybook/addon-docs/angular';
+import docJson from '../documentation.json';
+
++ import { initialize, mswLoader } from 'msw-storybook-addon';
+
+setCompodocJson(docJson);
+
++ initialize();
+
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/i,
+      },
+    },
+  },
++ loaders: [mswLoader],
+};
+
+export default preview;
+```
+
+Finally, update the `InboxScreen` stories and include a [parameter](https://storybook.js.org/docs/writing-stories/parameters) that mocks the remote API calls:
+
+```diff:title=src/app/components/inbox-screen.stories.ts
+import type { Meta, StoryObj } from '@storybook/angular';
+
++ import { http, HttpResponse } from 'msw';
+
+import { InboxScreenComponent } from './inbox-screen.component';
+
++ import * as PureTaskListStories from './pure-task-list.stories';
+
+const meta: Meta<InboxScreenComponent> = {
+  component: InboxScreenComponent,
+  title: 'InboxScreen',
+  tags: ['autodocs'],
+};
+
+export default meta;
+type Story = StoryObj<InboxScreenComponent>;
+
+export const Default: Story = {
++ parameters: {
++   msw: {
++     handlers: [
++       http.get('https://jsonplaceholder.typicode.com/todos?userId=1', () => {
++         return HttpResponse.json(PureTaskListStories.TaskListData);
++       }),
++     ],
++   },
++ },
+};
+
+export const Error: Story = {
++ parameters: {
++   msw: {
++     handlers: [
++       http.get('https://jsonplaceholder.typicode.com/todos?userId=1', () => {
++         return new HttpResponse(null, {
++           status: 403,
++         });
++       }),
++     ],
++   },
++ },
+};
+```
 
 <div class="aside">
-💡 As an aside, passing data down the hierarchy is a legitimate approach, especially when using <a href="http://graphql.org/">GraphQL</a>. It’s how we have built <a href="https://www.chromatic.com">Chromatic</a> alongside 800+ stories.
+
+💡 As an aside, passing data down the hierarchy is a legitimate approach, especially when using [GraphQL](http://graphql.org/). It’s how we have built [Chromatic](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) alongside 800+ stories.
+
 </div>
 
-## Supplying context with decorators
-
-The good news is that it is easy to supply the `Store` to the `PureInboxScreen` component in a story! We can just import our `Store` in a decorator:
-
-```diff:title=src/app/components/pure-inbox-screen.stories.ts
-import { moduleMetadata, Meta, Story } from '@storybook/angular';
-
-import { CommonModule } from '@angular/common';
-
-import { PureInboxScreenComponent } from './pure-inbox-screen.component';
-
-import { TaskModule } from './task.module';
-
-+ import { Store, NgxsModule } from '@ngxs/store';
-+ import { TasksState } from '../state/task.state';
-
-export default {
-  component:PureInboxScreenComponent,
-  decorators: [
-    moduleMetadata({
--     imports: [CommonModule,TaskModule],
-+     imports: [CommonModule,TaskModule,NgxsModule.forRoot([TasksState])],
-+     providers: [Store],
-    }),
-  ],
-  title: 'PureInboxScreen',
-} as Meta;
-
-const Template: Story = (args) => ({
-  props: args,
-});
-
-export const Default = Template.bind({});
-
-export const Error = Template.bind({});
-Error.args = {
-  error: true,
-};
-```
-
-Similar approaches exist to provide mocked context for other data libraries, such as [@ngrx](https://github.com/ngrx/platform) or [Apollo](https://www.apollographql.com/docs/angular/).
-
-Cycling through states in Storybook makes it easy to test we’ve done this correctly:
+Check your Storybook, and you'll see that the `Error` story is now working as intended. MSW intercepted our remote API call and provided the appropriate response.
 
 <video autoPlay muted playsInline loop >
-
   <source
-    src="/intro-to-storybook/finished-inboxscreen-states-6-0.mp4"
+    src="/intro-to-storybook/inbox-screen-with-msw-addon-angular-9-0.mp4"
     type="video/mp4"
   />
 </video>
 
-## Interactive stories
+## Interaction tests
 
 So far, we've been able to build a fully functional application from the ground up, starting from a simple component up to a screen and continuously testing each change using our stories. But each new story also requires a manual check on all the other stories to ensure the UI doesn't break. That's a lot of extra work.
 
-Can't we automate this workflow and interact with our components automatically?
+Can't we automate this workflow and test our component interactions automatically?
 
-Storybook's [`play`](https://storybook.js.org/docs/angular/writing-stories/play-function) function allows us to do just that. A play function includes small snippets of code that are run after the story renders.
+### Write an interaction test using the play function
 
-The play function helps us verify what happens to the UI when tasks are updated. It uses framework-agnostic DOM APIs, that means we can write stories with the play function to interact with the UI and simulate human behavior no matter the frontend framework.
+Storybook's [`play`](https://storybook.js.org/docs/writing-stories/play-function) can help us with that. A play function includes small snippets of code that run after the story renders. It uses framework-agnostic DOM APIs, meaning we can write stories with the play function to interact with the UI and simulate human behavior, regardless of the frontend framework. We'll use them to verify that the UI behaves as expected when we update our tasks.
 
-Let's see it in action! Update your newly created `pure-inbox-screen` story, and set up component interactions by adding the following:
+Update your newly created `InboxScreen` story, and set up component interactions by adding the following:
 
-```diff:title=src/app/components/pure-inbox-screen.stories.ts
-import { moduleMetadata, Meta, Story } from '@storybook/angular';
+```diff:title=src/app/components/inbox-screen.stories.ts
+import type { Meta, StoryObj } from '@storybook/angular';
 
-+ import { fireEvent, within } from '@storybook/testing-library';
+import { waitFor, waitForElementToBeRemoved } from 'storybook/test';
 
-import { CommonModule } from '@angular/common';
+import { http, HttpResponse } from 'msw';
 
-import { PureInboxScreenComponent } from './pure-inbox-screen.component';
-import { TaskModule } from './task.module';
+import { InboxScreenComponent } from './inbox-screen.component';
 
-import { Store, NgxsModule } from '@ngxs/store';
-import { TasksState } from '../state/task.state';
+import * as PureTaskListStories from './pure-task-list.stories';
 
-export default {
-  component:PureInboxScreenComponent,
-  decorators: [
-    moduleMetadata({
-      imports: [CommonModule,TaskModule,NgxsModule.forRoot([TasksState])],
-      providers: [Store],
-    }),
-  ],
-  title: 'PureInboxScreen',
-} as Meta;
-
-const Template: Story = (args) => ({
-  props: args,
-});
-
-export const Default = Template.bind({});
-
-export const Error = Template.bind({});
-Error.args = {
-  error: true,
+const meta: Meta<InboxScreenComponent> = {
+  component: InboxScreenComponent,
+  title: 'InboxScreen',
+  tags: ['autodocs'],
 };
 
-+ export const WithInteractions = Template.bind({});
-+ WithInteractions.play = async ({ canvasElement }) => {
-+   const canvas = within(canvasElement);
-+   // Simulates pinning the first task
-+   await fireEvent.click(canvas.getByLabelText("pinTask-1"));
-+   // Simulates pinning the third task
-+   await fireEvent.click(canvas.getByLabelText("pinTask-3"));
-+ };
+export default meta;
+type Story = StoryObj<InboxScreenComponent>;
+
+export const Default: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('https://jsonplaceholder.typicode.com/todos?userId=1', () => {
+          return HttpResponse.json(PureTaskListStories.TaskListData);
+        }),
+      ],
+    },
+  },
++ play: async ({ canvas, userEvent }: any) => {
++   await waitForElementToBeRemoved(await canvas.findByTestId('empty'));
++   await waitFor(async () => {
++     await userEvent.click(canvas.getByLabelText('pinTask-1'));
++     await userEvent.click(canvas.getByLabelText('pinTask-3'));
++   });
++ },
+};
+
+export const Error: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('https://jsonplaceholder.typicode.com/todos?userId=1', () => {
+          return new HttpResponse(null, {
+            status: 403,
+          });
+        }),
+      ],
+    },
+  },
+};
 ```
 
-Check your newly created story. Click the `Interactions` panel to see the list of interactions inside the story's play function.
+<div class="aside">
+
+💡 The `Interactions` panel helps us visualize our tests in Storybook, providing a step-by-step flow. It also offers a handy set of UI controls to pause, resume, rewind, and step through each interaction.
+
+</div>
+
+Check your newly-created story. Click the `Interactions` panel to see the list of interactions inside the story's play function.
 
 <video autoPlay muted playsInline loop>
   <source
-    src="/intro-to-storybook/storybook-interactive-stories-play-function.mp4"
+    src="/intro-to-storybook/storybook-play-function-angular-9-0.mp4"
     type="video/mp4"
   />
 </video>
 
-The play function allows us to interact with our UI and quickly check how it responds if we update our tasks. That keeps the UI consistent at no extra manual effort. All without needing to spin up a testing environment or add additional packages.
+### Automate tests with the test runner
+
+With Storybook's play function, we were able to sidestep our problem, allowing us to interact with our UI and quickly check how it responds if we update our tasks—keeping the UI consistent at no extra manual effort.
+
+But, if we take a closer look at our Storybook, we can see that it only runs the component tests when viewing the story. Therefore, we'd still have to go through each story to run all checks if we make a change. Couldn't we automate it?
+
+The good news is that we can! Storybook's [test runner](https://storybook.js.org/docs/writing-tests/integrations/test-runner) allows us to do just that. It's a standalone utility—powered by [Playwright](https://playwright.dev/)—that runs all our interactions tests and catches broken stories.
+
+Let's see how it works! Run the following command to install it:
+
+```shell
+npm install @storybook/test-runner --save-dev
+```
+
+Next, update your `package.json` `scripts` and add a new test task:
+
+```json:clipboard=false
+{
+  "scripts": {
+    "test-storybook": "test-storybook"
+  }
+}
+```
+
+Finally, with your Storybook running, open up a new terminal window and run the following command:
+
+```shell
+npm run test-storybook -- --url http://localhost:6006/ -- --watch
+```
+
+<div class="aside">
+
+💡 Interaction testing with the play function is a fantastic way to test your UI components. It can do much more than we've seen here; we recommend reading the [official documentation](https://storybook.js.org/docs/writing-tests/interaction-testing) to learn more about it.
+
+For an even deeper dive into testing, check out the [Testing Handbook](/ui-testing-handbook/). It covers testing strategies used by scaled-front-end teams to supercharge your development workflow.
+
+</div>
+
+![Storybook test runner successfully runs all tests](/intro-to-storybook/storybook-test-runner-execution-angular-9-0.png)
+
+Success! Now we have a tool that helps us verify whether all our stories are rendered without errors and all assertions pass automatically. What's more, if a test fails, it will provide us with a link that opens up the failing story in the browser.
 
 ## Component-Driven Development
 
-We started from the bottom with `Task`, then progressed to `TaskList`, now we’re here with a whole screen UI. Our `InboxScreen` accommodates a nested container component and includes accompanying stories.
+We started from the bottom with `Task`, then progressed to `TaskList`, and now we’re here with a whole screen UI. Our `InboxScreen` accommodates a nested container component and includes accompanying stories.
 
 <video autoPlay muted playsInline loop style="width:480px; height:auto; margin: 0 auto;">
   <source

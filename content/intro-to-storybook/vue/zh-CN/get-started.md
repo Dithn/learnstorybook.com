@@ -2,10 +2,10 @@
 title: 'Storybook Vue 教程'
 tocTitle: '开始吧'
 description: '在你的开发环境下配置Storybook'
-commit: 'b218a07'
+commit: '7bff3f5'
 ---
 
-Storybook 是在开发模式下与您的应用程序一同运行的。它可以帮助您构建 UI 组件，并且将其与您应用程序中的业务逻辑和上下文分离开来。这份教程适用于 Vue；其他的则适用于[React](/react/en/get-started)，[React Native](/react-native/en/get-started/)，[Angular](/angular/en/get-started)，[Svelte](/svelte/en/get-started)和[Ember](/ember/en/get-started)。
+Storybook 是在开发模式下与您的应用程序一同运行的。它可以帮助您构建 UI 组件，并且将其与您应用程序中的业务逻辑和上下文分离开来。这份教程适用于 Vue；其他的则适用于[React](/intro-to-storybook/react/zh-CN/get-started/)，[React Native](/intro-to-storybook/react-native/en/get-started/)，[Angular](/intro-to-storybook/angular/en/get-started/)，[Svelte](/intro-to-storybook/svelte/en/get-started/)。
 
 ![Storybook and your app](/intro-to-storybook/storybook-relationship.jpg)
 
@@ -15,7 +15,7 @@ Storybook 是在开发模式下与您的应用程序一同运行的。它可以�
 
 让我们运行下述的命令：
 
-```bash
+```shell:clipboard=false
 # Clone the template
 npx degit chromaui/intro-storybook-vue-template taskbox
 
@@ -31,20 +31,17 @@ yarn
 
 现在通过下述的命令行我们可以快速查看应用程序中的各个环境是否正常运行：
 
-```bash
-# Run the test runner (Jest) in a terminal:
-yarn test:unit
-
+```shell:clipboard=false
 # Start the component explorer on port 6006:
 yarn storybook
 
-# Run the frontend app proper on port 8080:
-yarn serve
+# Run the frontend app proper on port 5173:
+yarn dev
 ```
 
 我们的三个前端应用程序模式：自动化测试(Jest)，组件开发(Storybook)和应用程序本身。
 
-![3 modalities](/intro-to-storybook/app-three-modalities-vue.png)
+![3 modalities](/intro-to-storybook/app-main-modalities-vue.png)
 
 您可以根据您目前所处理的应用程序的不同部分来决定同时运行上述三个中的一个或者多个。因为我们现在专注于创建一个简单的 UI 组件，所以我们继续运行 Storybook。
 
@@ -55,19 +52,25 @@ yarn serve
 执行下述的命令行将我们目前为止的修改添加到 commit 中。
 
 ```shell
-$ git init
+git init
 ```
 
-下一行：
+接着是：
 
 ```shell
-$ git add .
+git add .
+```
+
+然后：
+
+```shell
+git commit -m "first commit"
 ```
 
 最后：
 
 ```shell
-$ git commit -m "first commit"
+git branch -M main
 ```
 
 让我们创建第一个组件吧！

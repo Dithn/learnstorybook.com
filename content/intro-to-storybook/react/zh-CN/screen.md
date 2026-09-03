@@ -2,7 +2,7 @@
 title: '构建一个页面'
 tocTitle: '页面'
 description: '用组件构建一个页面'
-commit: '79829b2'
+commit: '12a7932'
 ---
 
 我们专注于从下到上构建 UI; 从小做起并增加复杂性. 这样做使我们能够独立开发每个组件,找出其数据需求,并在 Storybook 中使用它. 所有这些都无需 启动服务器或构建出页面!
@@ -13,9 +13,7 @@ commit: '79829b2'
 
 由于我们的应用程序非常简单,我们将构建的页面非常简单,只需简单地包装`TaskList`组件 (通过 Redux 提供自己的数据) 在某些布局中并拉出 redux 中顶层`error`的字段 (假设我们在连接到 服务器时遇到问题,我们将设置该字段) . 创建`InboxScreen.js`在你的`components`夹:
 
-```javascript
-// src/components/InboxScreen.js
-
+```js:title=src/components/InboxScreen.js
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -60,9 +58,7 @@ export default connect(({ error }) => ({ error }))(PureInboxScreen);
 
 我们也改变了`App`,用于渲染的组件`InboxScreen` (最终我们会使用路由器来选择正确的页面,但不要在此担心) :
 
-```javascript
-// src/App.js
-
+```js:title=src/App.js
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import store from './lib/redux';
@@ -90,9 +86,7 @@ export default App;
 
 但是,对于`PureInboxScreen`我们有一个问题,因为虽然`PureInboxScreen`本身是表现性的,它的孩子,`TaskList`, 不是. 从某种意义上说`PureInboxScreen`被"容器"污染了. 所以,当我们设置我们的故事`InboxScreen.stories.js`:
 
-```javascript
-// src/components/InboxScreen.stories.js
-
+```js:title=src/components/InboxScreen.stories.js
 import React from 'react';
 
 import { PureInboxScreen } from './InboxScreen';
@@ -121,16 +115,14 @@ Error.args = {
 但是,开发人员 **将** 不可避免地需要在组件层次结构中,进一步渲染容器. 如果我们想要在 Storybook 中渲染大部分或全部应用程序 (我们这样做!) ,我们需要一个解决此问题的方法.
 
 <div class="aside">
-另外，在层次结构中 传递数据 是合法的方法，尤其是在使用 <a href="http://graphql.org/">GraphQL</a>. 这就是我们的建设 <a href="https://www.chromatic.com">Chromatic</a> 伴随着670多个故事.
+另外，在层次结构中 传递数据 是合法的方法，尤其是在使用 <a href="http://graphql.org/">GraphQL</a>. 这就是我们的建设 <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a> 伴随着670多个故事.
 </div>
 
 ## 用装饰器提供上下文
 
 好消息是 Redux Store 很容易提供给 一个`InboxScreen`故事! 我们可以使用 Redux Store 的模拟版本 提供给到装饰器中:
 
-```javascript
-// src/components/InboxScreen.stories.js
-
+```js:title=src/components/InboxScreen.stories.js
 import React from 'react';
 import { Provider } from 'react-redux';
 import { action } from '@storybook/addon-actions';

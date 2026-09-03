@@ -2,7 +2,6 @@
 title: '插件'
 tocTitle: '插件'
 description: '学习如何集成并使用热门的 Controls 插件'
-commit: '3d53594'
 ---
 
 Storybook 有一个强大的生态系统 [addons](https://storybook.js.org/docs/react/configure/storybook-addons)，你能够用来增强你的团队中每个人的开发体验。在 [这里](https://storybook.js.org/addons) 浏览全部。
@@ -40,9 +39,7 @@ Controls 允许我们快速验证不同输入下组件的情况。如很长的�
 
 现在通过给 `Task.js` 添加样式解决这个溢出问题：
 
-```js
-// src/components/Task.js
-
+```js:title=src/components/Task.js
 <input
   type="text"
   value={title}
@@ -62,9 +59,7 @@ Controls 允许我们快速验证不同输入下组件的情况。如很长的�
 
 在 `Task.stories.js` 中为长文本添加新的故事：
 
-```js
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 const longTitleString = `This task's name is absurdly large. In fact, I think if I keep going I might end up with content overflow. What will happen? The star that represents a pinned task could have text overlapping. The text could cut-off abruptly when it reaches the star. I hope not!`;
 
 export const LongTitle = Template.bind({});
@@ -91,4 +86,4 @@ LongTitle.args = {
 
 不要忘记使用 git 合并你的修改！
 
-<div class="aside"><p>Controls 控件是让非开发人员玩弄您的组件和故事的好方法，它比我们在这里看到的要多得多，我们推荐阅读 <a href="https://storybook.js.org/docs/react/essentials/controls">官方文档</a> 学习关于它的更多。并且你可以通过多种方式自定义 Storybook 插件以适合你的工作流程。 在 <a href="/create-an-addon/react/en/introduction/">创建插件</a> 章节中，我们将通过创建一个插件来教您这一点，该插件将帮助您增强开发工作流程。</p></div>
+<div class="aside"><p>Controls 控件是让非开发人员玩弄您的组件和故事的好方法，它比我们在这里看到的要多得多，我们推荐阅读 <a href="https://storybook.js.org/docs/react/essentials/controls">官方文档</a> 学习关于它的更多。并且你可以通过多种方式自定义 Storybook 插件以适合你的工作流程。 在 <a href="https://storybook.js.org/docs/react/addons/writing-addons">创建插件</a> 章节中，我们将通过创建一个插件来教您这一点，该插件将帮助您增强开发工作流程。</p></div>

@@ -29,7 +29,7 @@ description: 'تعلم الطرق لاختبار مكونات واجهة الم�
 
 ستوريبوك أداة رائعة لأداء اختبار تراجع مظهري لأن كل ستوري عبارة عن مواصفات اختبار في الأساس. كلما نكتب أو نغير في ستوري, نحصل على مواصفات مجانا!
 
-توجد العديد من الأدوات لاختبار التراجع المظهري. ننصح باستخدام [**Chromatic**](https://www.chromatic.com/) أداة نشر مجانية صنعت من قِبل مشرفي ستوريبوك والتي يمكنك عن طريقها من إجراء اختبارات واجهية في سحابة متوازية. تسمح لك علاوة على ذلك بنشر ستوريبوك اونلاين كما رأينا في [الفصل السابق](/intro-to-storybook/react/en/deploy/).
+توجد العديد من الأدوات لاختبار التراجع المظهري. ننصح باستخدام [**Chromatic**](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) أداة نشر مجانية صنعت من قِبل مشرفي ستوريبوك والتي يمكنك عن طريقها من إجراء اختبارات واجهية في سحابة متوازية. تسمح لك علاوة على ذلك بنشر ستوريبوك اونلاين كما رأينا في [الفصل السابق](/intro-to-storybook/react/en/deploy/).
 
 ## إلتقط التغيرات في واجهة المستخدم
 
@@ -41,7 +41,7 @@ description: 'تعلم الطرق لاختبار مكونات واجهة الم�
 
 <div style="direction: ltr">
 
-```bash
+```shell
 git checkout -b change-task-background
 ```
 
@@ -58,7 +58,7 @@ git checkout -b change-task-background
     value={title}
     readOnly={true}
     placeholder="Input title"
-+   style={{ background: 'red' }}
++   style={{ backgroundColor: 'red' }}
   />
 </div>
 
@@ -74,7 +74,7 @@ git checkout -b change-task-background
 
 <div style="direction: ltr">
 
-```bash
+```shell
 git add .
 ```
 
@@ -84,7 +84,7 @@ git add .
 
 <div style="direction: ltr">
 
-```bash
+```shell
 git commit -m "change task background to red"
 ```
 
@@ -94,7 +94,7 @@ git commit -m "change task background to red"
 
 <div style="direction: ltr">
 
-```bash
+```shell
 git push -u origin change-task-background
 ```
 

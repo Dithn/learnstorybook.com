@@ -2,7 +2,7 @@
 title: 'Construir una pantalla'
 tocTitle: 'Pantallas'
 description: 'Construir una pantalla utilizando componentes'
-commit: '8cb73c6'
+commit: '45615b4'
 ---
 
 Nos hemos concentrado en crear interfaces de usuario desde "abajo hacia arriba"; empezando con los componentes individuales y añadiendo complejidad gradualmente. Esto nos ha permitido desarrollar cada componente de forma aislada, determinar los datos que necesita y jugar con ellos en Storybook. ¡Todo sin necesidad de utilizar un servidor o, siquiera, construir una sola pantalla!
@@ -286,7 +286,7 @@ de componentes. Si queremos renderizar la mayor parte o la totalidad de la aplic
 Necesitamos una solución a este problema.
 
 <div class="aside">
-Aparte, pasar datos por la jerarquía es un enfoque legítimo, especialmente cuando se usa <a href="http://graphql.org/">GraphQL</a>. Así es como hemos construido <a href="https://www.chromatic.com">Chromatic</a> junto a más de 800 historias.
+Aparte, pasar datos por la jerarquía es un enfoque legítimo, especialmente cuando se usa <a href="http://graphql.org/">GraphQL</a>. Así es como hemos construido <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a> junto a más de 800 historias.
 </div>
 
 ## Proporcionar contexto con decoradores

@@ -2,10 +2,10 @@
 title: 'Storybook 教學：React 篇'
 tocTitle: '開始'
 description: '在開發環境設定 Storybook'
-commit: 'b66f341'
+commit: 'afe05db'
 ---
 
-Storybook 與 App 的開發模式一起運作，協助將 App 裡 UI 元件的商業邏輯和情境分開來。這裡是 Storybook 入門的 React 版本，其它還有 [React Native](/intro-to-storybook/react-native/en/get-started)、[Vue](/intro-to-storybook/vue/en/get-started)、[Angular](/intro-to-storybook/angular/en/get-started)、[Svelte](/intro-to-storybook/svelte/en/get-started) 和 [Ember](/intro-to-storybook/ember/en/get-started)。
+Storybook 與 App 的開發模式一起運作，協助將 App 裡 UI 元件的商業邏輯和情境分開來。這裡是 Storybook 入門的 React 版本，其它還有 [React Native](/intro-to-storybook/react-native/en/get-started/)、[Vue](/intro-to-storybook/vue/en/get-started/)、[Angular](/intro-to-storybook/angular/en/get-started/)、[Svelte](/intro-to-storybook/svelte/en/get-started/)。
 
 ![Storybook 和 App 的關係](/intro-to-storybook/storybook-relationship.jpg)
 
@@ -15,7 +15,7 @@ Storybook 與 App 的開發模式一起運作，協助將 App 裡 UI 元件的�
 
 執行以下指令：
 
-```bash
+```shell:clipboard=false
 # Clone the template
 npx degit chromaui/intro-storybook-react-template taskbox
 
@@ -31,7 +31,7 @@ yarn
 
 現在，可以來快速檢查應用程式的不同環境是否正常運作：
 
-```bash
+```shell:clipboard=false
 # Run the test runner (Jest) in a terminal:
 yarn test --watchAll
 
@@ -57,25 +57,25 @@ yarn start
 這時候已經可以安心在本地端 Repository 放進檔案。依照下方指令啟動本地端 Repository，然後將目前做好的東西提交變更。
 
 ```shell
-$ git init
+git init
 ```
 
 接著：
 
 ```shell
-$ git branch -M main
+git branch -M main
 ```
 
 然後：
 
 ```shell
-$ git add .
+git add .
 ```
 
 最後：
 
 ```shell
-$ git commit -m "first commit"
+git commit -m "first commit"
 ```
 
 開始打造第一個元件吧！

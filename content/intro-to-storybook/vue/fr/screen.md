@@ -2,7 +2,7 @@
 title: 'Construire un écran'
 tocTitle: 'Ecrans'
 description: 'Construire un écran à partir de composants'
-commit: '0450cb2'
+commit: 'ce81973'
 ---
 
 Nous nous sommes concentrés sur la création d'interfaces utilisateur de bas en haut; commencer petit et ajouter de la complexité. Cela nous a permis de développer chaque composant de manière isolée, comprendre ses besoins en données, et jouer avec dans Storybook. Tout cela sans avoir besoin de monter un serveur ou de créer des écrans!
@@ -13,8 +13,7 @@ Dans ce chaptre, nous continuons d'améliorer la sophistication en combinant des
 
 Comme notre application est très simple, l'écran que nous allons créer est assez trivial, il suffit d'encapsuler le composant conteneur `TaskList` (qui fournit ses propres données via Vuex) dans une mise en page et d'extraire un champ d'erreur de niveau supérieur du magasin (supposons nous allons définir ce champ si nous avons un problème de connexion à notre serveur). Créons une vue `PureInboxScreen.vue` dans votre dossier `src/components/` :
 
-```html
-<!--src/components/PureInboxScreen.vue-->
+```html:title=src/components/PureInboxScreen.vue
 <template>
   <div>
     <div class="page lists-show" v-if="error">
@@ -55,8 +54,7 @@ Comme notre application est très simple, l'écran que nous allons créer est as
 
 Ensuite, nous pouvons créer un conteneur, qui récupère à nouveau les données pour `PureInboxScreen` dans `src/components/InboxScreen.vue`:
 
-```html
-<!--src/components/InboxScreen.vue-->
+```html:title=src/components/InboxScreen.vue
 <template>
   <div>
     <pure-inbox-screen :error="error" />
@@ -81,8 +79,7 @@ Ensuite, nous pouvons créer un conteneur, qui récupère à nouveau les donnée
 
 Nous modifions également le composant `App` pour intégrer `InboxScreen` (éventuellement, nous utiliserions un routeur pour choisir le bon écran, mais ne nous inquiétons pas à ce sujet ici):
 
-```html
-<!--src/App.vue-->
+```html:title=src/App.vue
 <template>
   <div id="app">
     <inbox-screen />
@@ -113,8 +110,7 @@ Lors du placement du composant `TaskList` dans Storybook, nous avons pu éviter 
 
 Cependant, pour le composant `PureInboxScreen`, nous avons un problème car bien que le `PureInboxScreen` lui-même soit de présentation, son enfant, le composant `TaskList`, ne l'est pas. Dans un sens, `PureInboxScreen` a été pollué par le «container-ness». Ainsi, lorsque nous configurons nos histoires dans `src/components/PureInboxScreen.stories.js` :
 
-```javascript
-//src/components/PureInboxScreen.stories.js
+```js:title=src/components/PureInboxScreen.stories.js
 import PureInboxScreen from './PureInboxScreen.vue';
 export default {
   title: 'PureInboxScreen',
@@ -142,15 +138,14 @@ Une façon d'éviter ce problème consiste à ne jamais afficher les composants 
 Cependant, les développeurs **devront** inévitablement rendre les conteneurs plus bas dans la hiérarchie des composants. Si nous voulons afficher la plupart ou la totalité de l'application dans Storybook (nous le faisons!), Nous avons besoin d'une solution à ce problème.
 
 <div class="aside">
-En passant, la transmission des données dans la hiérarchie est une approche légitime, en particulier lors de l'utilisation de <a href="http://graphql.org/">GraphQL</a>. C'est ainsi que nous avons construit <a href="https://www.chromatic.com">Chromatic</a> aux côtés de plus de 800 histoires.
+En passant, la transmission des données dans la hiérarchie est une approche légitime, en particulier lors de l'utilisation de <a href="http://graphql.org/">GraphQL</a>. C'est ainsi que nous avons construit <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a> aux côtés de plus de 800 histoires.
 </div>
 
 ## Fournir du contexte aux histoires
 
 La bonne nouvelle est qu'il est facile de fournir un magasin Vuex au composant `PureInboxScreen` dans une histoire! Nous pouvons créer un nouveau magasin dans notre fichier d'histoire et le transmettre comme contexte de l'histoire:
 
-```javascript
-//src/components/PureInboxScreen.stories.js
+```js:title=src/components/PureInboxScreen.stories.js
 import Vue from 'vue';
 import Vuex from 'vuex';
 import PureInboxScreen from './PureInboxScreen.vue';

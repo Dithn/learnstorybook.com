@@ -27,7 +27,7 @@ Storybook 教程没有测试是不完整的. 测试对于创建高质量的 UI �
 
 Storybook 是视觉回溯测试的绝佳工具,因为每个故事本质上都是一个测试规范. 每次我们编写或更新故事时,我们都会免费获得规格!
 
-有很多用于视觉回归测试的工具。我们推荐 [**Chromatic**](https://www.chromatic.com/)，一个由 Storybook 维护者提供的在并发云上运行可视化测试的免费发布服务。如 [上一章节](/intro-to-storybook/react/zh-CN/deploy/) 中所示，它也允许我们在线发布 Storybook。
+有很多用于视觉回归测试的工具。我们推荐 [**Chromatic**](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook)，一个由 Storybook 维护者提供的在并发云上运行可视化测试的免费发布服务。如 [上一章节](/intro-to-storybook/react/zh-CN/deploy/) 中所示，它也允许我们在线发布 Storybook。
 
 ## 捕获 UI 更改
 
@@ -35,21 +35,20 @@ Storybook 是视觉回溯测试的绝佳工具,因为每个故事本质上都是
 
 首先为此次修改创建一个新的分支：
 
-```shell script
+```shell
 git checkout -b change-task-background
 ```
 
 按照下面修改 `Task` 组件：
 
-```js
-// src/components/Task.js
+```js:title=src/components/Task.js
 <div className="title">
   <input
     type="text"
     value={title}
     readOnly={true}
     placeholder="Input title"
-    style={{ background: 'red' }}
+    style={{ backgroundColor: 'red' }}
   />
 </div>
 ```
@@ -60,19 +59,19 @@ git checkout -b change-task-background
 
 添加文件：
 
-```shell script
+```shell
 git add .
 ```
 
 提交：
 
-```shell script
+```shell
 git commit -m "change task background to red"
 ```
 
 将修改推送至远程仓库：
 
-```shell script
+```shell
 git push -u origin change-task-background
 ```
 

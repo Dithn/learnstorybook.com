@@ -2,7 +2,6 @@
 title: 'Addons'
 tocTitle: 'Addons'
 description: 'Lerne an einem bekannten Beispiel, Addons zu integrieren und zu nutzen'
-commit: '3d53594'
 ---
 
 Storybook rühmt sich eines robuten [Addon-Systems](https://storybook.js.org/docs/react/configure/storybook-addons), über das sich die Entwicklungserfahrung all deiner Teammitglieder verbessern lässt. Wenn du diesem Tutorial linear gefolgt bist, haben wir bereits einige Addons erwähnt und du hast bereits eines im [Kapitel über Tests](/intro-to-storybook/react/de/test/) implementiert.
@@ -13,7 +12,7 @@ Storybook rühmt sich eines robuten [Addon-Systems](https://storybook.js.org/doc
 😍 <a href="https://storybook.js.org/addons">Hier</a> findest du die Liste offiziell unterstützter und von der Community aktiv unterstützer Addons.
 </div>
 
-Wir könnten unendlich viel über die Verwendung von Addons für all deine speziellen Anwendungsfälle schreiben. Fürs Erste, lass uns auf die Integration eines der am weitesten verbreiteten Addons innerhalb des Storybook-Ökosystems hinarbeiten: [knobs](https://github.com/storybooks/storybook/tree/master/addons/knobs).
+Wir könnten unendlich viel über die Verwendung von Addons für all deine speziellen Anwendungsfälle schreiben. Fürs Erste, lass uns auf die Integration eines der am weitesten verbreiteten Addons innerhalb des Storybook-Ökosystems hinarbeiten: [knobs](https://github.com/storybookjs/addon-knobs).
 
 ## Knobs einrichten
 
@@ -30,15 +29,13 @@ Knobs (Knöpfe) sind eine tolle Möglichkeit für Designer und Entwickler, um in
 
 Als Erstes müssen wir die nötigen Abhängigkeiten installieren.
 
-```bash
+```shell
 yarn add -D @storybook/addon-knobs
 ```
 
 Registriere Knobs in deiner `.storybook/addons.js` Datei.
 
-```javascript
-// .storybook/addons.js
-
+```js:title=.storybook/addons.js
 import '@storybook/addon-actions/register';
 import '@storybook/addon-knobs/register';
 import '@storybook/addon-links/register';
@@ -58,9 +55,7 @@ Lass uns den Knob-Typ "Objekt" in der `Task`-Komponente benutzen.
 
 Importiere zunächst den `withKnobs`-Decorator und den `object`-Knob-Typ in `Task.stories.js`:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { withKnobs, object } from '@storybook/addon-knobs/react';
@@ -68,9 +63,7 @@ import { withKnobs, object } from '@storybook/addon-knobs/react';
 
 Füge als Nächstes `withKnobs` in das `decorators`-Array des `default`-Exports von `Task.stories.js` hinzu:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 export default {
   component: Task,
   title: 'Task',
@@ -81,9 +74,7 @@ export default {
 
 Zuletzt integriere noch den `object`-Knob-Typ in die "default"-Story:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 export const Default = () => {
   return <Task task={object('task', { ...taskData })} {...actionsData} />;
 };
@@ -91,7 +82,7 @@ export const Default = () => {
 
 Nun sollte ein "Knobs"-Tab neben dem "Action Logger"-Tab im unteren Bereich der Seite erscheinen.
 
-Wie [hier](https://github.com/storybooks/storybook/tree/master/addons/knobs#object) dokumentiert, akzeptiert der `object`-Knob-Typ ein Label und ein Standard-Objekt als Parameter. Das Label ist fix und wird links von einem Textfeld in deinem Addons-Panel angezeigt. Das Standard-Objekt, das du definiert hast, wird als editierbarer JSON-Schnipsel angezeigt. So lange du valides JSON darin einträgst, wird deine Komponente basierend aus den im JSON-Objekt enthaltenen Daten aktualisiert.
+Wie [hier](https://github.com/storybookjs/addon-knobs#object) dokumentiert, akzeptiert der `object`-Knob-Typ ein Label und ein Standard-Objekt als Parameter. Das Label ist fix und wird links von einem Textfeld in deinem Addons-Panel angezeigt. Das Standard-Objekt, das du definiert hast, wird als editierbarer JSON-Schnipsel angezeigt. So lange du valides JSON darin einträgst, wird deine Komponente basierend aus den im JSON-Objekt enthaltenen Daten aktualisiert.
 
 ## Addons erweitern den Umfang deines Storybooks
 
@@ -105,9 +96,7 @@ Hinzu kommt, dass QA-Engineers oder präventive UI-Engineers mit der einfachen M
 
 Dank der Möglichkeit, sehr schnell verschiedene Inputs an einer Komponente auszuprobieren, können wir solche Probleme relativ einfach finden und lösen. Lass uns das Problem des Überlaufens lösen, indem wir ein `style`-Attribut in `Task.js` ergänzen:
 
-```javascript
-// src/components/Task.js
-
+```js:title=src/components/Task.js
 // This is the input for our task title. In practice we would probably update the styles for this element
 // but for this tutorial, let's fix the problem with an inline style:
 <input
@@ -127,9 +116,7 @@ Natürlich können wir das Problem immer reproduzieren, indem wir wieder die gle
 
 Lass uns eine Story für den Fall von langem Text in `Task.stories.js` hinzufügen:
 
-```javascript
-// src/components/Task.stories.js
-
+```js:title=src/components/Task.stories.js
 const longTitleString = `This task's name is absurdly large. In fact, I think if I keep going I might end up with content overflow. What will happen? The star that represents a pinned task could have text overlapping. The text could cut-off abruptly when it reaches the star. I hope not!`;
 
 export const LongTitle = () => (

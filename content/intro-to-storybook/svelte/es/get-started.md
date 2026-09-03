@@ -4,7 +4,7 @@ tocTitle: 'Empezando'
 description: 'Configurar Svelte Storybook en tu entorno de desarrollo'
 ---
 
-Storybook se ejecuta junto con tu aplicación en modo desarrollo. Te ayuda a crear componentes de interfaz de usuario aislados de la lógica y el contexto de tu aplicación. Esta edición de Aprende Storybook es para Svelte; existe otras ediciones para [Vue](/intro-to-storybook/vue/es/get-started), [Angular](/intro-to-storybook/angular/es/get-started), [React](/intro-to-storybook/react/es/get-started) y [React Native](/intro-to-storybook/react-native/es/get-started).
+Storybook se ejecuta junto con tu aplicación en modo desarrollo. Te ayuda a crear componentes de interfaz de usuario aislados de la lógica y el contexto de tu aplicación. Esta edición de Aprende Storybook es para Svelte; existe otras ediciones para [Vue](/intro-to-storybook/vue/es/get-started/), [Angular](/intro-to-storybook/angular/es/get-started/), [React](/intro-to-storybook/react/es/get-started/) y [React Native](/intro-to-storybook/react-native/es/get-started/).
 
 ![Storybook and your app](/intro-to-storybook/storybook-relationship.jpg)
 
@@ -12,7 +12,7 @@ Storybook se ejecuta junto con tu aplicación en modo desarrollo. Te ayuda a cre
 
 Necesitaremos seguir algunos pasos para configurar el proceso de build de nuestro entorno. Para iniciar, vamos a usar [Degit](https://github.com/Rich-Harris/degit) para configurar nuestro sistema de build, y añadiremos [Storybook](https://storybook.js.org/) y [Jest](https://facebook.github.io/jest/) para testear nuestra aplicación creada. Vamos a ejecutar los siguientes comandos:
 
-```bash
+```shell:clipboard=false
 # Create our application:
 npx degit sveltejs/template taskbox
 
@@ -22,7 +22,7 @@ cd taskbox
 npm install
 
 # Add Storybook:
-npx -p @storybook/cli sb init --type svelte
+npx storybook init
 ```
 
 ### Configurar Jest con Svelte
@@ -31,18 +31,18 @@ Tenemos dos de las tres modalidades configuradas en nuestra aplicación, pero a�
 
 Vamos a ejecutar los siguientes comandos:
 
-```bash
+```shell
 npm install -D jest @testing-library/svelte jest-transform-svelte @testing-library/jest-dom
 ```
 
 Creamos una nueva carpeta llamada `__mocks__`, con dos archivos:
 
 - El primero llamado `fileMock.js` con el siguiente contenido:
-  ```javascript
+  ```js:title=fileMock.js
   module.exports = 'file-stub';
   ```
 - El segundo llamado `styleMock.js` con el siguiente contenido:
-  ```javascript
+  ```js:title=styleMock.js
   module.exports = {};
   ```
 
@@ -85,7 +85,7 @@ Y un nuevo campo en `package.json`:
 
 Y se requiere un nuevo script para ejecutar Jest:
 
-```json
+```json:clipboard=false
 {
   "scripts": {
     "test": "jest --watchAll"
@@ -97,7 +97,7 @@ Y se requiere un nuevo script para ejecutar Jest:
 
 Para asegurarnos de que todo funciona correctamente, necesitamos crear un archivo de prueba. En la carpeta `src`, agregue un archivo llamado `Sample.test.js` con lo siguiente:
 
-```javascript
+```js:title=Sample.test.js
 // Sample.test.js
 
 function sum(a, b) {
@@ -113,7 +113,7 @@ describe('Sample Test', () => {
 
 Ahora podemos comprobar rápidamente que los diversos entornos de nuestra aplicación funcionan correctamente:
 
-```bash
+```shell:clipboard=false
 # Run the test runner (Jest) in a terminal:
 npm run test
 
@@ -146,14 +146,14 @@ Para que coincida con el diseño previsto del tutorial, deberá transferir las c
 
 <div class="aside"> Svn (Subversion) se usó para facilitar la transferencia de carpetas de GitHub. Si no tiene instalado Subversion o simplemente desea hacerlo manualmente, puede obtener las carpetas directamente <a href="https://github.com/chromaui/learnstorybook-code/tree/master/public">aquí</a>.</p></div>
 
-```bash
+```shell
 svn export https://github.com/chromaui/learnstorybook-code/branches/master/src/assets/font src/assets/font
 svn export https://github.com/chromaui/learnstorybook-code/branches/master/src/assets/icon src/assets/icon
 ```
 
 Finalmente necesitamos actualizar nuestro script storybook para servir el directorio `public` (en `package.json`):
 
-```json
+```json:clipboard=false
 {
   "scripts": {
     "storybook": "start-storybook -p 6006 -s public"

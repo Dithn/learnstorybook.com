@@ -2,7 +2,7 @@
 title: 'Bouw een scherm'
 tocTitle: 'Schermen'
 description: 'Bouw een scherm uit componenten'
-commit: '79829b2'
+commit: '12a7932'
 ---
 
 We hebben ons geconcentreerd op het bouwen van UI's van onderaf; klein beginnen en complexiteit toevoegen. Hierdoor konden we elk onderdeel afzonderlijk ontwikkelen, de data behoeften achterhalen en ermee spelen in Storybook. Allemaal zonder een server op te zetten of schermen uit te bouwen!
@@ -13,9 +13,7 @@ In dit hoofdstuk blijven we de complexiteit vergroten door componenten in een sc
 
 Omdat onze app heel eenvoudig is, is het scherm dat we bouwen vrij triviaal, gewoon de component `TaskList` (die zijn eigen data via Redux levert) in een bepaalde lay-out wrappen en een `error` veld op het hoogste niveau uit redux halen (laten we aannemen dat we dat veld instellen als we een probleem hebben met de verbinding met onze server). Maak `InboxScreen.js` aan in je folder `components`:
 
-```javascript
-// src/components/InboxScreen.js
-
+```js:title=src/components/InboxScreen.js
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -60,9 +58,7 @@ export default connect(({ error }) => ({ error }))(PureInboxScreen);
 
 We veranderen ook de component `App` om het`InboxScreen` te renderen (uiteindelijk zouden we een router gebruiken om het juiste scherm te kiezen, maar laten we ons hier geen zorgen over maken):
 
-```javascript
-// src/App.js
-
+```js:title=src/App.js
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import store from './lib/redux';
@@ -90,9 +86,7 @@ Toen we de `TaskList` in Storybook plaatsten, konden we dit probleem omzeilen do
 
 Voor de `PureInboxScreen` hebben we echter een probleem omdat, hoewel de`PureInboxScreen` zelf presentational is, het child, de `TaskList` dat niet is. In zekere zin is de `PureInboxScreen` vervuild door "container-ness". Dus wanneer we onze stories instellen in `InboxScreen.stories.js`:
 
-```javascript
-// src/components/InboxScreen.stories.js
-
+```js:title=src/components/InboxScreen.stories.js
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
@@ -112,16 +106,14 @@ Een manier om dit probleem te omzeilen, is om nooit container componenten overal
 Developers **zullen** echter onvermijdelijk containers verder naar beneden in de componenthiërarchie moeten renderen. Als we de app vooral of geheel in Storybook willen renderen (dat doen we!), hebben we een oplossing voor dit probleem nodig.
 
 <div class="aside">
-Terzijde: het doorgeven van data door de hiërarchie is een legitieme manier, vooral bij het gebruik van <a href="http://graphql.org/">GraphQL</a>. Het is hoe we <a href="https://www.chromatic.com">Chromatic</a> met 800+ stories hebben gebouwd.
+Terzijde: het doorgeven van data door de hiërarchie is een legitieme manier, vooral bij het gebruik van <a href="http://graphql.org/">GraphQL</a>. Het is hoe we <a href="https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook">Chromatic</a> met 800+ stories hebben gebouwd.
 </div>
 
 ## Context voorzien van decorators
 
 Het goede nieuws is dat het gemakkelijk is om een Redux store te leveren aan de `InboxScreen` in een story! We kunnen gewoon een gemockte versie van de Redux store gebruiken in een decorator:
 
-```javascript
-// src/components/InboxScreen.stories.js
-
+```js:title=src/components/InboxScreen.stories.js
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';

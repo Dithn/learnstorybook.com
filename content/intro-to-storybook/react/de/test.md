@@ -2,7 +2,6 @@
 title: 'UI-Komponenten testen'
 tocTitle: 'Tests'
 description: 'Lerne, wie man UI-Komponenten testen kann'
-commit: '3e283f7'
 ---
 
 Kein Storybook-Tutorial ist vollständig ohne Tests. Tests sind essenziell für die Erstellung hochwertiger UIs. In modularen Systemen können auch kleinste Änderungen einen langen Rattenschwanz nach sich ziehen. Bisher sind uns drei Arten von Tests begegnet:
@@ -28,7 +27,7 @@ Visuelle Regressions-Tests dienen dazu, optische Veränderungen zu identifiziere
 
 Storybook eignet sich prima für visuelle Regressions-Tests, da jede Story im Grunde eine eigene Test-Spezifikation darstellt. Immer, wenn wir eine Story schreiben oder aktualisieren, bekommen wir dadurch auch gleich eine Spec geliefert.
 
-Es gibt eine ganze Reihe von Tools für visuelle Regressions-Tests. Für professionelle Teams empfehlen wir [**Chromatic**](https://www.chromatic.com/), eine von den Autoren hinter Storybook entwickelte Erweiterung, die Tests in der Cloud ausführt.
+Es gibt eine ganze Reihe von Tools für visuelle Regressions-Tests. Für professionelle Teams empfehlen wir [**Chromatic**](https://www.chromatic.com/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook), eine von den Autoren hinter Storybook entwickelte Erweiterung, die Tests in der Cloud ausführt.
 
 ## Einrichtung visueller Regressions-Tests
 
@@ -38,25 +37,25 @@ Chromatic ist ein leicht anzubindendes Storybook-Addon für visuelle Regressions
 
 `create-react-app` hat ein Git Repo für unser Projekt angelegt; lass uns unsere bisherigen Änderungen mal einchecken:
 
-```bash
-$ git add -A
+```shell
+git add -A
 ```
 
 Nun committe die Dateien.
 
-```bash
-$ git commit -m "taskbox UI"
+```shell
+git commit -m "taskbox UI"
 ```
 
 ### Chromatic installieren
 
 Füge das Paket als Abhängigkeit hinzu.
 
-```bash
+```shell
 yarn add chromatic
 ```
 
-Jetzt melde dich mit deinem GitHub Account [in Chromatic an](https://www.chromatic.com/start) (Chromatic erfordert nur wenige Berechtigungen). Erstelle ein Projekt namens "taskbox" und kopiere deinen eindeutigen `project-token`.
+Jetzt melde dich mit deinem GitHub Account [in Chromatic an](https://www.chromatic.com/start/?utm_source=storybook_website&utm_medium=link&utm_campaign=storybook) (Chromatic erfordert nur wenige Berechtigungen). Erstelle ein Projekt namens "taskbox" und kopiere deinen eindeutigen `project-token`.
 
 <video autoPlay muted playsInline loop style="width:520px; margin: 0 auto;">
   <source
@@ -67,7 +66,7 @@ Jetzt melde dich mit deinem GitHub Account [in Chromatic an](https://www.chromat
 
 Führe den Test-Befehl in der Kommandozeile aus, um visuelle Regressions-Tests für Storybook einzurichten. Vergiss nicht, deinen eindeutigen project-token anstelle von `<project-token>` einzusetzen.
 
-```bash
+```shell
 npx chromatic --project-token=<project-token>
 ```
 
@@ -87,7 +86,7 @@ Hierdurch erhalten wir eine neue Hintergrundfarbe für die Aufgabe.
 
 Führe den Befehl von vorhin aus, um einen weiteren Chromatic-Test zu starten.
 
-```bash
+```shell
 npx chromatic --project-token=<project-token>
 ```
 

@@ -2,7 +2,7 @@
 title: 'How to automate UI tests with Github Actions'
 tocTitle: 'Automate'
 description: 'Speed up your workflow and ship higher quality of code'
-commit: 'c1c7372'
+commit: '3763bb3'
 ---
 
 Developers spend [4-8 hrs a week](https://www.niss.org/sites/default/files/technicalreports/tr81.pdf) fixing bugs. Things only get worse if a bug sneaks its way into production. It takes [5-10x](https://www.cs.umd.edu/projects/SoftEng/ESEG/papers/82.78.pdf) longer to fix it. That's why UI testing is integral to delivering high-quality experiences, but it can also be a huge time sink. It's too much work to run all your tests manually after every change.
@@ -39,54 +39,71 @@ Create a `.github/workflows/ui-tests.yml` file in your repository to get started
 
 Our workflow will run when code is pushed to any branch of our repository and it’ll have three jobs:
 
-- Run interaction tests and the accessibility audit with Jest
+- Run interaction and the accessibility tests with the Storybook test runner
 - Run visual and composition tests with Chromatic
 - Run user flow tests with Cypress
 
-```yaml:title=.github/workflows/ui-tests.yml
+```yaml:clipboard=false
+# .github/workflows/ui-tests.yml
+
 name: 'UI Tests'
 
 on: push
 
 jobs:
-  # Run interaction and accessibility tests with Axe
+  # Run interaction and accessibility tests
   interaction-and-accessibility:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Install dependencies
         run: yarn
-      - name: Run test
-        run: yarn test
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      - name: Build Storybook
+        run: yarn build-storybook --quiet
+      - name: Serve Storybook and run tests
+        run: |
+          npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" \
+            "npx http-server storybook-static --port 6006 --silent" \
+            "npx wait-on tcp:6006 && yarn test-storybook"
   # Run visual and composition tests with Chromatic
   visual-and-composition:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required to retrieve git history
+          fetch-depth: 0 # Required to retrieve Git history
       - name: Install dependencies
         run: yarn
       - name: Publish to Chromatic
-        uses: chromaui/action@v1
+        uses: chromaui/action@latest
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           # Grab this from the Chromatic manage page
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
   # Run user flow tests with Cypress
   user-flow:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Install dependencies
         run: yarn
       - name: Cypress run
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v6
         with:
-          start: npm start
+          start: npm run dev
 ```
 
-Note, to run Chromatic, you’ll need the `CHROMATIC_PROJECT_TOKEN`. You can grab it from the Chromatic manage page and [add it](https://docs.github.com/en/actions/reference/encrypted-secrets) to your repository secrets. While the `GITHUB_TOKEN` is available by default.
+Couple of things to note here. For the test runner, we're using a combination of [concurrently](https://www.npmjs.com/package/concurrently), [http-server](https://www.npmjs.com/package/http-server) and [wait-on](https://www.npmjs.com/package/wait-on) libraries to build and serve the Storybook to run tests against it.
+
+And to run Chromatic, you’ll need the `CHROMATIC_PROJECT_TOKEN`. You can grab it from the Chromatic manage page and [add it](https://docs.github.com/en/actions/reference/encrypted-secrets) to your repository secrets.
 
 <figure style="display: flex;">
   <img style="flex: 1 1 auto; min-width: 0; margin-right: 0.5em;" src="/ui-testing-handbook/get-token.png" alt="get project token from Chromatic" />
@@ -101,7 +118,9 @@ Finally, create a new commit, push your changes to GitHub, and you should see yo
 
 Each job runs independently, which means the CI server has to install dependencies in all three jobs. That slows down the test run. We can cache dependencies and only run `yarn install` if the lock file changes to avoid that. Let’s update the workflow to include the `install-cache` job.
 
-```yaml:title=.github/workflows/ui-tests.yml
+```yaml:clipboard=false
+# .github/workflows/ui-tests.yml
+
 name: 'UI Tests'
 
 on: push
@@ -112,9 +131,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Commit
-        uses: actions/checkout@v2
-      - name: Cache yarn dependencies and cypress
-        uses: actions/cache@v2
+        uses: actions/checkout@v4
+      - name: Cache Yarn dependencies and Cypress
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: |
@@ -126,14 +145,19 @@ jobs:
       - name: Install dependencies if cache invalid
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn
-  # Run interaction and accessibility tests with Axe
+  # Run interaction and accessibility tests
   interaction-and-accessibility:
     runs-on: ubuntu-latest
     needs: install-cache
     steps:
-      - uses: actions/checkout@v2
-      - name: Restore yarn dependencies
-        uses: actions/cache@v2
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Restore Yarn dependencies
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: |
@@ -142,18 +166,25 @@ jobs:
           key: ${{ runner.os }}-yarn-v1-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-v1
-      - name: Run test
-        run: yarn test
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      - name: Build Storybook
+        run: yarn build-storybook --quiet
+      - name: Serve Storybook and run tests
+        run: |
+          npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" \
+            "npx http-server storybook-static --port 6006 --silent" \
+            "npx wait-on tcp:6006 && yarn test-storybook"
   # Run visual and composition tests with Chromatic
   visual-and-composition:
     runs-on: ubuntu-latest
     needs: install-cache
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required to retrieve git history
-      - name: Restore yarn dependencies
-        uses: actions/cache@v2
+          fetch-depth: 0 # Required to retrieve Git history
+      - name: Restore Yarn dependencies
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: |
@@ -163,9 +194,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-v1
       - name: Publish to Chromatic
-        uses: chromaui/action@v1
+        uses: chromaui/action@latest
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           # Grab this from the Chromatic manage page
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
   # Run user flow tests with Cypress
@@ -173,9 +203,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-cache
     steps:
-      - uses: actions/checkout@v2
-      - name: Restore yarn dependencies
-        uses: actions/cache@v2
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore Yarn dependencies
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: |
@@ -185,14 +217,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-v1
       - name: Cypress run
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v6
         with:
-          start: npm start
+          start: npm run dev
 ```
 
 We also tweaked the other three jobs to wait for the `install-cache` job to complete to use the cached dependencies. Push another commit to re-run the workflow.
 
-Success! You’ve automated your testing workflow. When you open up a PR it’ll run Jest, Chromatic and Cypress in parallel and display the results on the PR page itself.
+Success! You’ve automated your testing workflow. When you open up a PR it’ll run the test runner, Chromatic and Cypress in parallel and display the results on the PR page itself.
 
 ![](/ui-testing-handbook/image-22.png)
 
